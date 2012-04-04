@@ -136,6 +136,7 @@ public class LayoutManager {
 		model.put("site", new Site());
 		model.put("page", new Page());
 		model.put("paginator", new Paginator());
+		model.put("pageTitle", properties.getProperty("title"));
 		
 		return model;
 	}

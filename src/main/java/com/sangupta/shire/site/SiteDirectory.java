@@ -93,6 +93,10 @@ public class SiteDirectory {
 			if(name.equals(this.options.getLayoutsFolderName())) {
 				return;
 			}
+			
+			if(name.equals(this.options.getSiteFolderName())) {
+				return;
+			}
 		}
 		
 		if(name.equals("CVS")) {
