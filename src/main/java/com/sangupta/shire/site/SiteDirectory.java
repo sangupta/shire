@@ -150,13 +150,19 @@ public class SiteDirectory {
 	}
 
 	/**
-	 * Check if this file is actually processable or not.
+	 * Check if this file is actually processable or not. We skip
+	 * all files that start with a dot (.) for these are usually not published
+	 * to web.
 	 * 
 	 * @param file
 	 * @return
 	 */
 	private boolean fileAllowed(File file) {
 		String name = file.getName();
+		
+		if(name.startsWith(".")) {
+			return false;
+		}
 		
 		String extension = null;
 		int index = name.lastIndexOf('.');

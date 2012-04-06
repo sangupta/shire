@@ -81,7 +81,7 @@ public class Shire {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String configFile = "E:/git/sangupta.com/static/_config.yml";
+		String configFile = "E:/git/sangupta-static/_config.yml";
 
 		// check if the config file is present or not
 		File config = new File(configFile);
@@ -173,6 +173,12 @@ public class Shire {
 		}
 		
 		for(File file : nonProcessableFiles) {
+			// check for files with a starting DOT
+			if(file.getName().startsWith(".")) {
+				continue;
+			}
+			
+			// copy the resource
 			SiteResource resource = new SiteResource(file);
 			this.siteWriter.export(resource);
 		}
