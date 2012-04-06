@@ -31,7 +31,17 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.parser.node.Node;
 
 /**
- * Tag to generate an HREF tag using the same URL as the text to the HREF.
+ * Tag to generate an HREF tag using the same URL as the text to the HREF. For example,
+ * 
+ * <pre>
+ * #href("http://www.sangupta.com")
+ * </pre>
+ * 
+ * will generate,
+ * 
+ * <pre>
+ * &lt;a href="http://www.sangupta.com"&gt;http://www.sangupta.com&lt;a&gt;
+ * </pre>
  * 
  * @author sangupta
  *
