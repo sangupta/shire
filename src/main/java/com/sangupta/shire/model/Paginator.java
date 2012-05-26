@@ -19,8 +19,14 @@
  * 
  */
 
-package com.sangupta.shire.options;
+package com.sangupta.shire.model;
 
+/**
+ * Holds data about the paginator.
+ * 
+ * @author sangupta
+ *
+ */
 public class Paginator {
 	
 	/**

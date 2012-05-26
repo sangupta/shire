@@ -19,8 +19,14 @@
  * 
  */
 
-package com.sangupta.shire.options;
+package com.sangupta.shire.model;
 
-public class Category {
+/**
+ * Holds data of one tag.
+ * 
+ * @author sangupta
+ *
+ */
+public class Tag {
 
 }

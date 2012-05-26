@@ -19,8 +19,52 @@
  * 
  */
 
-package com.sangupta.shire.options;
+package com.sangupta.shire.model;
 
-public class Tag {
+/**
+ * Holds data model for a given page - the page which is under
+ * processing by the layout.
+ * 
+ * @author sangupta
+ *
+ */
+public class Page {
+	
+	/**
+	 * The URL of the page without the domain
+	 */
+	private String url;
+	
+	private String title;
+	
+	// Usual accessors follow
+
+	/**
+	 * @return the url
+	 */
+	public String getUrl() {
+		return url;
+	}
+
+	/**
+	 * @param url the url to set
+	 */
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	/**
+	 * @return the title
+	 */
+	public String getTitle() {
+		return title;
+	}
+
+	/**
+	 * @param title the title to set
+	 */
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
 }

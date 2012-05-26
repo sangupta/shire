@@ -19,18 +19,29 @@
  * 
  */
 
-package com.sangupta.shire.options;
+package com.sangupta.shire.model;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Holds global data of the site.
+ * 
+ * @author sangupta
+ *
+ */
 public class Site {
 	
 	/**
-	 * the current time
+	 * The current time
 	 */
-	private final Date time = new Date();
+	private Date time = new Date();
+	
+	/**
+	 * Default layout name to be used in case the file had front matter, but no layout name has been specified
+	 */
+	private String defaultLayoutName = null;
 	
 	/**
 	 * a reverse chronological list of all posts
@@ -51,6 +62,11 @@ public class Site {
 	 * The list of all Posts with tag
 	 */
 	private final List<Tag> tags = new ArrayList<Tag>();
+	
+	/**
+	 * Is the site in debug mode
+	 */
+	private boolean debug = false;
 	
 	// Usual accessors follow
 
@@ -87,6 +103,41 @@ public class Site {
 	 */
 	public List<Tag> getTags() {
 		return tags;
+	}
+
+	/**
+	 * @return the defaultLayoutName
+	 */
+	public String getDefaultLayoutName() {
+		return defaultLayoutName;
+	}
+
+	/**
+	 * @param defaultLayoutName the defaultLayoutName to set
+	 */
+	public void setDefaultLayoutName(String defaultLayoutName) {
+		this.defaultLayoutName = defaultLayoutName;
+	}
+
+	/**
+	 * @return the debug
+	 */
+	public boolean isDebug() {
+		return debug;
+	}
+
+	/**
+	 * @param debug the debug to set
+	 */
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	/**
+	 * @param time the time to set
+	 */
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
 }

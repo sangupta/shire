@@ -19,48 +19,14 @@
  * 
  */
 
-package com.sangupta.shire.options;
+package com.sangupta.shire.model;
 
-public class Page {
-	
-	/**
-	 * The URL of the page without the domain
-	 */
-	private String url;
-	
-	/**
-	 * The un-rendered content of the page
-	 */
-	private String content;
-	
-	// Usual accessors follow
-
-	/**
-	 * @return the url
-	 */
-	public String getUrl() {
-		return url;
-	}
-
-	/**
-	 * @param url the url to set
-	 */
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	/**
-	 * @return the content
-	 */
-	public String getContent() {
-		return content;
-	}
-
-	/**
-	 * @param content the content to set
-	 */
-	public void setContent(String content) {
-		this.content = content;
-	}
+/**
+ * Holds data about one given category.
+ * 
+ * @author sangupta
+ *
+ */
+public class Category {
 
 }

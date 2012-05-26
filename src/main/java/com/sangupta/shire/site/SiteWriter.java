@@ -93,7 +93,7 @@ public class SiteWriter {
 	 * 
 	 * @param siteFile
 	 */
-	public void export(ProcessableSiteFile siteFile) {
+	public void export(ProcessableSiteFile siteFile, String pageContents) {
 		// check if we have initialized the _site folder or not
 		if(!initialized) {
 			createSiteExportFolder();
@@ -105,15 +105,10 @@ public class SiteWriter {
 		
 		File exportFile = new File(path);
 
-		String pageContents = siteFile.getProcessedContent();
 		pageContents = HtmlUtils.tidyHtml(pageContents);
-		
+
 		try {
 			FileUtils.writeStringToFile(exportFile, pageContents);
-			
-			// file write was successful
-			// mark it complete
-			siteFile.exportComplete();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

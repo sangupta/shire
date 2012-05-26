@@ -30,9 +30,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.sangupta.shire.config.YmlConfigReader;
-import com.sangupta.shire.converters.Converters;
-import com.sangupta.shire.core.Converter;
-import com.sangupta.shire.layouts.LayoutManager;
 
 /**
  * Holds a set of input and output files of site that will be processed.
@@ -66,11 +63,6 @@ public class ProcessableSiteFile extends AbstractSiteFile {
 	 * Holds the properties read from the YML front matter, if present
 	 */
 	private Properties ymlProperties = null;
-	
-	/**
-	 * Contains the processed content once everything has been done
-	 */
-	private String processedContent = null;
 	
 	/**
 	 * Constructor
@@ -131,6 +123,10 @@ public class ProcessableSiteFile extends AbstractSiteFile {
 				
 				// YML Front Matter found
 				if(first && second) {
+					if(this.ymlSeparatorStart >= 0) {
+						this.ymlProperties = ymlConfigReader.readLines(this.lines.subList(this.ymlSeparatorStart + 1, this.ymlSeparatorEnd));
+					}
+
 					return true;
 				}
 				
@@ -142,11 +138,11 @@ public class ProcessableSiteFile extends AbstractSiteFile {
 	}
 	
 	/**
-	 * Process the content of the file using the technology used
-	 * to write the pages (Markdown etc).
+	 * Return the contents of the file after removing the front matter
 	 * 
+	 * @return
 	 */
-	public void processContent(LayoutManager layoutManager) {
+	public String getContent() {
 		// fetch the contents of the file
 		String content;
 		if(this.ymlSeparatorEnd >= 0) {
@@ -154,39 +150,10 @@ public class ProcessableSiteFile extends AbstractSiteFile {
 		} else {
 			content = StringUtils.join(this.lines, '\n');
 		}
-				
-		// find out the layout name that needs to be used
-		String layoutName = null;
-		if(this.ymlProperties != null) {
-			layoutName = this.ymlProperties.getProperty("layout");
-		}
 		
-		// find out the right converter for the file's content
-		// markdown, Wiki, or HTML, or something else
-		Converter converter = Converters.getConverter(this.input.getName());
-		
-		// convert the content first
-		String convertedContent = converter.convert(content);
-		
-		// now if we have the name of the layout
-		// we need to merge this content into the layout
-		if(StringUtils.isNotEmpty(layoutName)) {
-			this.processedContent = layoutManager.layoutContent(layoutName, convertedContent, this.ymlProperties);
-		}
-		
-		// as we are done processing conent
-		// we can clear the input list
 		this.lines = null;
-	}
 
-	/**
-	 * Process the front matter and initialize the layout manager
-	 * for the same.
-	 */
-	public void processFrontMatter() {
-		if(this.ymlSeparatorStart >= 0) {
-			this.ymlProperties = ymlConfigReader.readLines(this.lines.subList(this.ymlSeparatorStart + 1, this.ymlSeparatorEnd));
-		}
+		return content;
 	}
 	
 	@Override
@@ -202,22 +169,8 @@ public class ProcessableSiteFile extends AbstractSiteFile {
 		// do the default
 		return super.getExportPath(rootPath);
 	}
-	
-	/**
-	 * Method that indicates that export of file is now complete.
-	 * 
-	 */
-	public void exportComplete() {
-		this.processedContent = null;
-	}
-	
-	// Usual accessors follow
 
-	/**
-	 * @return the processedContent
-	 */
-	public String getProcessedContent() {
-		return processedContent;
+	public Properties getFrontMatter() {
+		return this.ymlProperties;
 	}
-
 }

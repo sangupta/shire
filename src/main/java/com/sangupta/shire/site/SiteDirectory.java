@@ -38,7 +38,7 @@ public class SiteDirectory {
 	/**
 	 * List of extensions that need to be copied as-is
 	 */
-	private final static String[] probableExtensions = new String[] { "png", "jpg", "css", "js", "otf", "zip" };
+	private final static String[] probableBinaryExtensions = new String[] { "png", "jpg", "css", "js", "otf", "zip" };
 	
 	/**
 	 * Handle to the root folder of input site
@@ -163,7 +163,7 @@ public class SiteDirectory {
 		if(index != -1) {
 			extension = name.substring(index + 1);
 			
-			for(String ext : probableExtensions) {
+			for(String ext : probableBinaryExtensions) {
 				if(ext.equals(extension)) {
 					return false;
 				}

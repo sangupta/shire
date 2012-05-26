@@ -24,15 +24,12 @@ package com.sangupta.shire.layouts;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.core.Layout;
-import com.sangupta.shire.options.Page;
-import com.sangupta.shire.options.Paginator;
-import com.sangupta.shire.options.Site;
+import com.sangupta.shire.model.TemplateData;
 import com.sangupta.shire.util.ShireUtils;
 
 /**
@@ -96,7 +93,7 @@ public class LayoutManager {
 				break;
 				
 			case DjangoLiquid:
-				this.layout = new DjangoLayouts();
+				// this.layout = new DjangoLayouts();
 				break;
 	
 			default:
@@ -107,7 +104,7 @@ public class LayoutManager {
 		this.layout.initialize(layouts, includes);
 	}
 	
-	public String layoutContent(String layoutName, final String content, final Properties properties) {
+	public String layoutContent(String layoutName, final String content, final TemplateData templateData) {
 		if(StringUtils.isEmpty(layoutName)) {
 			return content;
 		}
@@ -121,7 +118,7 @@ public class LayoutManager {
 		}
 		
 		// build up the final data model
-		Map<String, Object> dataModel = getDataModel(properties);
+		final Map<String, Object> dataModel = getDataModel(templateData);
 		
 		// parse the contents of the page itself
 		String modifiedContent = this.layout.processTemplate(content, dataModel);
@@ -130,13 +127,12 @@ public class LayoutManager {
 		return this.layout.layoutContent(layoutName, modifiedContent, dataModel);
 	}
 
-	private Map<String, Object> getDataModel(final Properties properties) {
+	private Map<String, Object> getDataModel(final TemplateData data) {
 		final Map<String, Object> model = new HashMap<String, Object>();
 		
-		model.put("site", new Site());
-		model.put("page", new Page());
-		model.put("paginator", new Paginator());
-		model.put("pageTitle", properties.getProperty("title"));
+		model.put("site", data.getSite());
+		model.put("page", data.getPage());
+		model.put("paginator", data.getPaginator());
 		
 		return model;
 	}

@@ -52,4 +52,12 @@ public abstract class AbstractSiteFile {
 		return path;
 	}
 	
+	public String getFileName() {
+		if(this.input != null) {
+			return this.input.getName();
+		}
+		
+		return null;
+	}
+	
 }

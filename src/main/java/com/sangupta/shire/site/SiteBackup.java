@@ -42,21 +42,15 @@ public class SiteBackup {
 	/**
 	 * Holds the file handle to the site backup 
 	 */
-	private File backupFolder = null;
-	
-	private ExecutionOptions options = null;
-	
-	public SiteBackup(ExecutionOptions options) {
-		this.options = options;
-	}
+	private static File backupFolder = null;
 	
 	/**
-	 * Method to restore the _site.backup folder that we took a while back.
+	 * Method to restore the _site.backup folder that we took in this very session.
 	 */
-	public void restoreSiteBackup() {
-		if(this.backupFolder != null) {
+	private static void restoreSiteBackup() {
+		if(backupFolder != null) {
 			// build up the name of the original folder
-			String path = this.backupFolder.getAbsolutePath();
+			String path = backupFolder.getAbsolutePath();
 			path = StringUtils.left(path, path.length() - BACKUP_FOLDER_EXTENSION.length());
 			File original = new File(path);
 			
@@ -67,7 +61,7 @@ public class SiteBackup {
 			
 			// restore the backup
 			try {
-				FileUtils.moveDirectory(this.backupFolder, original);
+				FileUtils.moveDirectory(backupFolder, original);
 			} catch (IOException e) {
 				System.out.println("Unable to restore the original site backup.");
 				e.printStackTrace();
@@ -79,14 +73,13 @@ public class SiteBackup {
 	 * Method to delete the _site.backup folder that we took a while back.
 	 * 
 	 */
-	public void deleteSiteBackup() {
-		if(this.backupFolder != null) {
+	private static void deleteSiteBackup() {
+		if(backupFolder != null) {
 			try {
-				FileUtils.deleteDirectory(this.backupFolder);
-				
-				this.backupFolder = null;
+				FileUtils.deleteDirectory(backupFolder);
+				backupFolder = null;
 			} catch (IOException e) {
-				System.out.println("Unable to delete the older site backup at: " + this.backupFolder.getAbsolutePath());
+				System.out.println("Unable to delete the older site backup at: " + backupFolder.getAbsolutePath());
 				e.printStackTrace();
 			}
 		}
@@ -96,8 +89,8 @@ public class SiteBackup {
 	 * Method that creates the backup of the _site folder, if present.
 	 * 
 	 */
-	public void backupOlderSite() {
-		File siteFolder = new File(this.options.getParentFolder(), this.options.getSiteFolderName());
+	public static void backupOlderSite(ExecutionOptions options) {
+		File siteFolder = new File(options.getParentFolder(), options.getSiteFolderName());
 		if(!siteFolder.exists()) {
 			return;
 		}
@@ -112,6 +105,23 @@ public class SiteBackup {
 			FileUtils.moveDirectory(siteFolder, backupFolder);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * The method performs the house keeping based on the success attribute of
+	 * the site generation.
+	 * 
+	 * @param success
+	 */
+	public static void performHouseKeeping(boolean success) {
+		// if we have been successful in creating the site
+		// delete the backup
+		// else, restore the backup
+		if(success) {
+			SiteBackup.deleteSiteBackup();
+		} else {
+			SiteBackup.restoreSiteBackup();
 		}
 	}
 }

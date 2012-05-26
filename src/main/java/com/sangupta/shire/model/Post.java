@@ -19,12 +19,18 @@
  * 
  */
 
-package com.sangupta.shire.options;
+package com.sangupta.shire.model;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Holds data of one post.
+ * 
+ * @author sangupta
+ *
+ */
 public class Post {
 
 	/**

@@ -24,6 +24,8 @@ package com.sangupta.shire;
 import java.io.File;
 import java.util.Properties;
 
+import com.sangupta.shire.config.PropertyConfigReader;
+import com.sangupta.shire.config.YmlConfigReader;
 import com.sangupta.shire.layouts.LayoutType;
 
 /**
@@ -46,6 +48,11 @@ public class ExecutionOptions {
 	private File configFile = null;
 	
 	/**
+	 * The configuration data as read from the configuration file
+	 */
+	private Properties configuration = null;
+
+	/**
 	 * The default name of the includes folder
 	 */
 	private String includesFolderName = "_includes";
@@ -66,14 +73,19 @@ public class ExecutionOptions {
 	private String siteFolderName = "_site";
 	
 	/**
-	 * The layout type beign used as specified or auto detected.
+	 * The layout type being used as specified or auto detected.
 	 */
 	private LayoutType layoutType = LayoutType.AutoDetect;
 	
 	/**
 	 * Disables custom plugins when set to true
 	 */
-	private boolean safe;
+	private boolean safe = false;
+	
+	/**
+	 * Indicates if we are running in debug mode
+	 */
+	private boolean debug = false;
 	
 	/**
 	 * Constructor
@@ -81,15 +93,38 @@ public class ExecutionOptions {
 	 * @param parentDir
 	 * @param configFile
 	 */
-	public ExecutionOptions(File parentDir, File configFile) {
-		this.parentFolder = parentDir.getAbsoluteFile();
+	public ExecutionOptions(File configFile) {
 		this.configFile = configFile.getAbsoluteFile();
+		initialize();
 	}
 	
-	public void initialize(Properties properties) {
-		// do nothing for now
+	/**
+	 * Read the configuration parameters from the config file.
+	 * 
+	 * @param file
+	 * @return
+	 */
+	private Properties readConfigFile() {
+		String fileName = this.configFile.getName();
+		if("_config.yml".equals(fileName)) {
+			return new YmlConfigReader().readConfigFile(this.configFile);
+		}
+		
+		if(fileName.endsWith(".properties")) {
+			return new PropertyConfigReader().readConfigFile(this.configFile);
+		}
+		
+		return null;
 	}
 	
+	private void initialize() {
+		configuration = readConfigFile();
+		
+		// TODO: for now the site configuration options are being ignored, we need to fix this
+		
+		this.parentFolder = this.configFile.getParentFile().getAbsoluteFile();
+	}
+
 	// Usual accessors follow
 
 	/**
@@ -147,6 +182,26 @@ public class ExecutionOptions {
 	public void setLayoutType(LayoutType layoutType) {
 		this.layoutType = layoutType;
 	}
-	
+
+	/**
+	 * @return the safe
+	 */
+	public boolean isSafe() {
+		return safe;
+	}
+
+	/**
+	 * @return the debug
+	 */
+	public boolean isDebug() {
+		return debug;
+	}
+
+	/**
+	 * @return the configuration
+	 */
+	public Properties getConfiguration() {
+		return configuration;
+	}
 
 }
