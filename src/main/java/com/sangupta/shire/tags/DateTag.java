@@ -23,7 +23,9 @@ package com.sangupta.shire.tags;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Date;
 
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.velocity.context.InternalContextAdapter;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
@@ -31,26 +33,16 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.parser.node.Node;
 
 /**
- * Tag to generate an HREF tag using the same URL as the text to the HREF. For example,
- * 
- * <pre>
- * #href("http://www.sangupta.com")
- * </pre>
- * 
- * will generate,
- * 
- * <pre>
- * &lt;a href="http://www.sangupta.com"&gt;http://www.sangupta.com&lt;a&gt;
- * </pre>
+ * Renders the date in the given format or the default format.
  * 
  * @author sangupta
  *
  */
-public class HrefTag extends AbstractCustomTag {
+public class DateTag extends AbstractCustomTag {
 
 	@Override
 	public String getName() {
-		return "href";
+		return "date";
 	}
 
 	@Override
@@ -60,16 +52,22 @@ public class HrefTag extends AbstractCustomTag {
 
 	@Override
 	public boolean render(InternalContextAdapter context, Writer writer, Node node) throws IOException, ResourceNotFoundException, ParseErrorException, MethodInvocationException {
-		String url = null;
-		url = (String) getArgument(node, context, 0);
+		Date date = null;
+		String format = null;
 		
-		if(url != null) {
-			writer.write("<a href=\"");
-			writer.write(url);
-			writer.write("\">");
-			writer.write(url);
-			writer.write("</a>");
+		date = (Date) getArgument(node, context, 0);
+		format = (String) getArgument(node, context, 1);
+		
+		if(date == null) {
+			return false;
 		}
+		
+		if(format == null || format.trim().isEmpty()) {
+			format = "dd MMM yyyy";
+		}
+		
+		String formattedDate = DateFormatUtils.format(date, format);
+		writer.write(formattedDate);
 		
 		return true;
 	}

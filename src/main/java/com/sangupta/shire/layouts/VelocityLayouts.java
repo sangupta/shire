@@ -34,6 +34,7 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.resource.loader.FileResourceLoader;
 
 import com.sangupta.shire.core.Layout;
+import com.sangupta.shire.tags.DateTag;
 import com.sangupta.shire.tags.FetchTag;
 import com.sangupta.shire.tags.HrefTag;
 import com.sangupta.shire.tags.MarkdownTag;
@@ -77,7 +78,8 @@ public class VelocityLayouts implements Layout {
 	private String registerCustomTags() {
 		final String[] customDirectives = { MarkdownTag.class.getName(), 
 											FetchTag.class.getName(),
-											HrefTag.class.getName()
+											HrefTag.class.getName(),
+											DateTag.class.getName()
 										  };
 		
 		StringBuilder builder = new StringBuilder();
