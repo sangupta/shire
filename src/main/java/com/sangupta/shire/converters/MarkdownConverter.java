@@ -47,7 +47,7 @@ public class MarkdownConverter implements Converter {
 
 	private synchronized void initialize() {
 		if(pegDownProcessor == null) {
-			pegDownProcessor = new PegDownProcessor(Extensions.ALL);
+			pegDownProcessor = new PegDownProcessor(Extensions.ALL ^ Extensions.HARDWRAPS);
 		}
 	}
 
