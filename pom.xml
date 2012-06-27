@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -11,7 +10,7 @@
 
 	<groupId>com.sangupta</groupId>
 	<artifactId>shire</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>shire</name>
@@ -28,7 +27,7 @@
 	
 	<scm>
 		<connection>scm:git:git://github.com/sangupta/shire.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/sangupta/shire.git</developerConnection>
+		<developerConnection>scm:git:http://git@github.com/sangupta/shire.git</developerConnection>
 		<url>https://github.com/sangupta/shire</url>
 	</scm>
 	
@@ -47,7 +46,7 @@
 		
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
         <build.timestamp>${maven.build.timestamp}</build.timestamp>
-        <build.number/>
+        <build.number />
 	</properties>
 	
 	<prerequisites>
@@ -130,7 +129,21 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
             </plugin>
-                
+
+			<!-- Sign the Maven artifacts -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>			
 		</plugins>
 	</build>
 
