@@ -21,9 +21,17 @@
 
 package com.sangupta.shire.core;
 
+import com.sangupta.shire.converters.MarkdownConverter;
+
 /**
  * Contract for implementations that allow using a new markup language
- * for content.
+ * for content. 
+ * 
+ * The idea of the converter is to convert the content of the file
+ * into another form. For example, the {@link MarkdownConverter} converts
+ * the file contents from Markdown format to HTML format. This is essential
+ * as the site is generated in HTML, and Shire allows usage of multiple 
+ * text syntax-formats like Markdown, Wiki, etc.
  * 
  * @author sangupta
  *
