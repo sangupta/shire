@@ -33,6 +33,7 @@ import com.sangupta.shire.converters.Converters;
 import com.sangupta.shire.core.Converter;
 import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.layouts.LayoutManager;
+import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.TemplateData;
 
 public class SiteBuilder {
@@ -173,11 +174,26 @@ public class SiteBuilder {
 			}
 		}
 		
+		// this also makes sure that the page
+		// attribute has been created
 		templateData.mergePageFrontMatter(frontMatter);
 		
 		if(layoutName != null) {
 			String content = siteFile.getContent();
-
+			
+			// add the unrendered content
+			Page page = templateData.getPage();
+			page.setContent(content);
+			page.setUrl(getUrlForPage(siteFile));
+			
+			page.postProcessProperties();
+			
+			// now see if the page actually needs to be published
+			if(!page.isPublished()) {
+				// processing of this page was stopped
+				return;
+			}
+			
 			// find out the right converter for the file's content
 			// markdown, Wiki, or HTML, or something else
 			Converter converter = Converters.getConverter(siteFile.getFileName());
@@ -196,6 +212,12 @@ public class SiteBuilder {
 		
 		System.out.println("No layout name specified for file... copying it as a resource");
 		// TODO: implement resource copy
+	}
+	
+	public String getUrlForPage(ProcessableSiteFile siteFile) {
+		String path = siteFile.getExportPath(this.options.getParentFolder().getAbsolutePath());
+		path = StringUtils.replaceChars(path, '\\', '/');
+		return path;
 	}
 
 	/**

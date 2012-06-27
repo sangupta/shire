@@ -36,7 +36,7 @@ public class Site {
 	/**
 	 * The current time
 	 */
-	private Date time = new Date();
+	private Date time = null;
 	
 	/**
 	 * Default layout name to be used in case the file had front matter, but no layout name has been specified
@@ -66,7 +66,14 @@ public class Site {
 	/**
 	 * Is the site in debug mode
 	 */
-	private boolean debug = false;
+	private boolean debug = true;
+	
+	/**
+	 * Default constructor
+	 */
+	public Site() {
+		this.time = new Date();
+	}
 	
 	// Usual accessors follow
 

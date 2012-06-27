@@ -62,7 +62,7 @@ public class TemplateData {
 			return;
 		}
 		
-		this.page.setTitle(pageFrontMatter.getProperty("title"));
+		page.mergeFrontMatter(pageFrontMatter);
 	}
 	
 	// Usual accessors follow

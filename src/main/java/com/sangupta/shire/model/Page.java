@@ -21,6 +21,15 @@
 
 package com.sangupta.shire.model;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.sangupta.shire.util.ShireUtils;
+
 /**
  * Holds data model for a given page - the page which is under
  * processing by the layout.
@@ -31,12 +40,117 @@ package com.sangupta.shire.model;
 public class Page {
 	
 	/**
+	 * The unrendered content of the page
+	 */
+	private String content;
+	
+	/**
+	 * The title of the page
+	 */
+	private String title;
+	
+	/**
 	 * The URL of the page without the domain
 	 */
 	private String url;
 	
-	private String title;
+	/**
+	 * The date assigned to this post
+	 */
+	private Date date;
 	
+	/**
+	 * Unique pageID assigned to this post
+	 */
+	private String id;
+	
+	/**
+	 * Indicates if publishing of this page is to be put on hold.
+	 */
+	private boolean published = true;
+	
+	/**
+	 * The categories the page in
+	 */
+	private final List<String> categories = new ArrayList<String>();
+	
+	/**
+	 * The tags this page belongs to
+	 */
+	private final List<String> tags = new ArrayList<String>();
+	
+	/**
+	 * Method that creates a unique ID for this post.
+	 * For now, we remove the last extension
+	 */
+	private void createUniquePageID() {
+		int index = this.url.lastIndexOf('.');
+		if(index != -1) {
+			this.id = this.url.substring(0, index);
+		} else {
+			this.id = this.url;
+		}
+	}
+
+	/**
+	 * @param pageFrontMatter
+	 */
+	public void mergeFrontMatter(Properties pageFrontMatter) {
+		// read the title from the front matter
+		this.setTitle(pageFrontMatter.getProperty("title"));
+
+		// read the date from the front matter
+		String date = pageFrontMatter.getProperty("date");
+		if(date != null) {
+			this.setDate(ShireUtils.parsePostDate(date));
+		}
+		
+		// read the tags from the front matter
+		String tags = pageFrontMatter.getProperty("tags");
+		if(tags != null && !tags.trim().isEmpty()) {
+			String[] tokens = StringUtils.split(tags, " ;,");
+			for(String tag : tokens) {
+				if(!("".equals(tag.trim()))) {
+					this.tags.add(tag);
+				}
+			}
+		}
+		
+		// read the categories from the fron matter
+		String categories = pageFrontMatter.getProperty("categories");
+		if(categories != null && !categories.trim().isEmpty()) {
+			String[] tokens = StringUtils.split(categories, " ;,");
+			for(String category : tokens) {
+				if(!("".equals(category.trim()))) {
+					this.categories.add(category);
+				}
+			}
+		}
+		
+		// check for published flags
+		String published = pageFrontMatter.getProperty("published");
+		if("false".equalsIgnoreCase(published)) {
+			this.published = false;
+		}
+	}
+
+	/**
+	 * All properties of the page have been set and are
+	 * ready for post-processing.
+	 */
+	public void postProcessProperties() {
+		createUniquePageID();
+		updateCategoriesFromUrl();
+	}
+
+	/**
+	 * Update the categories as extracted from the url.
+	 */
+	private void updateCategoriesFromUrl() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	// Usual accessors follow
 
 	/**
@@ -65,6 +179,76 @@ public class Page {
 	 */
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	/**
+	 * @return the content
+	 */
+	public String getContent() {
+		return content;
+	}
+
+	/**
+	 * @param content the content to set
+	 */
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	/**
+	 * @return the date
+	 */
+	public Date getDate() {
+		return date;
+	}
+
+	/**
+	 * @param date the date to set
+	 */
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the categories
+	 */
+	public List<String> getCategories() {
+		return categories;
+	}
+
+	/**
+	 * @return the tags
+	 */
+	public List<String> getTags() {
+		return tags;
+	}
+
+	/**
+	 * @return the published
+	 */
+	public boolean isPublished() {
+		return published;
+	}
+
+	/**
+	 * @param published the published to set
+	 */
+	public void setPublished(boolean published) {
+		this.published = published;
 	}
 
 }
