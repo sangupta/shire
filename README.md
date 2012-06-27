@@ -16,6 +16,20 @@ Features
 * Support for multiple includes and layouts
 * Support for YAML and XML based configuration 
 
+Downloads
+---------
+You can download the JAR from the [Downloads](https://github.com/sangupta/shire/downloads) page.
+
+Alternatively, you may download the builds from Maven Central repository using:
+
+```xml
+<dependency>
+    <groupId>com.sangupta</groupId>
+    <artifactId>shire</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
 Dependencies
 ------------
 
