@@ -165,14 +165,17 @@ public class SiteBuilder {
 			frontMatter = siteFile.getFrontMatter();
 
 			layoutName = frontMatter.getProperty("layout");
-			if(StringUtils.isEmpty(layoutName)) {
+			
+			// if the layout is null, only then check for default layout naming convention
+			// if the layout is empty - that indicates we do not want any layout applied
+			if(layoutName == null) {
 				layoutName = templateData.getSite().getDefaultLayoutName();
 			}
 		}
 		
 		templateData.mergePageFrontMatter(frontMatter);
 		
-		if(StringUtils.isNotEmpty(layoutName)) {
+		if(layoutName != null) {
 			String content = siteFile.getContent();
 
 			// find out the right converter for the file's content
