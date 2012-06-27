@@ -31,7 +31,7 @@ import java.util.List;
  * @author sangupta
  *
  */
-public class Post {
+public class Post implements Comparable<Post> {
 
 	/**
 	 * The title of the post
@@ -63,6 +63,18 @@ public class Post {
 	 */
 	private final List<String> tags = new ArrayList<String>();
 	
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(Post post) {
+		if(post != null) {
+			return 0 - (this.date.compareTo(post.getDate()));
+		}
+		
+		throw new IllegalArgumentException("Post cannot be null.");
+	}
+
 	// Usual accessors follow
 
 	/**

@@ -22,6 +22,7 @@
 package com.sangupta.shire.domain;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -32,11 +33,61 @@ import java.util.Properties;
  */
 public interface Resource {
 
+	/**
+	 * Return if the file has front matter associated with it or not.
+	 * 
+	 * @return
+	 */
 	public boolean hasFrontMatter();
 	
+	/**
+	 * Return the entire front matter associated with this resource.
+	 * 
+	 * @return
+	 */
 	public Properties getFrontMatter();
 
+	/**
+	 * Return the internal file handle.
+	 * 
+	 * @return
+	 */
 	public File getFileHandle();
 	
+	/**
+	 * Return the base export path for this resource.
+	 * 
+	 * @return
+	 */
 	public String getExportPath();
+	
+	/**
+	 * Return the filename of the file referenced by this resource.
+	 * 
+	 * @return
+	 */
+	public String getFileName();
+	
+	/**
+	 * Return the date the file was last modified on disk.
+	 * 
+	 * @return
+	 */
+	public Date getFileDate();
+	
+	/**
+	 * Return the URL except the base path for this resource.
+	 * 
+	 * @return
+	 */
+	public String getUrl();
+	
+	/**
+	 * The publishing date for this resource, either the one specified
+	 * in front matter, or the file's last modified date.
+	 * 
+	 * @return
+	 */
+	public Date getPublishDate();
+	
 }

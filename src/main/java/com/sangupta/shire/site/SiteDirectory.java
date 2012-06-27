@@ -30,6 +30,7 @@ import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.domain.Resource;
+import com.sangupta.shire.model.FrontMatterConstants;
 import com.sangupta.shire.util.FrontMatterUtils;
 
 /**
@@ -144,7 +145,11 @@ public class SiteDirectory {
 					try {
 						int frontMatter = FrontMatterUtils.checkFileHasFrontMatter(file, properties);
 						if(frontMatter > 0) {
-							resources.add(new RenderableResource(file, this.basePath, properties, frontMatter));
+							// check if the resource has been published or not
+							String published = properties.getProperty(FrontMatterConstants.PUBLISHED);
+							if(published != null && !("false".equalsIgnoreCase(published))) {
+								resources.add(new RenderableResource(file, this.basePath, properties, frontMatter));
+							}
 						}
 					} catch(Exception e) {
 						// as we are unable to process this resource

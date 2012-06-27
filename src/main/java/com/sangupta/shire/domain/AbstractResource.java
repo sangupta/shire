@@ -22,8 +22,13 @@
 package com.sangupta.shire.domain;
 
 import java.io.File;
+import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
+ * An abtsraction for common methods over a given site-resource.
+ * 
  * @author sangupta
  *
  */
@@ -37,7 +42,37 @@ public abstract class AbstractResource implements Resource {
 		this.fileHandle = fileHandle;
 		this.path = getBasePath(rootPath);
 	}
+	
+	/**
+	 * @see com.sangupta.shire.domain.Resource#getPublishDate()
+	 */
+	@Override
+	public Date getPublishDate() {
+		return getFileDate();
+	}
+	
+	/**
+	 * Construct a URL of the page's export path
+	 * 
+	 * @param siteFile
+	 * @return
+	 */
+	public String getUrl() {
+		String path = this.getExportPath();
+		path = StringUtils.replaceChars(path, '\\', '/');
+		return path;
+	}
 
+	/**
+	 * Return the date the file was last modified on disk.
+	 * 
+	 * @return
+	 */
+	@Override
+	public Date getFileDate() {
+		return new Date(this.fileHandle.lastModified());
+	}
+	
 	/**
 	 * @return the fileHandle
 	 */
@@ -46,6 +81,16 @@ public abstract class AbstractResource implements Resource {
 		return fileHandle;
 	}
 
+	/**
+	 * Return the file name of the internal file handle.
+	 * 
+	 * @return
+	 */
+	@Override
+	public String getFileName() {
+		return this.fileHandle.getName();
+	}
+	
 	/**
 	 * @return
 	 */

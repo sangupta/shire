@@ -129,6 +129,10 @@ public class SiteBuilder {
 		// build the template data
 		templateData = new TemplateData(this.options.getConfiguration());
 		
+		// build a list of all tags and categories
+		// that will be used site-wide
+		templateData.extractFromResources(this.siteDirectory.getResources());
+
 		// build a list of all folders
 		// exclude the _includes, _layouts, _plugins and _site folders
 		processResources(this.siteDirectory.getResources());
@@ -196,7 +200,7 @@ public class SiteBuilder {
 			// add the unrendered content
 			Page page = templateData.getPage();
 			page.setContent(content);
-			page.setUrl(getUrlForPage(resource));
+			page.setUrl(resource.getUrl());
 			
 			page.postProcessProperties();
 			
@@ -234,18 +238,6 @@ public class SiteBuilder {
 		List<String> lines = FileUtils.readLines(resource.getFileHandle());
 		String content = StringUtils.join(lines.subList(resource.getMatterEndingLine(), lines.size()), '\n');
 		return content;
-	}
-
-	/**
-	 * Construct a URL of the page's export path
-	 * 
-	 * @param siteFile
-	 * @return
-	 */
-	public String getUrlForPage(Resource resource) {
-		String path = resource.getExportPath();
-		path = StringUtils.replaceChars(path, '\\', '/');
-		return path;
 	}
 
 	/**

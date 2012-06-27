@@ -22,6 +22,7 @@
 package com.sangupta.shire.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -73,6 +74,19 @@ public class Site {
 	 */
 	public Site() {
 		this.time = new Date();
+	}
+	
+	/**
+	 * Add the post to the list of available posts
+	 * 
+	 * @param post
+	 */
+	public void addPost(Post post) {
+		this.posts.add(post);
+	}
+	
+	public void sortPosts() {
+		Collections.sort(this.posts);
 	}
 	
 	// Usual accessors follow

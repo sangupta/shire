@@ -80,19 +80,6 @@ public class Page {
 	private final List<String> tags = new ArrayList<String>();
 	
 	/**
-	 * Method that creates a unique ID for this post.
-	 * For now, we remove the last extension
-	 */
-	private void createUniquePageID() {
-		int index = this.url.lastIndexOf('.');
-		if(index != -1) {
-			this.id = this.url.substring(0, index);
-		} else {
-			this.id = this.url;
-		}
-	}
-
-	/**
 	 * @param pageFrontMatter
 	 */
 	public void mergeFrontMatter(Properties pageFrontMatter) {
@@ -139,7 +126,7 @@ public class Page {
 	 * ready for post-processing.
 	 */
 	public void postProcessProperties() {
-		createUniquePageID();
+		this.id = ShireUtils.createUniquePageID(this.url);
 		updateCategoriesFromUrl();
 	}
 

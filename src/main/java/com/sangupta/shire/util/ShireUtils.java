@@ -59,4 +59,17 @@ public class ShireUtils {
 		return null;
 	}
 
+	/**
+	 * Method that creates a unique ID for this post.
+	 * For now, we remove the last extension
+	 */
+	public static String createUniquePageID(String url) {
+		int index = url.lastIndexOf('.');
+		if(index != -1) {
+			return url.substring(0, index);
+		}
+		
+		return url;
+	}
+
 }

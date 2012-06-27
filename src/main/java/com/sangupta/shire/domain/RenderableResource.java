@@ -22,6 +22,7 @@
 package com.sangupta.shire.domain;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -30,18 +31,46 @@ import java.util.Properties;
  */
 public class RenderableResource extends AbstractResource {
 	
+	/**
+	 * Store the front matter as extracted from the file.
+	 */
 	private Properties frontMatter;
 	
+	/**
+	 * Line index at which the front matter has ended. This helps us
+	 * skip when re-reading the file's content when rendering
+	 */
 	private int matterEndingLine;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param fileHandle
+	 * @param path
+	 * @param frontMatter
+	 * @param matterEndingLine
+	 */
 	public RenderableResource(File fileHandle, String path, Properties frontMatter, int matterEndingLine) {
 		super(fileHandle, path);
 		this.frontMatter = frontMatter;
 		this.matterEndingLine = matterEndingLine;
 	}
 	
-	public String getFileName() {
-		return this.fileHandle.getName();
+	public String getFrontMatterProperty(String propertyName) {
+		if(this.frontMatter == null) {
+			return null;
+		}
+		
+		return this.frontMatter.getProperty(propertyName);
+	}
+	
+	/**
+	 * @see com.sangupta.shire.domain.AbstractResource#getPublishDate()
+	 */
+	@Override
+	public Date getPublishDate() {
+		// TODO: also need to check for front matter
+		return super.getPublishDate();
 	}
 
 	/**

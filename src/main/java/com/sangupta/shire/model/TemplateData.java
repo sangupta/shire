@@ -21,9 +21,14 @@
 
 package com.sangupta.shire.model;
 
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
+
+import com.sangupta.shire.domain.RenderableResource;
+import com.sangupta.shire.domain.Resource;
+import com.sangupta.shire.util.ShireUtils;
 
 /**
  * Stores the template data that is passed on to the page
@@ -51,10 +56,20 @@ public class TemplateData {
 		}
 	}
 	
+	/**
+	 * Merge the properties of the config file with the site-wide data.
+	 * 
+	 * @param configuration
+	 */
 	private void mergeWithTemplateData(Properties configuration) {
 		this.site.setDebug(BooleanUtils.toBoolean(configuration.getProperty("debug")));
 	}
 
+	/**
+	 * Merge the front-matter of the page with this template data.
+	 * 
+	 * @param pageFrontMatter
+	 */
 	public void mergePageFrontMatter(Properties pageFrontMatter) {
 		this.page = new Page(); 
 		
@@ -65,6 +80,31 @@ public class TemplateData {
 		page.mergeFrontMatter(pageFrontMatter);
 	}
 	
+	/**
+	 * Extract all tags and categories from this list of resources.
+	 * 
+	 * @param resources
+	 */
+	public void extractFromResources(List<Resource> resources) {
+		for(Resource resource : resources) {
+			if(resource instanceof RenderableResource) {
+				RenderableResource rr = (RenderableResource) resource;
+				
+				// build a list of the posts entry
+				Post post = new Post();
+				post.setTitle(rr.getFrontMatterProperty(FrontMatterConstants.PAGE_TITLE));
+				post.setId(ShireUtils.createUniquePageID(rr.getUrl()));
+				post.setDate(resource.getPublishDate());
+				post.setUrl(resource.getUrl());
+				
+				site.addPost(post);
+			}
+		}
+		
+		// sort all posts
+		site.sortPosts();
+	}
+
 	// Usual accessors follow
 
 	/**
