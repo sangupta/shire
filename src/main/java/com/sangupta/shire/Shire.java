@@ -41,7 +41,7 @@ public class Shire {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String configFile = "c:/projects/git/sangupta-static/_config.yml";
+		String configFile = "e:/git/sangupta-static/_config.yml";
 
 		// check if the config file is present or not
 		File config = new File(configFile);

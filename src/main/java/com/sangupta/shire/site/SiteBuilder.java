@@ -21,17 +21,21 @@
 
 package com.sangupta.shire.site;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.converters.Converters;
 import com.sangupta.shire.core.Converter;
 import com.sangupta.shire.core.Generator;
+import com.sangupta.shire.domain.NonRenderableResource;
+import com.sangupta.shire.domain.RenderableResource;
+import com.sangupta.shire.domain.Resource;
 import com.sangupta.shire.layouts.LayoutManager;
 import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.TemplateData;
@@ -127,23 +131,31 @@ public class SiteBuilder {
 		
 		// build a list of all folders
 		// exclude the _includes, _layouts, _plugins and _site folders
-		renderPages(this.siteDirectory.getProcessableFiles());
+		processResources(this.siteDirectory.getResources());
 		
 		// call all generators
 		// and pass these the needed values
 		invokeGenerators();
-		
-		// copy all resources
-		// that is the non-processable files
-		copyResources(this.siteDirectory.getNonProcessableFiles());
 	}
 	
-	private void renderPages(Collection<File> files) {
-		System.out.println("Found " + files.size() + " files to process.");
+	private void processResources(Collection<Resource> resources) {
+		System.out.println("Found " + resources.size() + " files to process.");
 		
 		// start processing each file
-		for(File file : files) {
-			renderPage(file, templateData);
+		for(Resource resource : resources) {
+			if(resource instanceof NonRenderableResource) {
+				// simply copy the resource
+				this.siteWriter.export(resource);
+				continue;
+			}
+			
+			// process the resource as needed
+			try {
+				renderPage((RenderableResource) resource, templateData);
+			} catch (IOException e) {
+				System.out.println("Unable to process site resource: " + resource.getExportPath());
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -152,18 +164,18 @@ public class SiteBuilder {
 	 * to the destination site.
 	 * 
 	 * @param file
+	 * @throws IOException 
 	 */
-	private void renderPage(File file, TemplateData templateData) {
-		System.out.println("Processing " + file.getAbsolutePath() + "...");
-		ProcessableSiteFile siteFile = new ProcessableSiteFile(file);
+	private void renderPage(RenderableResource resource, TemplateData templateData) throws IOException {
+		System.out.println("Processing " + resource.getExportPath() + "...");
 		
 		String layoutName = null;
 		Properties frontMatter = null;
 
 		// if site has front matter
-		if(siteFile.hasFrontMatter()) {
+		if(resource.hasFrontMatter()) {
 			// process the front matter
-			frontMatter = siteFile.getFrontMatter();
+			frontMatter = resource.getFrontMatter();
 
 			layoutName = frontMatter.getProperty("layout");
 			
@@ -179,12 +191,12 @@ public class SiteBuilder {
 		templateData.mergePageFrontMatter(frontMatter);
 		
 		if(layoutName != null) {
-			String content = siteFile.getContent();
+			String content = getFileContents(resource);
 			
 			// add the unrendered content
 			Page page = templateData.getPage();
 			page.setContent(content);
-			page.setUrl(getUrlForPage(siteFile));
+			page.setUrl(getUrlForPage(resource));
 			
 			page.postProcessProperties();
 			
@@ -196,7 +208,7 @@ public class SiteBuilder {
 			
 			// find out the right converter for the file's content
 			// markdown, Wiki, or HTML, or something else
-			Converter converter = Converters.getConverter(siteFile.getFileName());
+			Converter converter = Converters.getConverter(resource.getFileName());
 			
 			// convert the content first
 			content = converter.convert(content);
@@ -205,40 +217,36 @@ public class SiteBuilder {
 			
 			// now that we are done
 			// we need to write the file back to the destination
-			this.siteWriter.export(siteFile, content);
+			this.siteWriter.export(resource, content);
 			
 			return;
 		}
 		
 		System.out.println("No layout name specified for file... copying it as a resource");
-		// TODO: implement resource copy
 	}
 	
-	public String getUrlForPage(ProcessableSiteFile siteFile) {
-		String path = siteFile.getExportPath(this.options.getParentFolder().getAbsolutePath());
-		path = StringUtils.replaceChars(path, '\\', '/');
-		return path;
+	/**
+	 * @param resource
+	 * @return
+	 * @throws IOException 
+	 */
+	private String getFileContents(RenderableResource resource) throws IOException {
+		List<String> lines = FileUtils.readLines(resource.getFileHandle());
+		String content = StringUtils.join(lines.subList(resource.getMatterEndingLine(), lines.size()), '\n');
+		return content;
 	}
 
 	/**
-	 * Method that copies all resources from the input directory
-	 * to output directory without processing.
+	 * Construct a URL of the page's export path
 	 * 
-	 * @param nonProcessableFiles
+	 * @param siteFile
+	 * @return
 	 */
-	public void copyResources(List<File> nonProcessableFiles) {
-		if(nonProcessableFiles == null || nonProcessableFiles.size() == 0) {
-			return;
-		}
-		
-		for(File file : nonProcessableFiles) {
-			System.out.println("Copying resource " + file.getAbsolutePath() + "...");
-			
-			SiteResource resource = new SiteResource(file);
-			this.siteWriter.export(resource);
-		}
+	public String getUrlForPage(Resource resource) {
+		String path = resource.getExportPath();
+		path = StringUtils.replaceChars(path, '\\', '/');
+		return path;
 	}
-
 
 	/**
 	 * Method that invokes all available generators on site.

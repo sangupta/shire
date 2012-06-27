@@ -27,6 +27,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 
 import com.sangupta.shire.ExecutionOptions;
+import com.sangupta.shire.domain.RenderableResource;
+import com.sangupta.shire.domain.Resource;
 import com.sangupta.shire.util.HtmlUtils;
 
 /**
@@ -48,11 +50,6 @@ public class SiteWriter {
 	private boolean initialized = false;
 
 	/**
-	 * Holds the path to the root folder of the input site
-	 */
-	private final String rootFolderPath;
-	
-	/**
 	 * File handle to the root of export folder
 	 */
 	private File siteFolder = null;
@@ -64,7 +61,6 @@ public class SiteWriter {
 	 */
 	public SiteWriter(ExecutionOptions options) {
 		this.options = options;
-		this.rootFolderPath = this.options.getParentFolder().getAbsolutePath();
 	}
 
 	/**
@@ -93,14 +89,14 @@ public class SiteWriter {
 	 * 
 	 * @param siteFile
 	 */
-	public void export(ProcessableSiteFile siteFile, String pageContents) {
+	public void export(RenderableResource resource, String pageContents) {
 		// check if we have initialized the _site folder or not
 		if(!initialized) {
 			createSiteExportFolder();
 		}
 		
 		// start the export process
-		String path = siteFile.getExportPath(this.rootFolderPath);
+		String path = resource.getExportPath();
 		path = this.siteFolder.getAbsolutePath() + File.separator + path;
 		
 		File exportFile = new File(path);
@@ -114,19 +110,19 @@ public class SiteWriter {
 		}
 	}
 	
-	public void export(SiteResource siteResource) {
+	public void export(Resource resource) {
 		if(!initialized) {
 			createSiteExportFolder();
 		}
 		
 		// start the export process
-		String path = siteResource.getExportPath(this.rootFolderPath);
+		String path = resource.getExportPath();
 		path = this.siteFolder.getAbsolutePath() + File.separator + path;
 		
 		File exportFile = new File(path);
 
 		try {
-			FileUtils.copyFile(siteResource.input, exportFile);
+			FileUtils.copyFile(resource.getFileHandle(), exportFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

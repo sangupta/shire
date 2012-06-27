@@ -19,44 +19,34 @@
  * 
  */
 
-package com.sangupta.shire.site;
+package com.sangupta.shire.domain;
 
 import java.io.File;
+import java.util.Properties;
 
-public abstract class AbstractSiteFile {
+/**
+ * @author sangupta
+ *
+ */
+public class NonRenderableResource extends AbstractResource {
+	
+	public NonRenderableResource(File fileHandle, String path) {
+		super(fileHandle, path);
+	}
 
 	/**
-	 * Holds the reference to the input file.
+	 * @see com.sangupta.shire.domain.Resource#hasFrontMatter()
 	 */
-	protected File input;
-	
-	public AbstractSiteFile(File file) {
-		this.input = file;
+	@Override
+	public boolean hasFrontMatter() {
+		return false;
 	}
-	
+
 	/**
-	 * Retrieve the export path for this file. It can be either
-	 * the relative path to the root folder, or the permalink
-	 * if any specified for this file.
-	 * 
-	 * @return
+	 * @see com.sangupta.shire.domain.Resource#getFrontMatter()
 	 */
-	public String getExportPath(final String rootPath) {
-		// its not there, let's construct from base path
-		String path = this.input.getAbsolutePath();
-		
-		if(path.startsWith(rootPath)) {
-			path = path.substring(rootPath.length());
-		}
-		
-		return path;
-	}
-	
-	public String getFileName() {
-		if(this.input != null) {
-			return this.input.getName();
-		}
-		
+	@Override
+	public Properties getFrontMatter() {
 		return null;
 	}
 	

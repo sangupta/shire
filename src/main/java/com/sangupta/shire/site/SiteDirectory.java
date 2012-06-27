@@ -24,8 +24,13 @@ package com.sangupta.shire.site;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import com.sangupta.shire.ExecutionOptions;
+import com.sangupta.shire.domain.NonRenderableResource;
+import com.sangupta.shire.domain.RenderableResource;
+import com.sangupta.shire.domain.Resource;
+import com.sangupta.shire.util.FrontMatterUtils;
 
 /**
  * Allows reading of the source site directory to process content.
@@ -46,13 +51,19 @@ public class SiteDirectory {
 	private final File folder;
 	
 	/**
+	 * The absolute base path of the root folder
+	 */
+	private final String basePath;
+	
+	/**
 	 * Currently set execution options
 	 */
 	private final ExecutionOptions options;
 	
-	private final List<File> processableFiles = new ArrayList<File>();
-	
-	private final List<File> nonProcessableFiles = new ArrayList<File>();
+	/**
+	 * Holds the list of all resources that are available in the site
+	 */
+	private final List<Resource> resources = new ArrayList<Resource>();
 	
 	/**
 	 * Constructor
@@ -62,6 +73,7 @@ public class SiteDirectory {
 	public SiteDirectory(ExecutionOptions options) {
 		this.options = options;
 		this.folder = options.getParentFolder();
+		this.basePath = this.folder.getAbsolutePath();
 		
 		// go ahead and scan the folder
 		scanRootFolder();
@@ -127,14 +139,25 @@ public class SiteDirectory {
 				
 				// see where the file falls in
 				if(fileAllowed(file)) {
-					processableFiles.add(file);
+					// check if the file has front-matter or not
+					Properties properties = new Properties();
+					try {
+						int frontMatter = FrontMatterUtils.checkFileHasFrontMatter(file, properties);
+						if(frontMatter > 0) {
+							resources.add(new RenderableResource(file, this.basePath, properties, frontMatter));
+						}
+					} catch(Exception e) {
+						// as we are unable to process this resource
+						// move it to non-processable one
+						resources.add(new NonRenderableResource(file, this.basePath));
+					}
 				} else {
-					nonProcessableFiles.add(file);
+					resources.add(new NonRenderableResource(file, this.basePath));
 				}
 			}
 		}
 	}
-
+	
 	/**
 	 * Check if this file in the root folder is allowed or not.
 	 * 
@@ -182,17 +205,10 @@ public class SiteDirectory {
 	// Usual accessors follow
 
 	/**
-	 * @return the processableFiles
+	 * @return the resources
 	 */
-	public List<File> getProcessableFiles() {
-		return processableFiles;
-	}
-
-	/**
-	 * @return the nonProcessableFiles
-	 */
-	public List<File> getNonProcessableFiles() {
-		return nonProcessableFiles;
+	public List<Resource> getResources() {
+		return resources;
 	}
 
 }

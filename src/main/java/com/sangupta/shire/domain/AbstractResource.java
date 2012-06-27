@@ -19,21 +19,49 @@
  * 
  */
 
-package com.sangupta.shire.site;
+package com.sangupta.shire.domain;
 
 import java.io.File;
 
 /**
- * Resource that needs to be copied as is. This should be processed
- * as a binary resource.
- * 
  * @author sangupta
- * @since Feb 24, 2012
+ *
  */
-public class SiteResource extends AbstractSiteFile {
+public abstract class AbstractResource implements Resource {
+
+	protected File fileHandle;
 	
-	public SiteResource(File inputFile) {
-		super(inputFile);
+	protected String path;
+	
+	public AbstractResource(File fileHandle, String rootPath) {
+		this.fileHandle = fileHandle;
+		this.path = getBasePath(rootPath);
+	}
+
+	/**
+	 * @return the fileHandle
+	 */
+	@Override
+	public File getFileHandle() {
+		return fileHandle;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getExportPath() {
+		return this.path;
+	}
+
+	private String getBasePath(String basePath) {
+		// its not there, let's construct from base path
+		String path = this.fileHandle.getAbsolutePath();
+		
+		if(path.startsWith(basePath)) {
+			path = path.substring(basePath.length());
+		}
+		
+		return path;
 	}
 
 }

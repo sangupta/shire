@@ -53,38 +53,47 @@ public class YmlConfigReader extends AbstractConfigReader {
 		
 		// extract properties
 		for(String line : lines) {
-			// check for empty lines
-			if(StringUtils.isEmpty(line)) {
-				continue;
+			String[] tokens = readLine(line);
+			
+			if(tokens != null) {
+				properties.put(tokens[0], tokens[1]);
 			}
-			
-			// clean spaces
-			line = line.trim();
-			
-			// check for comments
-			if(line.startsWith("#")) {
-				continue;
-			}
-			
-			// check for corrupt property file
-			if(line.startsWith(":")) {
-				throw new RuntimeException("Corrupt YML file, property cannot begin with a colon");
-			}
-			
-			// read the property
-			int index = line.indexOf(':');
-			
-			String propertyName = line.substring(0, index).trim();
-			
-			String propertyValue = "";
-			if((index + 1) < line.length()) {
-				propertyValue = line.substring(index + 1).trim();
-			}
-			
-			properties.put(propertyName, propertyValue);
 		}
 		
 		return properties;
 	}
-
+	
+	public static String[] readLine(String line) {
+		// check for empty lines
+		if(StringUtils.isEmpty(line)) {
+			return null;
+		}
+		
+		// clean spaces
+		line = line.trim();
+		
+		// check for comments
+		if(line.startsWith("#")) {
+			return null;
+		}
+		
+		// check for corrupt property file
+		if(line.startsWith(":")) {
+			throw new RuntimeException("Corrupt YML file, property cannot begin with a colon");
+		}
+		
+		// read the property
+		int index = line.indexOf(':');
+		
+		String propertyName = line.substring(0, index).trim();
+		
+		String propertyValue = "";
+		if((index + 1) < line.length()) {
+			propertyValue = line.substring(index + 1).trim();
+		}
+		
+		String[] tokens = { propertyName, propertyValue };
+		
+		return tokens;
+	}
 }
