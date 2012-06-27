@@ -9,6 +9,13 @@ The project is still under development and hence, is not usable directly via the
 
 To use sync the code base and set it up as a project in your favorite IDE. Shire is a Maven-based JAVA project. Once the project is setup, open the JAVA class `Shire` and in the `main` method, setup the path to your YAML config file.
 
+Features
+--------
+
+* Support for Apache Velocity Templates
+* Support for multiple includes and layouts
+* Support for YAML and XML based configuration 
+
 Dependencies
 ------------
 
