@@ -214,14 +214,22 @@ public class Page {
 	 * @return the categories
 	 */
 	public List<String> getCategories() {
-		return categories;
+		if(this.categories.isEmpty()) {
+			return null;
+		}
+		
+		return this.categories;
 	}
 
 	/**
 	 * @return the tags
 	 */
 	public List<String> getTags() {
-		return tags;
+		if(this.tags.isEmpty()) {
+			return null;
+		}
+		
+		return this.tags;
 	}
 
 	/**
