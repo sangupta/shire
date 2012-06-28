@@ -147,7 +147,7 @@ public class SiteDirectory {
 						if(frontMatter > 0) {
 							// check if the resource has been published or not
 							String published = properties.getProperty(FrontMatterConstants.PUBLISHED);
-							if(published != null && !("false".equalsIgnoreCase(published))) {
+							if(published == null || !("false".equalsIgnoreCase(published))) {
 								resources.add(new RenderableResource(file, this.basePath, properties, frontMatter));
 							}
 						}

@@ -27,6 +27,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 
 import com.sangupta.shire.ExecutionOptions;
+import com.sangupta.shire.domain.GeneratedResource;
+import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.domain.Resource;
 import com.sangupta.shire.util.HtmlUtils;
@@ -121,10 +123,22 @@ public class SiteWriter {
 		
 		File exportFile = new File(path);
 
-		try {
-			FileUtils.copyFile(resource.getFileHandle(), exportFile);
-		} catch (IOException e) {
-			e.printStackTrace();
+		if(resource instanceof NonRenderableResource) {
+			try {
+				FileUtils.copyFile(resource.getFileHandle(), exportFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			return;
+		}
+		
+		if(resource instanceof GeneratedResource) {
+			try {
+				FileUtils.writeStringToFile(exportFile, ((GeneratedResource) resource).getContent());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

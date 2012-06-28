@@ -99,6 +99,10 @@ public abstract class AbstractResource implements Resource {
 	}
 
 	private String getBasePath(String basePath) {
+		if(fileHandle == null) {
+			return null;
+		}
+		
 		// its not there, let's construct from base path
 		String path = this.fileHandle.getAbsolutePath();
 		

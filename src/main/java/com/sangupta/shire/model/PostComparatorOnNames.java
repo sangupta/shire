@@ -19,35 +19,34 @@
  * 
  */
 
-package com.sangupta.shire.domain;
+package com.sangupta.shire.model;
 
-import java.io.File;
-import java.util.Properties;
+import java.util.Comparator;
 
 /**
  * @author sangupta
  *
  */
-public class NonRenderableResource extends AbstractResource {
-	
-	public NonRenderableResource(File fileHandle, String rootPath) {
-		super(fileHandle, rootPath);
-	}
+public class PostComparatorOnNames implements Comparator<Post> {
 
 	/**
-	 * @see com.sangupta.shire.domain.Resource#hasFrontMatter()
+	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public boolean hasFrontMatter() {
-		return false;
+	public int compare(Post p1, Post p2) {
+		if(p1.getTitle() == null && p2.getTitle() == null) {
+			return p1.getUrl().compareTo(p2.getUrl());
+		}
+		
+		if(p1.getTitle() == null) {
+			return 1;
+		}
+		
+		if(p2.getTitle() == null) {
+			return -1;
+		}
+		
+		return p1.getTitle().compareTo(p2.getTitle());
 	}
 
-	/**
-	 * @see com.sangupta.shire.domain.Resource#getFrontMatter()
-	 */
-	@Override
-	public Properties getFrontMatter() {
-		return null;
-	}
-	
 }

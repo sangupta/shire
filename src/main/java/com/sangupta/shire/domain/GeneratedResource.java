@@ -21,17 +21,23 @@
 
 package com.sangupta.shire.domain;
 
-import java.io.File;
 import java.util.Properties;
 
 /**
  * @author sangupta
  *
  */
-public class NonRenderableResource extends AbstractResource {
+public class GeneratedResource extends AbstractResource {
 	
-	public NonRenderableResource(File fileHandle, String rootPath) {
-		super(fileHandle, rootPath);
+	/**
+	 * The content of this resource
+	 */
+	private String content;
+	
+	public GeneratedResource(String path, String content) {
+		super(null, null);
+		this.path = path;
+		this.content = content;
 	}
 
 	/**
@@ -49,5 +55,12 @@ public class NonRenderableResource extends AbstractResource {
 	public Properties getFrontMatter() {
 		return null;
 	}
-	
+
+	/**
+	 * @return the content
+	 */
+	public String getContent() {
+		return content;
+	}
+
 }

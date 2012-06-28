@@ -45,9 +45,15 @@ public class Site {
 	private String defaultLayoutName = null;
 	
 	/**
-	 * a reverse chronological list of all posts
+	 * a reverse chronological list of all posts in the same
+	 * blog domain and its child 
 	 */
 	private final List<Post> posts = new ArrayList<Post>();
+	
+	/**
+	 * A complete list of all pages in the site
+	 */
+	private final List<Post> pages = new ArrayList<Post>();
 	
 	/**
 	 * If the page being processed is a Post, this contains a list of up to ten related Posts
@@ -77,6 +83,24 @@ public class Site {
 	}
 	
 	/**
+	 * Add the resource as a page to the list of all pages
+	 * in the site.
+	 * 
+	 * @param page
+	 */
+	public void addPage(Post page) {
+		this.pages.add(page);
+	}
+	
+	/**
+	 * Sort the entire list of pages based on their title, followed by path
+	 * and filename.
+	 */
+	public void sortPages() {
+		Collections.sort(this.pages, new PostComparatorOnNames());
+	}
+	
+	/**
 	 * Add the post to the list of available posts
 	 * 
 	 * @param post
@@ -85,8 +109,12 @@ public class Site {
 		this.posts.add(post);
 	}
 	
+	/**
+	 * Sort all the given posts in their natural order - the
+	 * reverse chronological order.
+	 */
 	public void sortPosts() {
-		Collections.sort(this.posts);
+		Collections.sort(this.posts, new PostComparatorOnDate());
 	}
 	
 	// Usual accessors follow
@@ -159,6 +187,13 @@ public class Site {
 	 */
 	public void setTime(Date time) {
 		this.time = time;
+	}
+
+	/**
+	 * @return the pages
+	 */
+	public List<Post> getPages() {
+		return pages;
 	}
 
 }

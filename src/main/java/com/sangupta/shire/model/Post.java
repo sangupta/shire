@@ -69,7 +69,7 @@ public class Post implements Comparable<Post> {
 	@Override
 	public int compareTo(Post post) {
 		if(post != null) {
-			return 0 - (this.date.compareTo(post.getDate()));
+			return this.getId().compareTo(post.getId());
 		}
 		
 		throw new IllegalArgumentException("Post cannot be null.");

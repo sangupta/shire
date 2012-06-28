@@ -97,9 +97,12 @@ public class TemplateData {
 				post.setDate(resource.getPublishDate());
 				post.setUrl(resource.getUrl());
 				
-				site.addPost(post);
+				site.addPage(post);
 			}
 		}
+		
+		// sort all pages
+		site.sortPages();
 		
 		// sort all posts
 		site.sortPosts();

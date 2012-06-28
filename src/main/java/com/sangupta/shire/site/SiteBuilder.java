@@ -22,6 +22,7 @@
 package com.sangupta.shire.site;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
@@ -33,9 +34,11 @@ import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.converters.Converters;
 import com.sangupta.shire.core.Converter;
 import com.sangupta.shire.core.Generator;
+import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.domain.Resource;
+import com.sangupta.shire.generators.SiteMapGenerator;
 import com.sangupta.shire.layouts.LayoutManager;
 import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.TemplateData;
@@ -97,6 +100,10 @@ public class SiteBuilder {
 		this.layoutManager = new LayoutManager(options);
 		this.siteWriter = new SiteWriter(options);
 		this.siteDirectory = new SiteDirectory(options);
+
+		// add all default generators
+		this.generators = new ArrayList<Generator>();
+		this.generators.add(new SiteMapGenerator());
 	}
 
 	/**
@@ -251,7 +258,12 @@ public class SiteBuilder {
 		}
 		
 		for(Generator generator : generators) {
-			generator.execute();
+			List<GeneratedResource> resources = generator.execute(templateData);
+			if(resources != null && resources.size() > 0) {
+				for(GeneratedResource resource: resources) {
+					this.siteWriter.export(resource);
+				}
+			}
 		}
 	}
 

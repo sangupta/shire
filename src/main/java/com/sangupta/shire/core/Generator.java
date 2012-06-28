@@ -21,6 +21,11 @@
 
 package com.sangupta.shire.core;
 
+import java.util.List;
+
+import com.sangupta.shire.domain.GeneratedResource;
+import com.sangupta.shire.model.TemplateData;
+
 /**
  * Contract for implementations that allow generation of additional
  * content based on rules.
@@ -30,6 +35,19 @@ package com.sangupta.shire.core;
  */
 public interface Generator {
 	
-	public void execute();
+	/**
+	 * Indicates if this generator needs to be run before processing
+	 * any resource of the site.
+	 * 
+	 * @return
+	 */
+	public boolean runBeforeResourceProcessing();
+	
+	/**
+	 * Run the generator providing it the entire site wide template data and
+	 * return a list of all generated resources that were added by this 
+	 * generator as part of its execution.
+	 */
+	public List<GeneratedResource> execute(TemplateData templateData);
 
 }
