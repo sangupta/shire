@@ -21,7 +21,10 @@
 
 package com.sangupta.shire.converters;
 
+import java.util.Map;
+
 import com.sangupta.shire.core.Converter;
+import com.sangupta.shire.model.TemplateData;
 
 /**
  * Converts text in Wiki syntax to HTML.
@@ -30,10 +33,25 @@ import com.sangupta.shire.core.Converter;
  * @since Feb 24, 2012
  */
 public class WikiConverter implements Converter {
+	
+	/**
+	 * @see com.sangupta.shire.core.Converter#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Wiki";
+	}
 
 	@Override
-	public String convert(String content) {
+	public String convert(String content, TemplateData templateData) {
 		return content;
 	}
 
+	/**
+	 * @see com.sangupta.shire.core.Converter#getExtensionMappings()
+	 */
+	@Override
+	public Map<String, String> getExtensionMappings() {
+		return null;
+	}
 }

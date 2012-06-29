@@ -80,9 +80,32 @@ public class Page {
 	private final List<String> tags = new ArrayList<String>();
 	
 	/**
+	 * Reference to the page's front matter
+	 */
+	private Properties frontMatter;
+	
+	/**
+	 * Return the value of configuration property with the given name if
+	 * mentioned in the page's front matter data.
+	 *  
+	 * @param key
+	 * @return
+	 */
+	public String getPageProperty(String key) {
+		if(this.frontMatter == null) {
+			return null;
+		}
+		
+		return this.frontMatter.getProperty(key);
+	}
+	
+	/**
 	 * @param pageFrontMatter
 	 */
 	public void mergeFrontMatter(Properties pageFrontMatter) {
+		// hold a reference for this page
+		this.frontMatter = pageFrontMatter;
+		
 		// read the title from the front matter
 		this.setTitle(pageFrontMatter.getProperty("title"));
 

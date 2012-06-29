@@ -222,7 +222,9 @@ public class SiteBuilder {
 			Converter converter = Converters.getConverter(resource.getFileName());
 			
 			// convert the content first
-			content = converter.convert(content);
+			content = converter.convert(content, templateData);
+			
+			resource.updateExtension(converter.getExtensionMappings());
 			
 			content = this.layoutManager.layoutContent(layoutName, content, templateData);
 			

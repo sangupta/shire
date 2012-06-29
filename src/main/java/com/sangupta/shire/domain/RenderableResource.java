@@ -23,7 +23,11 @@ package com.sangupta.shire.domain;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author sangupta
@@ -56,6 +60,22 @@ public class RenderableResource extends AbstractResource {
 		this.matterEndingLine = matterEndingLine;
 	}
 	
+	/**
+	 * @param extensionMappings
+	 */
+	public void updateExtension(Map<String, String> extensionMappings) {
+		if(extensionMappings == null) {
+			return;
+		}
+		
+		for(Entry<String, String> entry : extensionMappings.entrySet()) {
+			if(this.path.endsWith(entry.getKey())) {
+				this.path = StringUtils.left(this.path, this.path.length() - entry.getKey().length()) + entry.getValue();
+				return;
+			}
+		}
+	}
+
 	public String getFrontMatterProperty(String propertyName) {
 		if(this.frontMatter == null) {
 			return null;

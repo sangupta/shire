@@ -21,10 +21,14 @@
 
 package com.sangupta.shire.converters;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
 import com.sangupta.shire.core.Converter;
+import com.sangupta.shire.model.TemplateData;
 
 /**
  * Converts markdown format to HTML
@@ -35,19 +39,71 @@ import com.sangupta.shire.core.Converter;
 public class MarkdownConverter implements Converter {
 	
 	public static PegDownProcessor pegDownProcessor;
-
+	
+	public static PegDownProcessor pegDownNonHardWrapProcessor;
+	
+	/**
+	 * 
+	 * @see com.sangupta.shire.core.Converter#getName()
+	 */
 	@Override
+	public String getName() {
+		return "Markdown";
+	}
+	
+	/**
+	 * Utility function to convert Markdown content into HTML
+	 * using the standard processor, with newer flavored constructs
+	 * such as hardwraps turned off.
+	 * 
+	 * @param content
+	 * @return
+	 */
 	public String convert(String content) {
-		if(pegDownProcessor == null) {
+		if(pegDownProcessor == null || pegDownNonHardWrapProcessor == null) {
 			initialize();
 		}
-		
+
 		return pegDownProcessor.markdownToHtml(content);
 	}
 
+	@Override
+	public String convert(String content, TemplateData templateData) {
+		if(pegDownProcessor == null || pegDownNonHardWrapProcessor == null) {
+			initialize();
+		}
+		
+		String hardwrap = templateData.getPage().getPageProperty("hardwrap");
+		if("true".equalsIgnoreCase(hardwrap)) {
+			return pegDownNonHardWrapProcessor.markdownToHtml(content);
+		}
+
+		return pegDownProcessor.markdownToHtml(content);
+	}
+	
+	/**
+	 * @see com.sangupta.shire.core.Converter#getExtensionMappings()
+	 */
+	@Override
+	public Map<String, String> getExtensionMappings() {
+		Map<String, String> extensions = new HashMap<String, String>();
+		
+		extensions.put(".md", ".html");
+		extensions.put(".markdown", ".html");
+		
+		return extensions;
+	}
+
+	/**
+	 * Initialization function
+	 */
 	private synchronized void initialize() {
 		if(pegDownProcessor == null) {
 			pegDownProcessor = new PegDownProcessor(Extensions.ALL ^ Extensions.HARDWRAPS);
+		}
+		
+		if(pegDownNonHardWrapProcessor == null) {
+			pegDownNonHardWrapProcessor = new PegDownProcessor(Extensions.ALL);
 		}
 	}
 

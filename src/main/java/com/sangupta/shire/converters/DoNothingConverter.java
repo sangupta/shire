@@ -21,7 +21,10 @@
 
 package com.sangupta.shire.converters;
 
+import java.util.Map;
+
 import com.sangupta.shire.core.Converter;
+import com.sangupta.shire.model.TemplateData;
 
 /**
  * Converter that does nothing. Used when we cannot detect the
@@ -31,10 +34,26 @@ import com.sangupta.shire.core.Converter;
  * @since Feb 24, 2012
  */
 public final class DoNothingConverter implements Converter {
+	
+	/**
+	 * @see com.sangupta.shire.core.Converter#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Do Nothing";
+	}
 
 	@Override
-	public final String convert(String content) {
+	public final String convert(String content, TemplateData templateData) {
 		return content;
+	}
+
+	/**
+	 * @see com.sangupta.shire.core.Converter#getExtensionMappings()
+	 */
+	@Override
+	public Map<String, String> getExtensionMappings() {
+		return null;
 	}
 
 }

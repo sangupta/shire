@@ -21,7 +21,10 @@
 
 package com.sangupta.shire.core;
 
+import java.util.Map;
+
 import com.sangupta.shire.converters.MarkdownConverter;
+import com.sangupta.shire.model.TemplateData;
 
 /**
  * Contract for implementations that allow using a new markup language
@@ -38,6 +41,28 @@ import com.sangupta.shire.converters.MarkdownConverter;
  */
 public interface Converter {
 	
-	public String convert(String content);
+	/**
+	 * Return the user-understandable name of this converter.
+	 * 
+	 * @return
+	 */
+	public String getName();
+	
+	/**
+	 * Convert the given data per the converter's functionality.
+	 * 
+	 * @param content
+	 * @return
+	 */
+	public String convert(String content, TemplateData templateData);
 
+	/**
+	 * Return the list of extension mappings, such as:
+	 * change .md to .html
+	 * or, .markdown to .html
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getExtensionMappings();
+	
 }
