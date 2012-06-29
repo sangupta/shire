@@ -36,6 +36,13 @@ import com.sangupta.shire.model.TemplateData;
 public interface Generator {
 	
 	/**
+	 * Return the human-understandable name of this generator.
+	 * 
+	 * @return
+	 */
+	public String getName();
+	
+	/**
 	 * Indicates if this generator needs to be run before processing
 	 * any resource of the site.
 	 * 

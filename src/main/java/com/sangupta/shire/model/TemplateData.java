@@ -63,6 +63,7 @@ public class TemplateData {
 	 */
 	private void mergeWithTemplateData(Properties configuration) {
 		this.site.setDebug(BooleanUtils.toBoolean(configuration.getProperty("debug")));
+		this.site.setUrl(configuration.getProperty("url"));
 	}
 
 	/**

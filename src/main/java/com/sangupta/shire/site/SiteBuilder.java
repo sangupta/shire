@@ -258,7 +258,9 @@ public class SiteBuilder {
 		}
 		
 		for(Generator generator : generators) {
+			System.out.println("Invoking generator: " + generator.getName());
 			List<GeneratedResource> resources = generator.execute(templateData);
+			
 			if(resources != null && resources.size() > 0) {
 				for(GeneratedResource resource: resources) {
 					this.siteWriter.export(resource);

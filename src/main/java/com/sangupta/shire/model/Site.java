@@ -35,6 +35,12 @@ import java.util.List;
 public class Site {
 	
 	/**
+	 * The absolute base URL of this site. This is used at places
+	 * such as in generation of sitemap.xml files. 
+	 */
+	private String url;
+	
+	/**
 	 * The current time
 	 */
 	private Date time = null;
@@ -194,6 +200,20 @@ public class Site {
 	 */
 	public List<Post> getPages() {
 		return pages;
+	}
+
+	/**
+	 * @return the url
+	 */
+	public String getUrl() {
+		return url;
+	}
+
+	/**
+	 * @param url the url to set
+	 */
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 }

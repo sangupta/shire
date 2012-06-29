@@ -24,6 +24,8 @@ package com.sangupta.shire.generators;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.model.Post;
@@ -36,6 +38,14 @@ import com.sangupta.shire.model.TemplateData;
  *
  */
 public class SiteMapGenerator implements Generator {
+	
+	/**
+	 * @see com.sangupta.shire.core.Generator#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Sitemap.xml";
+	}
 
 	/**
 	 * @see com.sangupta.shire.core.Generator#runBeforeResourceProcessing()
@@ -52,19 +62,40 @@ public class SiteMapGenerator implements Generator {
 	public List<GeneratedResource> execute(TemplateData model) {
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append("<xml>\n");
-		builder.append("<pages>\n");
-		
+		builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+		builder.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+		String url = model.getSite().getUrl();
+
 		List<Post> posts = model.getSite().getPages();
 		if(posts != null && posts.size() > 0) {
 			for(Post post : posts) {
-				builder.append("<page url=\"");
+				builder.append("  <url>\n");
+				
+				builder.append("    <loc>");
+				builder.append(url);
+				if(!post.getUrl().startsWith("/")) {
+					builder.append("/");
+				}
 				builder.append(post.getUrl());
-				builder.append("\" />\n");
+				builder.append("</loc>\n");
+				
+				builder.append("    <lastmod>");
+				builder.append(DateFormatUtils.format(post.getDate(), "yyyy-MM-dd"));
+				builder.append("</lastmod>\n");
+				
+				builder.append("    <changefreq>");
+				builder.append(SiteMapChangeFrequency.monthly);
+				builder.append("</changefreq>\n");
+				
+				builder.append("    <priority>");
+				builder.append("0.5");
+				builder.append("</priority>\n");
+				
+				builder.append("  </url>\n");
 			}
 		}
 
-		builder.append("</pages>\n");
+		builder.append("</urlset>\n");
 		
 		GeneratedResource resource = new GeneratedResource("/sitemap.xml", builder.toString());
 		
@@ -73,4 +104,27 @@ public class SiteMapGenerator implements Generator {
 		return resources;
 	}
 
+	/**
+	 * Enumeration defining the sitemap change frequency.
+	 * 
+	 * @author sangupta
+	 *
+	 */
+	public static enum SiteMapChangeFrequency {
+		
+		always,
+		
+		hourly,
+		
+		daily,
+		
+		weekly,
+		
+		monthly,
+		
+		yearly,
+		
+		never;
+		
+	}
 }
