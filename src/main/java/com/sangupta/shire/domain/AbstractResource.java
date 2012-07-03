@@ -34,15 +34,51 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class AbstractResource implements Resource {
 
+	/**
+	 * Absolute file handle to the source file
+	 */
 	protected File fileHandle;
 	
+	/**
+	 * The extracted base path of the resource from the base
+	 * source folder - this path when suffixed to the base export
+	 * path makes the path at which the resource needs to be
+	 * written.
+	 */
 	protected String path;
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param fileHandle
+	 * @param rootPath
+	 */
 	public AbstractResource(File fileHandle, String rootPath) {
 		this.fileHandle = fileHandle;
 		this.path = getBasePath(rootPath);
 	}
-	
+
+	/**
+	 * Extract the base path of this resource.
+	 * 
+	 * @param basePath
+	 * @return
+	 */
+	private String getBasePath(String basePath) {
+		if(this.fileHandle == null) {
+			return null;
+		}
+		
+		// its not there, let's construct from base path
+		String path = this.fileHandle.getAbsolutePath();
+		
+		if(path.startsWith(basePath)) {
+			path = path.substring(basePath.length());
+		}
+		
+		return path;
+	}
+
 	/**
 	 * @see com.sangupta.shire.domain.Resource#getPublishDate()
 	 */
@@ -96,21 +132,6 @@ public abstract class AbstractResource implements Resource {
 	 */
 	public String getExportPath() {
 		return this.path;
-	}
-
-	private String getBasePath(String basePath) {
-		if(fileHandle == null) {
-			return null;
-		}
-		
-		// its not there, let's construct from base path
-		String path = this.fileHandle.getAbsolutePath();
-		
-		if(path.startsWith(basePath)) {
-			path = path.substring(basePath.length());
-		}
-		
-		return path;
 	}
 
 }

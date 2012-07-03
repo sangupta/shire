@@ -23,21 +23,14 @@ package com.sangupta.shire.site;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import com.sangupta.shire.ExecutionOptions;
-import com.sangupta.shire.converters.Converters;
-import com.sangupta.shire.core.Converter;
 import com.sangupta.shire.core.Generator;
-import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
-import com.sangupta.shire.domain.Resource;
+import com.sangupta.shire.generators.BlogPagesGenerator;
 import com.sangupta.shire.generators.SiteMapGenerator;
 import com.sangupta.shire.layouts.LayoutManager;
 import com.sangupta.shire.model.Page;
@@ -49,16 +42,6 @@ public class SiteBuilder {
 	 * Options to be used for site building
 	 */
 	private ExecutionOptions options;
-	
-	/**
-	 * Manager which reads all layouts
-	 */
-	private LayoutManager layoutManager = null;
-	
-	/**
-	 * Manager to handle export of site
-	 */
-	private SiteWriter siteWriter = null;
 	
 	/**
 	 * List of registered generators
@@ -97,13 +80,14 @@ public class SiteBuilder {
 	 */
 	private void initialize() {
 		// initialize all sub-systems
-		this.layoutManager = new LayoutManager(options);
-		this.siteWriter = new SiteWriter(options);
+		LayoutManager.initialize(options);
+		SiteWriter.initialize(options);
 		this.siteDirectory = new SiteDirectory(options);
 
 		// add all default generators
 		this.generators = new ArrayList<Generator>();
 		this.generators.add(new SiteMapGenerator());
+		this.generators.add(new BlogPagesGenerator());
 	}
 
 	/**
@@ -114,7 +98,7 @@ public class SiteBuilder {
 		// read all available layouts
 		// as given in _layouts folder
 		// and in _includes folder
-		this.layoutManager.readLayoutsAndIncludes();
+		LayoutManager.readLayoutsAndIncludes();
 		
 		// rename the older _site folder
 		// to create a backup
@@ -134,35 +118,47 @@ public class SiteBuilder {
 	
 	private void processSite() {
 		// build the template data
-		templateData = new TemplateData(this.options.getConfiguration());
+		this.templateData = new TemplateData(this.options.getConfiguration());
 		
 		// build a list of all tags and categories
 		// that will be used site-wide
-		templateData.extractFromResources(this.siteDirectory.getResources());
+		this.templateData.extractFromResources(this.siteDirectory.getRenderableResources());
+		
+		// export all non-renderable resources
+		exportNonRenderableResources(this.siteDirectory.getNonRenderableResources());
 
 		// build a list of all folders
 		// exclude the _includes, _layouts, _plugins and _site folders
-		processResources(this.siteDirectory.getResources());
+		processResources(this.siteDirectory.getRenderableResources());
 		
 		// call all generators
 		// and pass these the needed values
 		invokeGenerators();
+		
 	}
 	
-	private void processResources(Collection<Resource> resources) {
+	/**
+	 * @param nonRenderableResources
+	 */
+	private void exportNonRenderableResources(List<NonRenderableResource> nonRenderableResources) {
+		for(NonRenderableResource nr : nonRenderableResources) {
+			SiteWriter.export(nr);
+		}
+	}
+
+	/**
+	 * Process each individual page from the site folder and export it.
+	 * 
+	 * @param resources
+	 */
+	private void processResources(List<RenderableResource> resources) {
 		System.out.println("Found " + resources.size() + " files to process.");
 		
 		// start processing each file
-		for(Resource resource : resources) {
-			if(resource instanceof NonRenderableResource) {
-				// simply copy the resource
-				this.siteWriter.export(resource);
-				continue;
-			}
-			
+		for(RenderableResource resource : resources) {
 			// process the resource as needed
 			try {
-				renderPage((RenderableResource) resource, templateData);
+				renderPage(resource, templateData);
 			} catch (IOException e) {
 				System.out.println("Unable to process site resource: " + resource.getExportPath());
 				e.printStackTrace();
@@ -202,7 +198,7 @@ public class SiteBuilder {
 		templateData.mergePageFrontMatter(frontMatter);
 		
 		if(layoutName != null) {
-			String content = getFileContents(resource);
+			String content = resource.getOriginalContent();
 			
 			// add the unrendered content
 			Page page = templateData.getPage();
@@ -216,21 +212,16 @@ public class SiteBuilder {
 				// processing of this page was stopped
 				return;
 			}
+
+			// get the converted content in HTML
+			content = resource.getConvertedContent(templateData);
 			
-			// find out the right converter for the file's content
-			// markdown, Wiki, or HTML, or something else
-			Converter converter = Converters.getConverter(resource.getFileName());
-			
-			// convert the content first
-			content = converter.convert(content, templateData);
-			
-			resource.updateExtension(converter.getExtensionMappings());
-			
-			content = this.layoutManager.layoutContent(layoutName, content, templateData);
+			// work out this HTML content with the current model data
+			content = LayoutManager.layoutContent(layoutName, content, templateData);
 			
 			// now that we are done
 			// we need to write the file back to the destination
-			this.siteWriter.export(resource, content);
+			SiteWriter.export(resource, content);
 			
 			return;
 		}
@@ -238,17 +229,6 @@ public class SiteBuilder {
 		System.out.println("No layout name specified for file... copying it as a resource");
 	}
 	
-	/**
-	 * @param resource
-	 * @return
-	 * @throws IOException 
-	 */
-	private String getFileContents(RenderableResource resource) throws IOException {
-		List<String> lines = FileUtils.readLines(resource.getFileHandle());
-		String content = StringUtils.join(lines.subList(resource.getMatterEndingLine(), lines.size()), '\n');
-		return content;
-	}
-
 	/**
 	 * Method that invokes all available generators on site.
 	 * 
@@ -261,13 +241,7 @@ public class SiteBuilder {
 		
 		for(Generator generator : generators) {
 			System.out.println("Invoking generator: " + generator.getName());
-			List<GeneratedResource> resources = generator.execute(templateData);
-			
-			if(resources != null && resources.size() > 0) {
-				for(GeneratedResource resource: resources) {
-					this.siteWriter.export(resource);
-				}
-			}
+			generator.execute(templateData, this.siteDirectory.getRenderableResources(), this.siteDirectory.getDotFiles());
 		}
 	}
 

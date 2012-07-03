@@ -21,15 +21,16 @@
 
 package com.sangupta.shire.generators;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.domain.GeneratedResource;
-import com.sangupta.shire.model.Post;
+import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.model.TemplateData;
+import com.sangupta.shire.site.SiteWriter;
 
 /**
  * Generator that creates a sitemap of all pages in the website.
@@ -59,28 +60,27 @@ public class SiteMapGenerator implements Generator {
 	 * @see com.sangupta.shire.core.Generator#execute(com.sangupta.shire.model.TemplateData)
 	 */
 	@Override
-	public List<GeneratedResource> execute(TemplateData model) {
+	public void execute(TemplateData model, List<RenderableResource> resources, List<File> dotFiles) {
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		builder.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 		String url = model.getSite().getUrl();
 
-		List<Post> posts = model.getSite().getPages();
-		if(posts != null && posts.size() > 0) {
-			for(Post post : posts) {
+		if(resources != null && resources.size() > 0) {
+			for(RenderableResource resource : resources) {
 				builder.append("  <url>\n");
 				
 				builder.append("    <loc>");
 				builder.append(url);
-				if(!post.getUrl().startsWith("/")) {
+				if(!resource.getUrl().startsWith("/")) {
 					builder.append("/");
 				}
-				builder.append(post.getUrl());
+				builder.append(resource.getUrl());
 				builder.append("</loc>\n");
 				
 				builder.append("    <lastmod>");
-				builder.append(DateFormatUtils.format(post.getDate(), "yyyy-MM-dd"));
+				builder.append(DateFormatUtils.format(resource.getPublishDate(), "yyyy-MM-dd"));
 				builder.append("</lastmod>\n");
 				
 				builder.append("    <changefreq>");
@@ -97,11 +97,11 @@ public class SiteMapGenerator implements Generator {
 
 		builder.append("</urlset>\n");
 		
+		// create a resource of this file
 		GeneratedResource resource = new GeneratedResource("/sitemap.xml", builder.toString());
 		
-		List<GeneratedResource> resources = new ArrayList<GeneratedResource>();
-		resources.add(resource);
-		return resources;
+		// export it
+		SiteWriter.export(resource);
 	}
 
 	/**

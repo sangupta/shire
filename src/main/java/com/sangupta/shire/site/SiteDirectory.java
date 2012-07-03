@@ -29,7 +29,6 @@ import java.util.Properties;
 import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
-import com.sangupta.shire.domain.Resource;
 import com.sangupta.shire.model.FrontMatterConstants;
 import com.sangupta.shire.util.FrontMatterUtils;
 
@@ -62,9 +61,20 @@ public class SiteDirectory {
 	private final ExecutionOptions options;
 	
 	/**
-	 * Holds the list of all resources that are available in the site
+	 * Holds the list of all renderable resources that are available in the site
 	 */
-	private final List<Resource> resources = new ArrayList<Resource>();
+	private final List<RenderableResource> renderableResources = new ArrayList<RenderableResource>();
+	
+	/**
+	 * Holds the list of all non-renderable resources that are available in the site
+	 */
+	private final List<NonRenderableResource> nonRenderableResources = new ArrayList<NonRenderableResource>();
+	
+	/**
+	 * Holds the list of all directories that have been marked to be considered
+	 * as a blog.
+	 */
+	private final List<File> dotFiles = new ArrayList<File>();
 	
 	/**
 	 * Constructor
@@ -138,6 +148,11 @@ public class SiteDirectory {
 					}
 				}
 				
+				// check for blog signal
+				if(file.getName().startsWith(".")) {
+					this.dotFiles.add(file.getAbsoluteFile());
+				}
+				
 				// see where the file falls in
 				if(fileAllowed(file)) {
 					// check if the file has front-matter or not
@@ -148,16 +163,16 @@ public class SiteDirectory {
 							// check if the resource has been published or not
 							String published = properties.getProperty(FrontMatterConstants.PUBLISHED);
 							if(published == null || !("false".equalsIgnoreCase(published))) {
-								resources.add(new RenderableResource(file, this.basePath, properties, frontMatter));
+								this.renderableResources.add(new RenderableResource(file, this.basePath, properties, frontMatter));
 							}
 						}
 					} catch(Exception e) {
 						// as we are unable to process this resource
 						// move it to non-processable one
-						resources.add(new NonRenderableResource(file, this.basePath));
+						this.nonRenderableResources.add(new NonRenderableResource(file, this.basePath));
 					}
 				} else {
-					resources.add(new NonRenderableResource(file, this.basePath));
+					this.nonRenderableResources.add(new NonRenderableResource(file, this.basePath));
 				}
 			}
 		}
@@ -210,10 +225,24 @@ public class SiteDirectory {
 	// Usual accessors follow
 
 	/**
-	 * @return the resources
+	 * @return the dotFiles
 	 */
-	public List<Resource> getResources() {
-		return resources;
+	public List<File> getDotFiles() {
+		return dotFiles;
+	}
+
+	/**
+	 * @return the renderableResources
+	 */
+	public List<RenderableResource> getRenderableResources() {
+		return renderableResources;
+	}
+
+	/**
+	 * @return the nonRenderableResources
+	 */
+	public List<NonRenderableResource> getNonRenderableResources() {
+		return nonRenderableResources;
 	}
 
 }

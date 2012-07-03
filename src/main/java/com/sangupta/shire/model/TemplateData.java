@@ -27,8 +27,6 @@ import java.util.Properties;
 import org.apache.commons.lang3.BooleanUtils;
 
 import com.sangupta.shire.domain.RenderableResource;
-import com.sangupta.shire.domain.Resource;
-import com.sangupta.shire.util.ShireUtils;
 
 /**
  * Stores the template data that is passed on to the page
@@ -86,27 +84,7 @@ public class TemplateData {
 	 * 
 	 * @param resources
 	 */
-	public void extractFromResources(List<Resource> resources) {
-		for(Resource resource : resources) {
-			if(resource instanceof RenderableResource) {
-				RenderableResource rr = (RenderableResource) resource;
-				
-				// build a list of the posts entry
-				Post post = new Post();
-				post.setTitle(rr.getFrontMatterProperty(FrontMatterConstants.PAGE_TITLE));
-				post.setId(ShireUtils.createUniquePageID(rr.getUrl()));
-				post.setDate(resource.getPublishDate());
-				post.setUrl(resource.getUrl());
-				
-				site.addPage(post);
-			}
-		}
-		
-		// sort all pages
-		site.sortPages();
-		
-		// sort all posts
-		site.sortPosts();
+	public void extractFromResources(List<RenderableResource> resources) {
 	}
 
 	// Usual accessors follow
