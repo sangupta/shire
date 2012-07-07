@@ -192,6 +192,9 @@ public class BlogPagesGenerator implements Generator {
 			Page post = new Page();
 			post.setDate(resource.getPublishDate());
 			post.setContent(content);
+			post.setTitle(resource.getFrontMatterProperty("title"));
+			post.setUrl(resource.getUrl());
+			post.setDate(resource.getPublishDate());
 			
 			posts.add(post);
 		}
