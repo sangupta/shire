@@ -82,4 +82,9 @@ public abstract class AbstractCustomTag extends Directive implements Tag {
 		
 		return null;
 	}
+	
+	protected void writeLine(String line) throws IOException {
+		this.writer.write(line);
+		this.writer.write('\n');
+	}
 }
