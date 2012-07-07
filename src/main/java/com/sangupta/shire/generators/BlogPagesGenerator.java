@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+
 import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.domain.RenderableResource;
@@ -79,7 +81,12 @@ public class BlogPagesGenerator implements Generator {
 			}
 		}
 		
-		processBlogResources(blogFolders, resources, model);
+		try {
+			processBlogResources(blogFolders, resources, model);
+		} catch (IOException e) {
+			System.out.println("Unable to generate blog pages for pagination, categorites, tags, and year-month archives.");
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -90,8 +97,9 @@ public class BlogPagesGenerator implements Generator {
 	 * @param resources
 	 * @param siteWriter 
 	 * @param model 
+	 * @throws IOException 
 	 */
-	private void processBlogResources(List<String> blogFolders, List<RenderableResource> resources, TemplateData model) {
+	private void processBlogResources(List<String> blogFolders, List<RenderableResource> resources, TemplateData model) throws IOException {
 		Map<String, List<RenderableResource>> pages = getBlogPages(blogFolders, resources);
 		
 		// start processing each blog individually
@@ -104,14 +112,18 @@ public class BlogPagesGenerator implements Generator {
 	/**
 	 * @param blog the absolute base path to the root of the blog folder
 	 * @param list the list of all posts in this blog
+	 * @throws IOException 
 	 */
-	private void processBlog(final String blog, List<RenderableResource> list, TemplateData model) {
+	private void processBlog(final String blog, List<RenderableResource> list, TemplateData model) throws IOException {
 		if(list == null || list.isEmpty()) {
 			return;
 		}
 		
 		// sort the list in reverse chronological order
-		Collections.sort(list, new ResourceComparatorOnDate());  
+		Collections.sort(list, new ResourceComparatorOnDate()); 
+		
+		// fetch the blog name from the folder
+		final String blogName = FileUtils.readFileToString(new File(blog + "/.blog"));
 		
 		// create the home page with the top 5 entries
 		int batches = (list.size() / BATCH_SIZE) + 1;
@@ -128,7 +140,7 @@ public class BlogPagesGenerator implements Generator {
 			if(index == 0) {
 				name = blog + "/index.html";
 			} else {
-				name = blog + "/page/" + index + ".html";
+				name = blog + "/page" + index + ".html";
 			}
 			
 			int nextPage = index + 1;
@@ -137,7 +149,7 @@ public class BlogPagesGenerator implements Generator {
 			}
 			
 			try {
-				pushBatchPage(pages, model, name, index, nextPage);
+				pushBatchPage(blogName, pages, model, name, index, nextPage);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -151,7 +163,7 @@ public class BlogPagesGenerator implements Generator {
 	 * @param name
 	 * @throws IOException 
 	 */
-	private void pushBatchPage(List<RenderableResource> pages, TemplateData model, String name, int currentPage, int nextPage) throws IOException {
+	private void pushBatchPage(String blogName, List<RenderableResource> pages, TemplateData model, String name, int currentPage, int nextPage) throws IOException {
 		final String layoutName = "post-listing.html";
 		
 		// build the model template
@@ -168,7 +180,9 @@ public class BlogPagesGenerator implements Generator {
 		paginator.setTotalPosts(pages.size());
 		
 		// clear up the page data
-		model.setPage(null);
+		Page page = new Page();
+		page.setTitle(blogName);
+		model.setPage(page);
 		
 		// build the data for each page
 		String content;

@@ -22,6 +22,7 @@
 package com.sangupta.shire.util;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +44,8 @@ import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
+
+import com.sangupta.shire.Shire;
 
 /**
  * @author sangupta
@@ -116,6 +119,14 @@ public class HttpUtil {
     }
 
     public static WebResponse getUrlResponse(String url) {
+    	if(!Shire.getExecutionOptions().isUseCache()) {
+    		return getResponseWithoutCacheCheck(url);
+    	}
+    	
+    	return WebResponseCacheUtil.doWithCache(url);
+	}
+    
+    public static WebResponse getResponseWithoutCacheCheck(String url) {
     	WebResponse webResponse = null;
 		try {
 	    	HttpGet get = new HttpGet(url);
@@ -177,9 +188,14 @@ public class HttpUtil {
 		}
 	}
 
-	public static class WebResponse {
+	public static class WebResponse implements Serializable {
     	
-    	private String responseBody;
+    	/**
+		 * Generated via Eclipse
+		 */
+		private static final long serialVersionUID = -7444927096731647636L;
+
+		private String responseBody;
     	
     	private int responseCode = -1;
     	
