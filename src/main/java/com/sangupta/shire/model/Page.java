@@ -85,6 +85,19 @@ public class Page {
 	private Properties frontMatter;
 	
 	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		String title = this.getPageProperty(FrontMatterConstants.PAGE_TITLE);
+		if(title == null) {
+			return super.toString();
+		}
+		
+		return title;
+	}
+	
+	/**
 	 * Return the value of configuration property with the given name if
 	 * mentioned in the page's front matter data.
 	 *  

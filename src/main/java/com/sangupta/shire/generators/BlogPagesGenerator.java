@@ -153,10 +153,10 @@ public class BlogPagesGenerator implements Generator {
 		
 		// build all tag and categories pages
 		for(TagOrCategory tag : tags) {
-			doPaginationPages(blogName, tag.getUrl(), tag.getPosts(), model);
+			doPaginationPages(blogName, tag.getBasePath(), tag.getPosts(), model);
 		}
 		for(TagOrCategory cat : categories) {
-			doPaginationPages(blogName, cat.getUrl(), cat.getPosts(), model);
+			doPaginationPages(blogName, cat.getBasePath(), cat.getPosts(), model);
 		}
 	}
 

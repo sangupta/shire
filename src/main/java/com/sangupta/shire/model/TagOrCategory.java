@@ -24,6 +24,8 @@ package com.sangupta.shire.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sangupta.shire.site.SiteWriter;
+
 /**
  * Holds data about one given tag or category. As there is no functional
  * difference between the two, the encapsulating model object is the same.
@@ -42,6 +44,11 @@ public class TagOrCategory {
 	 * The URL of this tag/category
 	 */
 	private String url;
+	
+	/**
+	 * The URL to the base path of this tag/category
+	 */
+	private String basePath;
 
 	/**
 	 * Holds all posts of this category
@@ -61,9 +68,10 @@ public class TagOrCategory {
 	 * @param name
 	 * @param url
 	 */
-	public TagOrCategory(String name, String url) {
+	public TagOrCategory(String name, String basePath) {
 		this.name = name;
-		this.url = url;
+		this.basePath = basePath;
+		this.url = SiteWriter.createBasePath(basePath + "/index.html");
 	}
 
 	/**
@@ -115,6 +123,14 @@ public class TagOrCategory {
 		return this.name.hashCode();
 	}
 	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return this.name;
+	}
+	
 	// Usual accessors follow
 
 	/**
@@ -150,6 +166,13 @@ public class TagOrCategory {
 	 */
 	public List<Page> getPosts() {
 		return posts;
+	}
+
+	/**
+	 * @return the basePath
+	 */
+	public String getBasePath() {
+		return basePath;
 	}
 
 }
