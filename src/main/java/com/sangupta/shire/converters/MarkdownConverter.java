@@ -23,12 +23,12 @@ package com.sangupta.shire.converters;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
 import com.sangupta.shire.core.Converter;
-import com.sangupta.shire.model.TemplateData;
 
 /**
  * Converts markdown format to HTML
@@ -68,12 +68,12 @@ public class MarkdownConverter implements Converter {
 	}
 
 	@Override
-	public String convert(String content, TemplateData templateData) {
+	public String convert(String content, Properties pageProperties) {
 		if(pegDownProcessor == null || pegDownNonHardWrapProcessor == null) {
 			initialize();
 		}
 		
-		String hardwrap = templateData.getPage().getPageProperty("hardwrap");
+		String hardwrap = pageProperties.getProperty("hardwrap");
 		if("true".equalsIgnoreCase(hardwrap)) {
 			return pegDownNonHardWrapProcessor.markdownToHtml(content);
 		}

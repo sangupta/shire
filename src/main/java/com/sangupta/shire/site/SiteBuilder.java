@@ -214,7 +214,7 @@ public class SiteBuilder {
 			}
 
 			// get the converted content in HTML
-			content = resource.getConvertedContent(templateData);
+			content = resource.getConvertedContent();
 			
 			// work out this HTML content with the current model data
 			content = LayoutManager.layoutContent(layoutName, content, templateData);

@@ -22,9 +22,9 @@
 package com.sangupta.shire.converters;
 
 import java.util.Map;
+import java.util.Properties;
 
 import com.sangupta.shire.core.Converter;
-import com.sangupta.shire.model.TemplateData;
 
 /**
  * Converts text in Wiki syntax to HTML.
@@ -43,7 +43,7 @@ public class WikiConverter implements Converter {
 	}
 
 	@Override
-	public String convert(String content, TemplateData templateData) {
+	public String convert(String content, Properties pageProperties) {
 		return content;
 	}
 

@@ -35,9 +35,11 @@ import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.layouts.LayoutManager;
+import com.sangupta.shire.model.FrontMatterConstants;
 import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.Paginator;
 import com.sangupta.shire.model.ResourceComparatorOnDate;
+import com.sangupta.shire.model.TagOrCategory;
 import com.sangupta.shire.model.TemplateData;
 import com.sangupta.shire.site.SiteWriter;
 
@@ -81,6 +83,12 @@ public class BlogPagesGenerator implements Generator {
 			}
 		}
 		
+		if(blogFolders.isEmpty()) {
+			// nothind to do
+			return;
+		}
+		
+		// start building pages for each individual blog in there
 		try {
 			processBlogResources(blogFolders, resources, model);
 		} catch (IOException e) {
@@ -110,21 +118,103 @@ public class BlogPagesGenerator implements Generator {
 	}
 	
 	/**
-	 * @param blog the absolute base path to the root of the blog folder
+	 * @param blogPath the absolute base path to the root of the blog folder
 	 * @param list the list of all posts in this blog
 	 * @throws IOException 
 	 */
-	private void processBlog(final String blog, List<RenderableResource> list, TemplateData model) throws IOException {
+	private void processBlog(final String blogPath, List<RenderableResource> list, TemplateData model) throws IOException {
 		if(list == null || list.isEmpty()) {
 			return;
 		}
 		
+		// fetch the blog name from the folder
+		final String blogName = FileUtils.readFileToString(new File(blogPath + "/.blog"));
+		
 		// sort the list in reverse chronological order
 		Collections.sort(list, new ResourceComparatorOnDate()); 
 		
-		// fetch the blog name from the folder
-		final String blogName = FileUtils.readFileToString(new File(blog + "/.blog"));
+		// extract all individual tag names, category names, and dates for archives
+		List<TagOrCategory> tags = extractAllTagsOrCategories(list, FrontMatterConstants.TAGS, blogPath);
+		List<TagOrCategory> categories = extractAllTagsOrCategories(list, FrontMatterConstants.CATEGORIES, blogPath);
 		
+		// add these to model
+		model.getSite().setTags(tags);
+		model.getSite().setCategories(categories);
+		
+		// build all the pagination pages
+		List<Page> allPages = new ArrayList<Page>();
+		for(RenderableResource rr : list) {
+			allPages.add(rr.getResourcePost());
+		}
+		
+		doPaginationPages(blogName, blogPath, allPages, model);
+		
+		// build all the date pages - archives
+		
+		// build all tag and categories pages
+		for(TagOrCategory tag : tags) {
+			doPaginationPages(blogName, tag.getUrl(), tag.getPosts(), model);
+		}
+		for(TagOrCategory cat : categories) {
+			doPaginationPages(blogName, cat.getUrl(), cat.getPosts(), model);
+		}
+	}
+
+	/**
+	 * @param list
+	 * @return
+	 */
+	private List<TagOrCategory> extractAllTagsOrCategories(List<RenderableResource> list, final String propertyName, final String blogPath) {
+		List<TagOrCategory> result = new ArrayList<TagOrCategory>();
+		
+		// create a single re-usable object to prevent excessive
+		// garbage collection
+		TagOrCategory tagOrCategory = new TagOrCategory();
+		
+		// build up a list of all details
+		for(RenderableResource resource : list) {
+			String categoryLine = resource.getFrontMatterProperty(propertyName);
+			if(categoryLine == null) {
+				continue;
+			}
+			
+			String[] tokens = categoryLine.split(FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
+			for(String token : tokens) {
+				token = token.trim();
+				if(!token.isEmpty()) {
+					tagOrCategory.setName(token);
+					
+					int index = result.indexOf(tagOrCategory);
+					if(index == -1) {
+						tagOrCategory = new TagOrCategory(token, buildTagOrCategoryUrl(blogPath, propertyName, token));
+						result.add(tagOrCategory);
+					} else {
+						tagOrCategory = result.get(index);
+					}
+					
+					tagOrCategory.addPost(resource.getResourcePost());
+				}
+			}
+		}
+		
+		return result;
+	}
+
+	/**
+	 * @param category
+	 * @return
+	 */
+	private String buildTagOrCategoryUrl(final String blogPath, final String folder, final String name) {
+		return blogPath + "/" + folder + "/" + name;
+	}
+
+	/**
+	 * @param blogName
+	 * @param basePath
+	 * @param list
+	 * @param model
+	 */
+	private void doPaginationPages(final String blogName, final String basePath, List<Page> list, TemplateData model) {
 		// create the home page with the top 5 entries
 		int batches = (list.size() / BATCH_SIZE) + 1;
 		for(int index = 0; index < batches; index++) {
@@ -133,14 +223,14 @@ public class BlogPagesGenerator implements Generator {
 				lastIndex = list.size();
 			}
 			
-			List<RenderableResource> pages = list.subList(index * BATCH_SIZE, lastIndex);
+			List<Page> pages = list.subList(index * BATCH_SIZE, lastIndex);
 			
 			String name;
 			// decide the name
 			if(index == 0) {
-				name = blog + "/index.html";
+				name = basePath + "/index.html";
 			} else {
-				name = blog + "/page" + index + ".html";
+				name = basePath + "/page" + index + ".html";
 			}
 			
 			int nextPage = index + 1;
@@ -163,7 +253,7 @@ public class BlogPagesGenerator implements Generator {
 	 * @param name
 	 * @throws IOException 
 	 */
-	private void pushBatchPage(String blogName, List<RenderableResource> pages, TemplateData model, String name, int currentPage, int nextPage) throws IOException {
+	private void pushBatchPage(String blogName, List<Page> pages, TemplateData model, String name, int currentPage, int nextPage) throws IOException {
 		final String layoutName = "post-listing.html";
 		
 		// build the model template
@@ -186,16 +276,7 @@ public class BlogPagesGenerator implements Generator {
 		
 		// build the data for each page
 		String content;
-		for(RenderableResource resource : pages) {
-			content = resource.getConvertedContent(model);
-			
-			Page post = new Page();
-			post.setDate(resource.getPublishDate());
-			post.setContent(content);
-			post.setTitle(resource.getFrontMatterProperty("title"));
-			post.setUrl(resource.getUrl());
-			post.setDate(resource.getPublishDate());
-			
+		for(Page post : pages) {
 			posts.add(post);
 		}
 		

@@ -107,7 +107,7 @@ public class Page {
 		this.frontMatter = pageFrontMatter;
 		
 		// read the title from the front matter
-		this.setTitle(pageFrontMatter.getProperty("title"));
+		this.setTitle(pageFrontMatter.getProperty(FrontMatterConstants.PAGE_TITLE));
 
 		// read the date from the front matter
 		String date = pageFrontMatter.getProperty("date");
@@ -118,7 +118,7 @@ public class Page {
 		// read the tags from the front matter
 		String tags = pageFrontMatter.getProperty("tags");
 		if(tags != null && !tags.trim().isEmpty()) {
-			String[] tokens = StringUtils.split(tags, " ;,");
+			String[] tokens = StringUtils.split(tags, FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
 			for(String tag : tokens) {
 				if(!("".equals(tag.trim()))) {
 					this.tags.add(tag);

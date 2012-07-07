@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.sangupta.shire.converters.Converters;
 import com.sangupta.shire.core.Converter;
-import com.sangupta.shire.model.TemplateData;
+import com.sangupta.shire.model.Page;
 
 /**
  * @author sangupta
@@ -64,6 +64,11 @@ public class RenderableResource extends AbstractResource {
 	 * the converter over the {@link #originalContent}.
 	 */
 	private String convertedContent = null;
+	
+	/**
+	 * Internal handle to the post
+	 */
+	private Page post = null;
 
 	/**
 	 * Constructor
@@ -115,7 +120,7 @@ public class RenderableResource extends AbstractResource {
 	 * @return the convertedContent
 	 * @throws IOException 
 	 */
-	public String getConvertedContent(TemplateData templateData) throws IOException {
+	public String getConvertedContent() throws IOException {
 		if(this.convertedContent == null) {
 			String content = getOriginalContent();
 			
@@ -124,13 +129,33 @@ public class RenderableResource extends AbstractResource {
 			Converter converter = Converters.getConverter(this.getFileName());
 			
 			// convert the content first
-			this.convertedContent = converter.convert(content, templateData);
+			this.convertedContent = converter.convert(content, this.frontMatter);
 			
 			// also update the extension mappings
 			updateExtension(converter.getExtensionMappings());
 		}
 		
 		return convertedContent;
+	}
+	
+	public Page getResourcePost() {
+		if(this.post == null) {
+			this.post = new Page();
+	
+			post.setDate(this.getPublishDate());
+			post.setTitle(this.getFrontMatterProperty("title"));
+			
+			try {
+				post.setContent(this.getConvertedContent());
+			} catch (IOException e) {
+				throw new RuntimeException("Unable to build post out of this resource", e);
+			}
+			
+			post.setUrl(this.getUrl());
+			post.setDate(this.getPublishDate());
+		}
+		
+		return post;
 	}
 
 	/**
