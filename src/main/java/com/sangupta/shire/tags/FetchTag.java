@@ -22,13 +22,6 @@
 package com.sangupta.shire.tags;
 
 import java.io.IOException;
-import java.io.Writer;
-
-import org.apache.velocity.context.InternalContextAdapter;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
-import org.apache.velocity.runtime.parser.node.Node;
 
 import com.sangupta.shire.util.HttpUtil;
 import com.sangupta.shire.util.HttpUtil.WebResponse;
@@ -50,16 +43,15 @@ public class FetchTag extends AbstractCustomTag {
 	}
 
 	@Override
-	public boolean render(InternalContextAdapter context, Writer writer, Node node) throws IOException, ResourceNotFoundException, ParseErrorException, MethodInvocationException {
-		String url = null;
-		url = (String) getArgument(node, context, 0);
+	public boolean doTag() throws IOException {
+		String url = getArgument(0);
 		
 		if(url != null) {
 			WebResponse webResponse = HttpUtil.getUrlResponse(url);
 			if(webResponse != null && webResponse.isSuccess()) {
 				String contents = webResponse.getResponseBody();
 				
-				writer.write(contents);
+				this.writer.write(contents);
 			}
 		}
 		

@@ -22,15 +22,9 @@
 package com.sangupta.shire.tags;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Date;
 
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.velocity.context.InternalContextAdapter;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
-import org.apache.velocity.runtime.parser.node.Node;
 
 /**
  * Renders the date in the given format or the default format.
@@ -51,12 +45,12 @@ public class DateTag extends AbstractCustomTag {
 	}
 
 	@Override
-	public boolean render(InternalContextAdapter context, Writer writer, Node node) throws IOException, ResourceNotFoundException, ParseErrorException, MethodInvocationException {
+	public boolean doTag() throws IOException {
 		Date date = null;
 		String format = null;
 		
-		date = (Date) getArgument(node, context, 0);
-		format = (String) getArgument(node, context, 1);
+		date = getArgument(0);
+		format = getArgument(1);
 		
 		if(date == null) {
 			return false;

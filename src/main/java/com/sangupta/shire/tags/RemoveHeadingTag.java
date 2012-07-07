@@ -22,13 +22,6 @@
 package com.sangupta.shire.tags;
 
 import java.io.IOException;
-import java.io.Writer;
-
-import org.apache.velocity.context.InternalContextAdapter;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
-import org.apache.velocity.runtime.parser.node.Node;
 
 /**
  * @author sangupta
@@ -53,12 +46,13 @@ public class RemoveHeadingTag extends AbstractCustomTag {
 	}
 
 	/**
-	 * @see org.apache.velocity.runtime.directive.Directive#render(org.apache.velocity.context.InternalContextAdapter, java.io.Writer, org.apache.velocity.runtime.parser.node.Node)
+	 * 
+	 * @see com.sangupta.shire.tags.AbstractCustomTag#doTag()
 	 */
 	@Override
-	public boolean render(InternalContextAdapter context, Writer writer, Node node) throws IOException, ResourceNotFoundException, ParseErrorException, MethodInvocationException {
+	public boolean doTag() throws IOException {
 		String data = null;
-		data = (String) getArgument(node, context, 0);
+		data = getArgument(0);
 		
 		if(data != null) {
 			writer.write(remove(data, new String[] { "h1", "h2", "h3" }));
