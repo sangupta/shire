@@ -21,9 +21,10 @@
 
 package com.sangupta.shire.core;
 
+import java.io.File;
 import java.util.List;
 
-import com.sangupta.shire.domain.GeneratedResource;
+import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.model.TemplateData;
 
 /**
@@ -55,6 +56,6 @@ public interface Generator {
 	 * return a list of all generated resources that were added by this 
 	 * generator as part of its execution.
 	 */
-	public List<GeneratedResource> execute(TemplateData templateData);
+	public void execute(TemplateData templateData, List<RenderableResource> resources, List<File> dotFiles);
 
 }

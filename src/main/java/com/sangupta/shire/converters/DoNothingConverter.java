@@ -22,9 +22,9 @@
 package com.sangupta.shire.converters;
 
 import java.util.Map;
+import java.util.Properties;
 
 import com.sangupta.shire.core.Converter;
-import com.sangupta.shire.model.TemplateData;
 
 /**
  * Converter that does nothing. Used when we cannot detect the
@@ -44,7 +44,7 @@ public final class DoNothingConverter implements Converter {
 	}
 
 	@Override
-	public final String convert(String content, TemplateData templateData) {
+	public final String convert(String content, Properties pageProperties) {
 		return content;
 	}
 

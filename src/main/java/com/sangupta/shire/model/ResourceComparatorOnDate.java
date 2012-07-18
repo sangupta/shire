@@ -19,14 +19,25 @@
  * 
  */
 
+
 package com.sangupta.shire.model;
 
+import java.util.Comparator;
+
+import com.sangupta.shire.domain.Resource;
+
 /**
- * Holds data about one given category.
- * 
  * @author sangupta
  *
  */
-public class Category {
+public class ResourceComparatorOnDate implements Comparator<Resource> {
+
+	/**
+	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+	 */
+	@Override
+	public int compare(Resource r1, Resource r2) {
+		return 0 - (r1.getPublishDate().compareTo(r2.getPublishDate()));
+	}
 
 }

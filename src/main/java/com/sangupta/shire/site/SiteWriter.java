@@ -41,35 +41,45 @@ import com.sangupta.shire.util.HtmlUtils;
  */
 public class SiteWriter {
 	
-	/**
-	 * Holds the applicable execution options
-	 */
-	private final ExecutionOptions options;
+	private static ExecutionOptions options = null;
 	
 	/**
 	 * Flag that helps us in lazy initializing the site writer.
 	 */
-	private boolean initialized = false;
+	private static boolean initialized = false;
+	
+	/**
+	 * The source root folder, where all the resources are placed.
+	 * This is also the folder where _config.yml file is found.
+	 */
+	private static File sourceFolder = null;
+	
+	/**
+	 * The absolute path of the source folder.
+	 */
+	private static String sourceBase = null;
 
 	/**
 	 * File handle to the root of export folder
 	 */
-	private File siteFolder = null;
+	private static File siteFolder = null;
 	
 	/**
 	 * Constructor
 	 * 
 	 * @param options
 	 */
-	public SiteWriter(ExecutionOptions options) {
-		this.options = options;
+	public static void initialize(ExecutionOptions options) {
+		SiteWriter.options = options;
+		sourceFolder = options.getParentFolder().getAbsoluteFile();
+		sourceBase = sourceFolder.getAbsolutePath();
 	}
 
 	/**
 	 * Create a new site folder, if it does not exists.
 	 * 
 	 */
-	private void createSiteExportFolder() {
+	private static void createSiteExportFolder() {
 		initialized = true;
 
 		File file = new File(options.getParentFolder(), options.getSiteFolderName());
@@ -82,7 +92,7 @@ public class SiteWriter {
 			throw new RuntimeException("Unable to create site export directory.");
 		}
 		
-		this.siteFolder = file;
+		siteFolder = file;
 	}
 
 	/**
@@ -91,7 +101,7 @@ public class SiteWriter {
 	 * 
 	 * @param siteFile
 	 */
-	public void export(RenderableResource resource, String pageContents) {
+	public static void export(RenderableResource resource, String pageContents) {
 		// check if we have initialized the _site folder or not
 		if(!initialized) {
 			createSiteExportFolder();
@@ -99,7 +109,7 @@ public class SiteWriter {
 		
 		// start the export process
 		String path = resource.getExportPath();
-		path = this.siteFolder.getAbsolutePath() + File.separator + path;
+		path = siteFolder.getAbsolutePath() + File.separator + path;
 		
 		File exportFile = new File(path);
 
@@ -112,14 +122,14 @@ public class SiteWriter {
 		}
 	}
 	
-	public void export(Resource resource) {
+	public static void export(Resource resource) {
 		if(!initialized) {
 			createSiteExportFolder();
 		}
 		
 		// start the export process
 		String path = resource.getExportPath();
-		path = this.siteFolder.getAbsolutePath() + File.separator + path;
+		path = siteFolder.getAbsolutePath() + File.separator + path;
 		
 		File exportFile = new File(path);
 
@@ -134,12 +144,28 @@ public class SiteWriter {
 		}
 		
 		if(resource instanceof GeneratedResource) {
+			System.out.println("Exporting generated resource to: " + exportFile.getAbsolutePath());
 			try {
 				FileUtils.writeStringToFile(exportFile, ((GeneratedResource) resource).getContent());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * Extracts the base relative path of the file with respect to the
+	 * source folder of the site.
+	 *  
+	 * @param path
+	 * @return
+	 */
+	public static String createBasePath(String path) {
+		if(path.startsWith(sourceBase)) {
+			path = path.substring(sourceBase.length());
+		}
+		
+		return path;
 	}
 
 }

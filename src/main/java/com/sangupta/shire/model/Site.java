@@ -69,12 +69,12 @@ public class Site {
 	/**
 	 * The list of all Posts in category
 	 */
-	private final List<Category> categories = new ArrayList<Category>();
+	private List<TagOrCategory> categories;
 	
 	/**
 	 * The list of all Posts with tag
 	 */
-	private final List<Tag> tags = new ArrayList<Tag>();
+	private List<TagOrCategory> tags;
 	
 	/**
 	 * Is the site in debug mode
@@ -149,14 +149,14 @@ public class Site {
 	/**
 	 * @return the categories
 	 */
-	public List<Category> getCategories() {
+	public List<TagOrCategory> getCategories() {
 		return categories;
 	}
 
 	/**
 	 * @return the tags
 	 */
-	public List<Tag> getTags() {
+	public List<TagOrCategory> getTags() {
 		return tags;
 	}
 
@@ -214,6 +214,20 @@ public class Site {
 	 */
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	/**
+	 * @param categories the categories to set
+	 */
+	public void setCategories(List<TagOrCategory> categories) {
+		this.categories = categories;
+	}
+
+	/**
+	 * @param tags the tags to set
+	 */
+	public void setTags(List<TagOrCategory> tags) {
+		this.tags = tags;
 	}
 
 }

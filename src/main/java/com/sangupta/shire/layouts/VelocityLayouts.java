@@ -36,8 +36,11 @@ import org.apache.velocity.runtime.resource.loader.FileResourceLoader;
 import com.sangupta.shire.core.Layout;
 import com.sangupta.shire.tags.DateTag;
 import com.sangupta.shire.tags.FetchTag;
+import com.sangupta.shire.tags.GoogleAnalyticsTag;
 import com.sangupta.shire.tags.HrefTag;
 import com.sangupta.shire.tags.MarkdownTag;
+import com.sangupta.shire.tags.RemoveHeadingTag;
+import com.sangupta.shire.tags.StatcounterTag;
 
 /**
  * Class that allows layout based on Apache Velocity templating engine.
@@ -79,7 +82,10 @@ public class VelocityLayouts implements Layout {
 		final String[] customDirectives = { MarkdownTag.class.getName(), 
 											FetchTag.class.getName(),
 											HrefTag.class.getName(),
-											DateTag.class.getName()
+											DateTag.class.getName(),
+											RemoveHeadingTag.class.getName(),
+											GoogleAnalyticsTag.class.getName(),
+											StatcounterTag.class.getName()
 										  };
 		
 		StringBuilder builder = new StringBuilder();

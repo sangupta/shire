@@ -35,13 +35,18 @@ import com.sangupta.shire.site.SiteBuilder;
 public class Shire {
 	
 	/**
+	 * Singleton instance of the execution options
+	 */
+	private static ExecutionOptions options = null;
+	
+	/**
 	 * Main entry point to the application. This method analyzes the command line parameters
 	 * and sets up the execution options over which the site builder will run.
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String configFile = "e:/git/sangupta-static/_config.yml";
+		String configFile = "c:/projects/git/sangupta-static/_config.yml";
 
 		// check if the config file is present or not
 		File config = new File(configFile);
@@ -57,11 +62,22 @@ public class Shire {
 		}
 		
 		// start jekyll
-		ExecutionOptions options = new ExecutionOptions(config);
+		options = new ExecutionOptions(config);
 
 		// read the config file
 		// build the site
 		new SiteBuilder(options).buildSite();
+		
+		System.out.println("\n\nDone building the site!");
+	}
+	
+	/**
+	 * Retrieve the options object globally.
+	 * 
+	 * @return
+	 */
+	public static ExecutionOptions getExecutionOptions() {
+		return options;
 	}
 	
 }

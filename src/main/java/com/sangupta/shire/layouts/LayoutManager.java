@@ -40,14 +40,14 @@ import com.sangupta.shire.util.ShireUtils;
  */
 public class LayoutManager {
 	
-	private ExecutionOptions options = null;
+	private static ExecutionOptions options = null;
 	
-	private Layout layout = null;
+	private static Layout layout = null;
 	
-	public LayoutManager(ExecutionOptions options) {
-		this.options = options;
+	public static void initialize(ExecutionOptions options) {
+		LayoutManager.options = options;
 
-		LayoutType layoutType = this.options.getLayoutType();
+		LayoutType layoutType = options.getLayoutType();
 		switch(layoutType) {
 			case AutoDetect:
 				layoutType = autoDetectLayoutType();
@@ -59,7 +59,7 @@ public class LayoutManager {
 		}
 		
 		// reset-the layout type option
-		this.options.setLayoutType(layoutType);
+		options.setLayoutType(layoutType);
 		
 		// check for unknown
 		if(layoutType == LayoutType.Unknown) {
@@ -73,7 +73,7 @@ public class LayoutManager {
 	 * 
 	 * @return
 	 */
-	private LayoutType autoDetectLayoutType() {
+	private static LayoutType autoDetectLayoutType() {
 		return LayoutType.Velocity;
 	}
 
@@ -82,14 +82,14 @@ public class LayoutManager {
 	 * and figure out the layout type if not specified.
 	 * 
 	 */
-	public void readLayoutsAndIncludes() {
-		final File layouts = ShireUtils.getFolder(this.options, this.options.getLayoutsFolderName());
-		final File includes = ShireUtils.getFolder(this.options, this.options.getIncludesFolderName());
+	public static void readLayoutsAndIncludes() {
+		final File layouts = ShireUtils.getFolder(options, options.getLayoutsFolderName());
+		final File includes = ShireUtils.getFolder(options, options.getIncludesFolderName());
 		
 		// initialize the proper layout handler
-		switch (this.options.getLayoutType()) {
+		switch (options.getLayoutType()) {
 			case Velocity:
-				this.layout = new VelocityLayouts();
+				layout = new VelocityLayouts();
 				break;
 				
 			case DjangoLiquid:
@@ -101,10 +101,10 @@ public class LayoutManager {
 		}
 		
 		// set it
-		this.layout.initialize(layouts, includes);
+		layout.initialize(layouts, includes);
 	}
 	
-	public String layoutContent(String layoutName, final String content, final TemplateData templateData) {
+	public static String layoutContent(String layoutName, final String content, final TemplateData templateData) {
 		if(StringUtils.isEmpty(layoutName)) {
 			return content;
 		}
@@ -121,13 +121,20 @@ public class LayoutManager {
 		final Map<String, Object> dataModel = getDataModel(templateData);
 		
 		// parse the contents of the page itself
-		String modifiedContent = this.layout.processTemplate(content, dataModel);
+		// only if they are null
+		// content would be null for post pages - where multiple posts are laid out
+		String modifiedContent;
+		if(content != null) {
+			modifiedContent = layout.processTemplate(content, dataModel);
+		} else {
+			modifiedContent = content;
+		}
 		
 		// layout the contents
-		return this.layout.layoutContent(layoutName, modifiedContent, dataModel);
+		return layout.layoutContent(layoutName, modifiedContent, dataModel);
 	}
 
-	private Map<String, Object> getDataModel(final TemplateData data) {
+	private static Map<String, Object> getDataModel(final TemplateData data) {
 		final Map<String, Object> model = new HashMap<String, Object>();
 		
 		model.put("site", data.getSite());

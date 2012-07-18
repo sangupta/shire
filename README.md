@@ -1,6 +1,6 @@
 Shire is a blog-aware static site generator modelled around the famous [Jekyll](https://github.com/mojombo/jekyll). It also tends to pull in features from the [Octopress](https://github.com/imathis/octopress). The project is under heavy development as this also serves my [home site](http://www.sangupta.com) :)
 
-**Current Version: 0.1.0**
+**Current Version: 0.2.0**
 
 Usage
 -----
@@ -11,6 +11,17 @@ To use sync the code base and set it up as a project in your favorite IDE. Shire
 
 Features
 --------
+
+**0.2.0**
+
+* Support for running mulitple blogs by adding a simple `.blog` file to the folder
+* Support for pagination, and generation of tags and category pages
+* Added velocity tags for Google Analytics and StatCounter
+* Fixed issue with file extension of generated markdown source files
+* List of posts now available in global `site` object
+* Added a `sitemap.xml` generator for search engines
+
+**0.1.0**
 
 * Support for Apache Velocity Templates
 * Support for multiple includes and layouts
@@ -26,7 +37,7 @@ Alternatively, you may download the builds from Maven Central repository using:
 <dependency>
     <groupId>com.sangupta</groupId>
     <artifactId>shire</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 

@@ -22,9 +22,9 @@
 package com.sangupta.shire.core;
 
 import java.util.Map;
+import java.util.Properties;
 
 import com.sangupta.shire.converters.MarkdownConverter;
-import com.sangupta.shire.model.TemplateData;
 
 /**
  * Contract for implementations that allow using a new markup language
@@ -54,7 +54,7 @@ public interface Converter {
 	 * @param content
 	 * @return
 	 */
-	public String convert(String content, TemplateData templateData);
+	public String convert(String content, Properties pageProperties);
 
 	/**
 	 * Return the list of extension mappings, such as:

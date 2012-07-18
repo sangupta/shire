@@ -22,48 +22,60 @@
 package com.sangupta.shire.tags;
 
 import java.io.IOException;
-import java.util.Date;
-
-import org.apache.commons.lang.time.DateFormatUtils;
 
 /**
- * Renders the date in the given format or the default format.
- * 
  * @author sangupta
  *
  */
-public class DateTag extends AbstractCustomTag {
+public class RemoveHeadingTag extends AbstractCustomTag {
 
+	/**
+	 * @see org.apache.velocity.runtime.directive.Directive#getName()
+	 */
 	@Override
 	public String getName() {
-		return "date";
+		return "removeHeading";
 	}
 
+	/**
+	 * @see org.apache.velocity.runtime.directive.Directive#getType()
+	 */
 	@Override
 	public int getType() {
 		return LINE;
 	}
 
+	/**
+	 * 
+	 * @see com.sangupta.shire.tags.AbstractCustomTag#doTag()
+	 */
 	@Override
 	public boolean doTag() throws IOException {
-		Date date = null;
-		String format = null;
+		String data = null;
+		data = getArgument(0);
 		
-		date = getArgument(0);
-		format = getArgument(1);
-		
-		if(date == null) {
-			return false;
+		if(data != null) {
+			writer.write(remove(data, new String[] { "h1", "h2", "h3" }));
 		}
-		
-		if(format == null || format.trim().isEmpty()) {
-			format = "dd MMM yyyy";
-		}
-		
-		String formattedDate = DateFormatUtils.format(date, format);
-		writer.write(formattedDate);
 		
 		return true;
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	private String remove(String data, String[] tags) {
+		for(String tag : tags) {
+			if(data.startsWith("<" + tag + ">")) {
+				int index = data.indexOf("</" + tag + ">");
+				if(index != -1) {
+					return data.substring(index + 3 + tag.length());
+				}
+			}
+		}
+		
+		return data;
 	}
 
 }

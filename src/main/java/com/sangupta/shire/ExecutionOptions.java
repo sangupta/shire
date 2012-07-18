@@ -73,6 +73,11 @@ public class ExecutionOptions {
 	private String siteFolderName = "_site";
 	
 	/**
+	 * The default name of the cache folder
+	 */
+	private String cacheFolderName = "_cache";
+	
+	/**
 	 * The layout type being used as specified or auto detected.
 	 */
 	private LayoutType layoutType = LayoutType.AutoDetect;
@@ -86,6 +91,13 @@ public class ExecutionOptions {
 	 * Indicates if we are running in debug mode
 	 */
 	private boolean debug = false;
+	
+	/**
+	 * Defines whether to use cache of all previous internet requests
+	 * made from any of the plugins or core. All plugins should honour this
+	 * setting
+	 */
+	private boolean useCache = true;
 	
 	/**
 	 * Constructor
@@ -202,6 +214,20 @@ public class ExecutionOptions {
 	 */
 	public Properties getConfiguration() {
 		return configuration;
+	}
+
+	/**
+	 * @return the useCache
+	 */
+	public boolean isUseCache() {
+		return useCache;
+	}
+
+	/**
+	 * @return the cacheFolderName
+	 */
+	public String getCacheFolderName() {
+		return cacheFolderName;
 	}
 
 }

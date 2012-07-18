@@ -22,13 +22,6 @@
 package com.sangupta.shire.tags;
 
 import java.io.IOException;
-import java.io.Writer;
-
-import org.apache.velocity.context.InternalContextAdapter;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
-import org.apache.velocity.runtime.parser.node.Node;
 
 /**
  * Tag to generate an HREF tag using the same URL as the text to the HREF. For example,
@@ -59,9 +52,9 @@ public class HrefTag extends AbstractCustomTag {
 	}
 
 	@Override
-	public boolean render(InternalContextAdapter context, Writer writer, Node node) throws IOException, ResourceNotFoundException, ParseErrorException, MethodInvocationException {
+	public boolean doTag() throws IOException {
 		String url = null;
-		url = (String) getArgument(node, context, 0);
+		url = getArgument(0);
 		
 		if(url != null) {
 			writer.write("<a href=\"");

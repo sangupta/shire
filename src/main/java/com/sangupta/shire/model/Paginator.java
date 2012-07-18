@@ -21,6 +21,8 @@
 
 package com.sangupta.shire.model;
 
+import java.util.List;
+
 /**
  * Holds data about the paginator.
  * 
@@ -37,7 +39,7 @@ public class Paginator {
 	/**
 	 * Posts available for that page
 	 */
-	private int posts;
+	private List<Page> posts;
 	
 	/**
 	 * Total number of posts
@@ -76,20 +78,6 @@ public class Paginator {
 	 */
 	public void setPerPage(int perPage) {
 		this.perPage = perPage;
-	}
-
-	/**
-	 * @return the posts
-	 */
-	public int getPosts() {
-		return posts;
-	}
-
-	/**
-	 * @param posts the posts to set
-	 */
-	public void setPosts(int posts) {
-		this.posts = posts;
 	}
 
 	/**
@@ -160,6 +148,20 @@ public class Paginator {
 	 */
 	public void setNextPage(int nextPage) {
 		this.nextPage = nextPage;
+	}
+
+	/**
+	 * @return the posts
+	 */
+	public List<Page> getPosts() {
+		return posts;
+	}
+
+	/**
+	 * @param posts the posts to set
+	 */
+	public void setPosts(List<Page> posts) {
+		this.posts = posts;
 	}
 
 }

@@ -22,12 +22,19 @@
 package com.sangupta.shire.domain;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import com.sangupta.shire.converters.Converters;
+import com.sangupta.shire.core.Converter;
+import com.sangupta.shire.model.Page;
 
 /**
  * @author sangupta
@@ -45,6 +52,23 @@ public class RenderableResource extends AbstractResource {
 	 * skip when re-reading the file's content when rendering
 	 */
 	private int matterEndingLine;
+	
+	/**
+	 * Stores the original un-processed content of this resource, except
+	 * the front matter
+	 */
+	private String originalContent = null;
+	
+	/**
+	 * Stores the converted content - content returned after running
+	 * the converter over the {@link #originalContent}.
+	 */
+	private String convertedContent = null;
+	
+	/**
+	 * Internal handle to the post
+	 */
+	private Page post = null;
 
 	/**
 	 * Constructor
@@ -61,6 +85,9 @@ public class RenderableResource extends AbstractResource {
 	}
 	
 	/**
+	 * Update the extension of this resource - based on the mapping
+	 * as provided by the converted used.
+	 * 
 	 * @param extensionMappings
 	 */
 	public void updateExtension(Map<String, String> extensionMappings) {
@@ -75,7 +102,69 @@ public class RenderableResource extends AbstractResource {
 			}
 		}
 	}
+	
+	/**
+	 * @return the originalContent
+	 * @throws IOException 
+	 */
+	public String getOriginalContent() throws IOException {
+		if(originalContent == null) {
+			List<String> lines = FileUtils.readLines(this.fileHandle);
+			this.originalContent = StringUtils.join(lines.subList(this.matterEndingLine, lines.size()), '\n');
+		}
+		
+		return originalContent;
+	}
 
+	/**
+	 * @return the convertedContent
+	 * @throws IOException 
+	 */
+	public String getConvertedContent() throws IOException {
+		if(this.convertedContent == null) {
+			String content = getOriginalContent();
+			
+			// find out the right converter for the file's content
+			// markdown, Wiki, or HTML, or something else
+			Converter converter = Converters.getConverter(this.getFileName());
+			
+			// convert the content first
+			this.convertedContent = converter.convert(content, this.frontMatter);
+			
+			// also update the extension mappings
+			updateExtension(converter.getExtensionMappings());
+		}
+		
+		return convertedContent;
+	}
+	
+	public Page getResourcePost() {
+		if(this.post == null) {
+			this.post = new Page();
+	
+			post.setDate(this.getPublishDate());
+			post.setTitle(this.getFrontMatterProperty("title"));
+			
+			try {
+				post.setContent(this.getConvertedContent());
+			} catch (IOException e) {
+				throw new RuntimeException("Unable to build post out of this resource", e);
+			}
+			
+			post.setUrl(this.getUrl());
+			post.setDate(this.getPublishDate());
+		}
+		
+		return post;
+	}
+
+	/**
+	 * Return the value of the property with the given name from the
+	 * front matter associated with this resource.
+	 * 
+	 * @param propertyName
+	 * @return
+	 */
 	public String getFrontMatterProperty(String propertyName) {
 		if(this.frontMatter == null) {
 			return null;
@@ -100,6 +189,8 @@ public class RenderableResource extends AbstractResource {
 	public boolean hasFrontMatter() {
 		return true;
 	}
+	
+	// Usual accessors follow
 
 	/**
 	 * @see com.sangupta.shire.domain.Resource#getFrontMatter()
