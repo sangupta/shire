@@ -46,7 +46,11 @@ public class Shire {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String configFile = "c:/projects/git/sangupta-static/_config.yml";
+		if(args.length == 0) {
+			usage();
+		}
+		
+		String configFile = args[0];
 
 		// check if the config file is present or not
 		File config = new File(configFile);
@@ -71,6 +75,15 @@ public class Shire {
 		System.out.println("\n\nDone building the site!");
 	}
 	
+	/**
+	 * Print the usage information and quit.
+	 */
+	private static void usage() {
+		System.out.println("$ java -jar shire.jar <config_file>");
+		System.out.println("      <config_file>   the YAML configuration file that needs to be processed.");
+		System.exit(0);
+	}
+
 	/**
 	 * Retrieve the options object globally.
 	 * 
