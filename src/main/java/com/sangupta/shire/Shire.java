@@ -54,7 +54,16 @@ public class Shire {
 
 		// check if the config file is present or not
 		File config = new File(configFile);
-		
+
+		executeShire(config);
+	}
+	
+	/**
+	 * Start the shire process over the config file.
+	 * 
+	 * @param config
+	 */
+	public static void executeShire(File config) {
 		if(!config.exists()) {
 			System.out.println("Config file does not exists.");
 			return;

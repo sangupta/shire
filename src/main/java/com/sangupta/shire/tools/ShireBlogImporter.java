@@ -62,11 +62,23 @@ public class ShireBlogImporter {
 		String provider = args[1]; // "Blogger";
 		String exportPath = args[2]; // "c:/testExport";
 		String layoutName = args[3]; // "master.html";
-		
+	
+		executeImporter(new File(importFile), BlogType.valueOf(provider), new File(exportPath), layoutName);
+	}
+	
+	/**
+	 * Run the importer tool.
+	 * 
+	 * @param importFile
+	 * @param blogType
+	 * @param exportPath
+	 * @param layoutName
+	 */
+	public static void executeImporter(File importFile, BlogType blogType, File exportPath, String layoutName) {
 		ExportOptions options = new ExportOptions();
-		options.blogType = BlogType.valueOf(provider);
-		options.exportPath = new File(exportPath);
-		options.importFile = new File(importFile);
+		options.blogType = blogType;
+		options.exportPath = exportPath;
+		options.importFile = importFile;
 		options.layoutName = layoutName;
 		
 		new ShireBlogImporter(options).exportBlog();
