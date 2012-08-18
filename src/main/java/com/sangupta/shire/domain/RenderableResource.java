@@ -30,8 +30,8 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.sangupta.makeup.Makeup;
 import com.sangupta.makeup.converters.Converter;
-import com.sangupta.makeup.converters.Converters;
 import com.sangupta.shire.model.Page;
 
 /**
@@ -124,7 +124,7 @@ public class RenderableResource extends AbstractResource {
 			
 			// find out the right converter for the file's content
 			// markdown, Wiki, or HTML, or something else
-			Converter converter = Converters.getConverter(this.getFileName());
+			Converter converter = Makeup.getConverter(this.getFileName());
 			
 			// convert the content first
 			this.convertedContent = converter.convert(content, this.frontMatter);

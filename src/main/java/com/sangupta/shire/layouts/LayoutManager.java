@@ -27,9 +27,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.sangupta.makeup.Makeup;
 import com.sangupta.makeup.layouts.Layout;
 import com.sangupta.makeup.layouts.LayoutType;
-import com.sangupta.makeup.layouts.Layouts;
 import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.model.TemplateData;
 import com.sangupta.shire.util.ShireUtils;
@@ -83,10 +83,10 @@ public class LayoutManager {
 		final File layouts = ShireUtils.getFolder(options, options.getLayoutsFolderName());
 		final File includes = ShireUtils.getFolder(options, options.getIncludesFolderName());
 		
-		layout = Layouts.getLayout(options.getLayoutType());
+		layout = Makeup.getLayout(options.getLayoutType());
 		
 		// set it
-		layout.initialize( new File[] { layouts, includes }, Layouts.getKnownCustomTags());
+		layout.initialize( new File[] { layouts, includes }, Makeup.getKnownCustomTags());
 	}
 	
 	public static String layoutContent(String layoutName, final String content, final TemplateData templateData) {
