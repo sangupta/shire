@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.sangupta.jerry.http.WebInvoker;
 import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.domain.NonRenderableResource;
@@ -35,6 +36,7 @@ import com.sangupta.shire.generators.SiteMapGenerator;
 import com.sangupta.shire.layouts.LayoutManager;
 import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.TemplateData;
+import com.sangupta.shire.util.WebResponseCacheInterceptor;
 
 public class SiteBuilder {
 
@@ -88,6 +90,11 @@ public class SiteBuilder {
 		this.generators = new ArrayList<Generator>();
 		this.generators.add(new SiteMapGenerator());
 		this.generators.add(new BlogPagesGenerator());
+		
+		// add web interceptor if needed
+		if(options.isUseCache()) {
+			WebInvoker.interceptor = new WebResponseCacheInterceptor();
+		}
 	}
 
 	/**

@@ -26,18 +26,19 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+import com.sangupta.jerry.util.HtmlUtils;
 import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.domain.Resource;
-import com.sangupta.shire.util.HtmlUtils;
 
 /**
  * Class that writes a given {@link ProcessableSiteFile} to the exported site.
  * 
  * @author sangupta
- * @since Feb 23, 2012
+ * @since 0.1.0
+ * @added Feb 23, 2012
  */
 public class SiteWriter {
 	

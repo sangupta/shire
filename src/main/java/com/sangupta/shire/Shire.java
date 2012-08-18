@@ -46,11 +46,11 @@ public class Shire {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if(args.length == 0) {
-			usage();
-		}
+//		if(args.length == 0) {
+//			usage();
+//		}
 		
-		String configFile = args[0];
+		String configFile = "c:/projects/git/sangupta-static/_config.yml"; // args[0];
 
 		// check if the config file is present or not
 		File config = new File(configFile);
@@ -67,7 +67,7 @@ public class Shire {
 		
 		// start jekyll
 		options = new ExecutionOptions(config);
-
+		
 		// read the config file
 		// build the site
 		new SiteBuilder(options).buildSite();
