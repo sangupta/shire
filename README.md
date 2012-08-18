@@ -1,16 +1,20 @@
 Shire is a blog-aware static site generator modelled around the famous [Jekyll](https://github.com/mojombo/jekyll). It also tends to pull in features from the [Octopress](https://github.com/imathis/octopress). The project is under heavy development as this also serves my [home site](http://www.sangupta.com) :)
 
-**Current Version: 0.2.0**
-
 Usage
 -----
 
-The project is still under development and hence, is not usable directly via the command line. 
+The project is still under development and hence, it may not be usable directly via the command line. 
 
 To use sync the code base and set it up as a project in your favorite IDE. Shire is a Maven-based JAVA project. Once the project is setup, open the JAVA class `Shire` and in the `main` method, setup the path to your YAML config file.
 
 Features
 --------
+
+**0.3.0 (in development)**
+
+* Moved to using [makeup](http://www.sangupta.com/projects/makeup) framework for HTML generation
+* Moved to using [nutz](http://www.sangupta.com/projects/nutz) framework for Markdown processing
+* Code syntax highlighting enabled using Pepmint or using Syntax highlighter
 
 **0.2.0**
 
@@ -83,6 +87,6 @@ Copyright 2012, Sandeep Gupta
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this work except in compliance with the License. You may obtain a copy of the License in the LICENSE file, or at:
 
-http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
