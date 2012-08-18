@@ -24,9 +24,9 @@ package com.sangupta.shire;
 import java.io.File;
 import java.util.Properties;
 
+import com.sangupta.makeup.layouts.LayoutType;
 import com.sangupta.shire.config.PropertyConfigReader;
 import com.sangupta.shire.config.YmlConfigReader;
-import com.sangupta.shire.layouts.LayoutType;
 
 /**
  * Stores execution options as defined by the configuration file

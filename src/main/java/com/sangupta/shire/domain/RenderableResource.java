@@ -25,15 +25,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.sangupta.shire.converters.Converters;
-import com.sangupta.shire.core.Converter;
+import com.sangupta.makeup.converters.Converter;
+import com.sangupta.makeup.converters.Converters;
 import com.sangupta.shire.model.Page;
 
 /**
@@ -90,14 +88,14 @@ public class RenderableResource extends AbstractResource {
 	 * 
 	 * @param extensionMappings
 	 */
-	public void updateExtension(Map<String, String> extensionMappings) {
+	public void updateExtension(List<String> extensionMappings) {
 		if(extensionMappings == null) {
 			return;
 		}
 		
-		for(Entry<String, String> entry : extensionMappings.entrySet()) {
-			if(this.path.endsWith(entry.getKey())) {
-				this.path = StringUtils.left(this.path, this.path.length() - entry.getKey().length()) + entry.getValue();
+		for(String extension : extensionMappings) {
+			if(this.path.endsWith(extension)) {
+				this.path = StringUtils.left(this.path, this.path.length() - extension.length()) + ".html";
 				return;
 			}
 		}
@@ -132,7 +130,7 @@ public class RenderableResource extends AbstractResource {
 			this.convertedContent = converter.convert(content, this.frontMatter);
 			
 			// also update the extension mappings
-			updateExtension(converter.getExtensionMappings());
+			updateExtension(converter.getProbableExtensions());
 		}
 		
 		return convertedContent;

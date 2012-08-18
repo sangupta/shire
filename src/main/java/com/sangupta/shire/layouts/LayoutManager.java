@@ -27,8 +27,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.sangupta.makeup.layouts.Layout;
+import com.sangupta.makeup.layouts.LayoutType;
+import com.sangupta.makeup.layouts.Layouts;
 import com.sangupta.shire.ExecutionOptions;
-import com.sangupta.shire.core.Layout;
 import com.sangupta.shire.model.TemplateData;
 import com.sangupta.shire.util.ShireUtils;
 
@@ -60,11 +62,6 @@ public class LayoutManager {
 		
 		// reset-the layout type option
 		options.setLayoutType(layoutType);
-		
-		// check for unknown
-		if(layoutType == LayoutType.Unknown) {
-			throw new IllegalArgumentException("Unknown layout type");
-		}
 	}
 	
 	/**
@@ -86,22 +83,10 @@ public class LayoutManager {
 		final File layouts = ShireUtils.getFolder(options, options.getLayoutsFolderName());
 		final File includes = ShireUtils.getFolder(options, options.getIncludesFolderName());
 		
-		// initialize the proper layout handler
-		switch (options.getLayoutType()) {
-			case Velocity:
-				layout = new VelocityLayouts();
-				break;
-				
-			case DjangoLiquid:
-				// this.layout = new DjangoLayouts();
-				break;
-	
-			default:
-				break;
-		}
+		layout = Layouts.getLayout(options.getLayoutType());
 		
 		// set it
-		layout.initialize(layouts, includes);
+		layout.initialize( new File[] { layouts, includes }, Layouts.getKnownCustomTags());
 	}
 	
 	public static String layoutContent(String layoutName, final String content, final TemplateData templateData) {
@@ -125,15 +110,29 @@ public class LayoutManager {
 		// content would be null for post pages - where multiple posts are laid out
 		String modifiedContent;
 		if(content != null) {
-			modifiedContent = layout.processTemplate(content, dataModel);
+			modifiedContent = layout.layoutWithTemplateCode(content, dataModel);
 		} else {
 			modifiedContent = content;
 		}
 		
 		// layout the contents
-		return layout.layoutContent(layoutName, modifiedContent, dataModel);
+		dataModel.put("content", modifiedContent);
+		return layout.layout(layoutName, dataModel);
 	}
 
+	/**
+	 * Create a data model out of this {@link TemplateData} object that can be
+	 * used with the {@link Layout}.
+	 * 
+	 * @param data
+	 *            the template data that needs to be converted
+	 * 
+	 * @return the converted data model as a {@link Map}
+	 * 
+	 * @throws <code>NullPointerException</code> if the provided
+	 *         {@link TemplateData} object is null
+	 * 
+	 */
 	private static Map<String, Object> getDataModel(final TemplateData data) {
 		final Map<String, Object> model = new HashMap<String, Object>();
 		
