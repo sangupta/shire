@@ -53,7 +53,8 @@ public class ShireUtils {
 			return format.parse(date.trim());
 		} catch (ParseException e) {
 			// unable to parse date on post
-			e.printStackTrace();
+			// eat up
+			// e.printStackTrace();
 		}
 		
 		return null;

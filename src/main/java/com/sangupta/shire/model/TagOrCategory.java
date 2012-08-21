@@ -24,8 +24,6 @@ package com.sangupta.shire.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sangupta.shire.site.SiteWriter;
-
 /**
  * Holds data about one given tag or category. As there is no functional
  * difference between the two, the encapsulating model object is the same.
@@ -33,7 +31,7 @@ import com.sangupta.shire.site.SiteWriter;
  * @author sangupta
  *
  */
-public class TagOrCategory {
+public class TagOrCategory implements Comparable<TagOrCategory> {
 	
 	/**
 	 * The name of this tag/category
@@ -41,15 +39,15 @@ public class TagOrCategory {
 	private String name;
 	
 	/**
+	 * Base URL for this tag or category
+	 */
+	private String baseURL;
+	
+	/**
 	 * The URL of this tag/category
 	 */
 	private String url;
 	
-	/**
-	 * The URL to the base path of this tag/category
-	 */
-	private String basePath;
-
 	/**
 	 * Holds all posts of this category
 	 */
@@ -68,10 +66,10 @@ public class TagOrCategory {
 	 * @param name
 	 * @param url
 	 */
-	public TagOrCategory(String name, String basePath) {
+	public TagOrCategory(String name, String baseURL) {
 		this.name = name;
-		this.basePath = basePath;
-		this.url = SiteWriter.createBasePath(basePath + "/index.html");
+		this.baseURL = baseURL;
+		this.url = baseURL + "/index.html";
 	}
 
 	/**
@@ -87,9 +85,6 @@ public class TagOrCategory {
 		this.posts.add(post);
 	}
 	
-	/**
-	 * @return the numPosts
-	 */
 	public int getNumPosts() {
 		if(this.posts == null) {
 			return 0;
@@ -97,7 +92,7 @@ public class TagOrCategory {
 		
 		return this.posts.size();
 	}
-
+	
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -131,6 +126,18 @@ public class TagOrCategory {
 		return this.name;
 	}
 	
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(TagOrCategory other) {
+		if(other == null) {
+			return -1;
+		}
+		
+		return this.name.compareToIgnoreCase(other.name);
+	}
+
 	// Usual accessors follow
 
 	/**
@@ -169,10 +176,10 @@ public class TagOrCategory {
 	}
 
 	/**
-	 * @return the basePath
+	 * @return the baseURL
 	 */
-	public String getBasePath() {
-		return basePath;
+	public String getBaseURL() {
+		return baseURL;
 	}
 
 }

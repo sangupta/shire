@@ -21,11 +21,7 @@
 
 package com.sangupta.shire.core;
 
-import java.io.File;
-import java.util.List;
-
-import com.sangupta.shire.domain.RenderableResource;
-import com.sangupta.shire.model.TemplateData;
+import com.sangupta.shire.Shire;
 
 /**
  * Contract for implementations that allow generation of additional
@@ -53,9 +49,14 @@ public interface Generator {
 	
 	/**
 	 * Run the generator providing it the entire site wide template data and
-	 * return a list of all generated resources that were added by this 
+	 * return a list of all generated resources that were added by this
 	 * generator as part of its execution.
+	 * 
+	 * @param shire
+	 *            the {@link Shire} instance representing one site and its
+	 *            related artifacts
+	 * 
 	 */
-	public void execute(TemplateData templateData, List<RenderableResource> resources, List<File> dotFiles);
+	public void execute(Shire shire);
 
 }

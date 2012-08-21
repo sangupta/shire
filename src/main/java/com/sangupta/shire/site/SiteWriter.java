@@ -42,48 +42,43 @@ import com.sangupta.shire.domain.Resource;
  */
 public class SiteWriter {
 	
-	private static ExecutionOptions options = null;
-	
-	/**
-	 * Flag that helps us in lazy initializing the site writer.
-	 */
-	private static boolean initialized = false;
+	private ExecutionOptions options = null;
 	
 	/**
 	 * The source root folder, where all the resources are placed.
 	 * This is also the folder where _config.yml file is found.
 	 */
-	private static File sourceFolder = null;
+	private File sourceFolder = null;
 	
 	/**
 	 * The absolute path of the source folder.
 	 */
-	private static String sourceBase = null;
+	private String sourceBase = null;
 
 	/**
 	 * File handle to the root of export folder
 	 */
-	private static File siteFolder = null;
+	private File siteFolder = null;
 	
 	/**
 	 * Constructor
 	 * 
 	 * @param options
 	 */
-	public static void initialize(ExecutionOptions options) {
-		SiteWriter.options = options;
-		sourceFolder = options.getParentFolder().getAbsoluteFile();
-		sourceBase = sourceFolder.getAbsolutePath();
+	public SiteWriter(ExecutionOptions options) {
+		this.options = options;
+		this.sourceFolder = options.getParentFolder().getAbsoluteFile();
+		this.sourceBase = sourceFolder.getAbsolutePath();
+		
+		createSiteExportFolder();
 	}
 
 	/**
 	 * Create a new site folder, if it does not exists.
 	 * 
 	 */
-	private static void createSiteExportFolder() {
-		initialized = true;
-
-		File file = new File(options.getParentFolder(), options.getSiteFolderName());
+	public void createSiteExportFolder() {
+		File file = new File(this.options.getParentFolder(), this.options.getSiteFolderName());
 		if(file.exists() && file.isDirectory()) {
 			throw new IllegalStateException("Site folder already exists... looks like the backup failed. aborting!");
 		}
@@ -93,7 +88,7 @@ public class SiteWriter {
 			throw new RuntimeException("Unable to create site export directory.");
 		}
 		
-		siteFolder = file;
+		this.siteFolder = file;
 	}
 
 	/**
@@ -102,12 +97,7 @@ public class SiteWriter {
 	 * 
 	 * @param siteFile
 	 */
-	public static void export(RenderableResource resource, String pageContents) {
-		// check if we have initialized the _site folder or not
-		if(!initialized) {
-			createSiteExportFolder();
-		}
-		
+	public void export(RenderableResource resource, String pageContents) {
 		// start the export process
 		String path = resource.getExportPath();
 		path = siteFolder.getAbsolutePath() + File.separator + path;
@@ -123,11 +113,7 @@ public class SiteWriter {
 		}
 	}
 	
-	public static void export(Resource resource) {
-		if(!initialized) {
-			createSiteExportFolder();
-		}
-		
+	public void export(Resource resource) {
 		// start the export process
 		String path = resource.getExportPath();
 		path = siteFolder.getAbsolutePath() + File.separator + path;
@@ -161,7 +147,7 @@ public class SiteWriter {
 	 * @param path
 	 * @return
 	 */
-	public static String createBasePath(String path) {
+	public String createBasePath(String path) {
 		if(path.startsWith(sourceBase)) {
 			path = path.substring(sourceBase.length());
 		}

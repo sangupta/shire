@@ -30,26 +30,39 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.sangupta.jerry.util.AssertUtils;
+import com.sangupta.shire.Shire;
 import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.domain.RenderableResource;
-import com.sangupta.shire.layouts.LayoutManager;
 import com.sangupta.shire.model.FrontMatterConstants;
 import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.Paginator;
 import com.sangupta.shire.model.ResourceComparatorOnDate;
 import com.sangupta.shire.model.TagOrCategory;
 import com.sangupta.shire.model.TemplateData;
-import com.sangupta.shire.site.SiteWriter;
 
 /**
+ * Generator that generates pagination pages for blogs configured
+ * in the site. 
+ * 
  * @author sangupta
  *
  */
 public class BlogPagesGenerator implements Generator {
 	
+	private static final String PAGINATION_LAYOUT_FOR_POSTS = "post-listing.html";
+	
+	private static final String BLOG_ARCHIVE_LAYOUT = "blog-archive.html";
+	
 	private static final int BATCH_SIZE = 5;
+	
+	/**
+	 * The instance of the site which is being built
+	 */
+	private Shire shire = null;
 	
 	/**
 	 *
@@ -74,10 +87,13 @@ public class BlogPagesGenerator implements Generator {
 	 * @see com.sangupta.shire.core.Generator#execute(com.sangupta.shire.model.TemplateData, java.util.List, com.sangupta.shire.site.SiteWriter)
 	 */
 	@Override
-	public void execute(TemplateData model, List<RenderableResource> resources, List<File> dotFiles) {
+	public void execute(Shire shire) {
+		// set the shire object so that we can execute all methods downstream
+		this.shire = shire;
+		
 		// check if we have some blog folders in there
 		List<String> blogFolders = new ArrayList<String>();
-		for(File dotFile : dotFiles) {
+		for(File dotFile : shire.getSiteDirectory().getDotFiles()) {
 			if(dotFile.getName().equals(".blog")) {
 				blogFolders.add(dotFile.getParentFile().getAbsolutePath());
 			}
@@ -90,7 +106,7 @@ public class BlogPagesGenerator implements Generator {
 		
 		// start building pages for each individual blog in there
 		try {
-			processBlogResources(blogFolders, resources, model);
+			processBlogResources(blogFolders);
 		} catch (IOException e) {
 			System.out.println("Unable to generate blog pages for pagination, categorites, tags, and year-month archives.");
 			e.printStackTrace();
@@ -107,8 +123,11 @@ public class BlogPagesGenerator implements Generator {
 	 * @param model 
 	 * @throws IOException 
 	 */
-	private void processBlogResources(List<String> blogFolders, List<RenderableResource> resources, TemplateData model) throws IOException {
+	private void processBlogResources(List<String> blogFolders) throws IOException {
+		List<RenderableResource> resources = this.shire.getSiteDirectory().getRenderableResources();
+		
 		Map<String, List<RenderableResource>> pages = getBlogPages(blogFolders, resources);
+		TemplateData model = this.shire.getTemplateData();
 		
 		// start processing each blog individually
 		for(String blog : blogFolders) {
@@ -137,27 +156,66 @@ public class BlogPagesGenerator implements Generator {
 		List<TagOrCategory> tags = extractAllTagsOrCategories(list, FrontMatterConstants.TAGS, blogPath);
 		List<TagOrCategory> categories = extractAllTagsOrCategories(list, FrontMatterConstants.CATEGORIES, blogPath);
 		
+		// sort the collections on name
+		Collections.sort(tags);
+		Collections.sort(categories);
+		
 		// add these to model
 		model.getSite().setTags(tags);
 		model.getSite().setCategories(categories);
 		
 		// build all the pagination pages
 		List<Page> allPages = new ArrayList<Page>();
+		
 		for(RenderableResource rr : list) {
 			allPages.add(rr.getResourcePost());
 		}
 		
+		// set all posts in this model
+		model.getSite().addAllPosts(allPages);
+		
+		// and sort them for reverse chronological order
+		model.getSite().sortPosts();
+		
 		doPaginationPages(blogName, blogPath, allPages, model);
 		
-		// build all the date pages - archives
+		// build all the blog pages - archives
 		
 		// build all tag and categories pages
 		for(TagOrCategory tag : tags) {
-			doPaginationPages(blogName, tag.getBasePath(), tag.getPosts(), model);
+			doPaginationPages(blogName, tag.getBaseURL(), tag.getPosts(), model);
 		}
+		
 		for(TagOrCategory cat : categories) {
-			doPaginationPages(blogName, cat.getBasePath(), cat.getPosts(), model);
+			doPaginationPages(blogName, cat.getBaseURL(), cat.getPosts(), model);
 		}
+		
+		// generate the single archive page
+		createBlogArchive(blogName, model, blogPath + "/archive.html");
+	}
+
+	/**
+	 * Create the blog archive page that contains the complete list of all posts
+	 * ever made in the site.
+	 * 
+	 * @param model
+	 */
+	private void createBlogArchive(final String blogName, final TemplateData model, final String filePath) {
+		// clear up the page data
+		Page page = new Page();
+		page.setTitle(blogName);
+		model.setPage(page);
+
+		model.setPaginator(null);
+		
+		// put the model into the actual template
+		String content = this.shire.getLayoutManager().layoutContent(BLOG_ARCHIVE_LAYOUT, null, model); 
+		
+		// create the resource to export
+		GeneratedResource resource = new GeneratedResource(this.shire.getSiteWriter().createBasePath(filePath), content);
+		
+		// export the page
+		this.shire.getSiteWriter().export(resource);
 	}
 
 	/**
@@ -169,19 +227,20 @@ public class BlogPagesGenerator implements Generator {
 		
 		// create a single re-usable object to prevent excessive
 		// garbage collection
-		TagOrCategory tagOrCategory = new TagOrCategory();
+		TagOrCategory tagOrCategory; // = new TagOrCategory();
 		
 		// build up a list of all details
 		for(RenderableResource resource : list) {
 			String categoryLine = resource.getFrontMatterProperty(propertyName);
-			if(categoryLine == null) {
+			if(AssertUtils.isEmpty(categoryLine)) {
 				continue;
 			}
 			
-			String[] tokens = categoryLine.split(FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
+			String[] tokens = StringUtils.split(categoryLine, FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
 			for(String token : tokens) {
 				token = token.trim();
 				if(!token.isEmpty()) {
+					tagOrCategory = new TagOrCategory();
 					tagOrCategory.setName(token);
 					
 					int index = result.indexOf(tagOrCategory);
@@ -205,7 +264,7 @@ public class BlogPagesGenerator implements Generator {
 	 * @return
 	 */
 	private String buildTagOrCategoryUrl(final String blogPath, final String folder, final String name) {
-		return blogPath + "/" + folder + "/" + name;
+		return this.shire.getSiteWriter().createBasePath(blogPath + "/" + folder + "/" + name);
 	}
 
 	/**
@@ -216,7 +275,11 @@ public class BlogPagesGenerator implements Generator {
 	 */
 	private void doPaginationPages(final String blogName, final String basePath, List<Page> list, TemplateData model) {
 		// create the home page with the top 5 entries
-		int batches = (list.size() / BATCH_SIZE) + 1;
+		int batches = (list.size() / BATCH_SIZE);
+		if(list.size() % BATCH_SIZE > 0) {
+			batches++;
+		}
+		
 		for(int index = 0; index < batches; index++) {
 			int lastIndex = (index + 1) * BATCH_SIZE;
 			if(lastIndex > list.size()) {
@@ -224,6 +287,9 @@ public class BlogPagesGenerator implements Generator {
 			}
 			
 			List<Page> pages = list.subList(index * BATCH_SIZE, lastIndex);
+			if(pages.size() == 0) {
+				continue;
+			}
 			
 			String name;
 			// decide the name
@@ -239,7 +305,7 @@ public class BlogPagesGenerator implements Generator {
 			}
 			
 			try {
-				pushBatchPage(blogName, pages, model, name, index, nextPage);
+				pushBatchPage(blogName, pages, model, name, index, nextPage, batches);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -253,21 +319,26 @@ public class BlogPagesGenerator implements Generator {
 	 * @param name
 	 * @throws IOException 
 	 */
-	private void pushBatchPage(String blogName, List<Page> pages, TemplateData model, String name, int currentPage, int nextPage) throws IOException {
-		final String layoutName = "post-listing.html";
-		
+	private void pushBatchPage(final String blogName, final List<Page> pages, final TemplateData model, final String name, final int currentPage, final int nextPage, final int totalNumberOfPages) throws IOException {
 		// build the model template
 		Paginator paginator = new  Paginator();
 		List<Page> posts = new ArrayList<Page>();
 		
 		model.setPaginator(paginator);
-		paginator.setPosts(posts);
 		
+		// set all the variables for posts as described in
+		// https://github.com/mojombo/jekyll/wiki/Template-Data#Paginator
 		paginator.setPerPage(BATCH_SIZE);
-		paginator.setPage(currentPage);
-		paginator.setNextPage(nextPage);
-		paginator.setPreviousPage(currentPage - 1);
+		paginator.setPosts(posts);
 		paginator.setTotalPosts(pages.size());
+		paginator.setTotalPages(totalNumberOfPages);
+		paginator.setPage(currentPage);
+		if(currentPage < totalNumberOfPages) {
+			paginator.setNextPage(nextPage);
+		} else {
+			paginator.setNextPage(-1);
+		}
+		paginator.setPreviousPage(currentPage - 1);
 		
 		// clear up the page data
 		Page page = new Page();
@@ -281,13 +352,13 @@ public class BlogPagesGenerator implements Generator {
 		}
 		
 		// put the model into the actual template
-		content = LayoutManager.layoutContent(layoutName, null, model); 
+		content = this.shire.getLayoutManager().layoutContent(PAGINATION_LAYOUT_FOR_POSTS, null, model); 
 		
 		// create the resource to export
-		GeneratedResource resource = new GeneratedResource(SiteWriter.createBasePath(name), content);
+		GeneratedResource resource = new GeneratedResource(this.shire.getSiteWriter().createBasePath(name), content);
 		
 		// export the page
-		SiteWriter.export(resource);
+		this.shire.getSiteWriter().export(resource);
 	}
 
 	/**

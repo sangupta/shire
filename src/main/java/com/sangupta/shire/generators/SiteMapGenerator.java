@@ -21,16 +21,14 @@
 
 package com.sangupta.shire.generators;
 
-import java.io.File;
 import java.util.List;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import com.sangupta.shire.Shire;
 import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.domain.RenderableResource;
-import com.sangupta.shire.model.TemplateData;
-import com.sangupta.shire.site.SiteWriter;
 
 /**
  * Generator that creates a sitemap of all pages in the website.
@@ -60,13 +58,14 @@ public class SiteMapGenerator implements Generator {
 	 * @see com.sangupta.shire.core.Generator#execute(com.sangupta.shire.model.TemplateData)
 	 */
 	@Override
-	public void execute(TemplateData model, List<RenderableResource> resources, List<File> dotFiles) {
+	public void execute(Shire shire) {
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		builder.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
-		String url = model.getSite().getUrl();
+		String url = shire.getTemplateData().getSite().getUrl();
 
+		List<RenderableResource> resources = shire.getSiteDirectory().getRenderableResources();
 		if(resources != null && resources.size() > 0) {
 			for(RenderableResource resource : resources) {
 				builder.append("  <url>\n");
@@ -101,7 +100,7 @@ public class SiteMapGenerator implements Generator {
 		GeneratedResource resource = new GeneratedResource("/sitemap.xml", builder.toString());
 		
 		// export it
-		SiteWriter.export(resource);
+		shire.getSiteWriter().export(resource);
 	}
 
 	/**

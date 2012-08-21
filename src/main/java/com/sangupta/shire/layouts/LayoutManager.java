@@ -42,12 +42,12 @@ import com.sangupta.shire.util.ShireUtils;
  */
 public class LayoutManager {
 	
-	private static ExecutionOptions options = null;
+	private ExecutionOptions options = null;
 	
-	private static Layout layout = null;
+	private Layout layout = null;
 	
-	public static void initialize(ExecutionOptions options) {
-		LayoutManager.options = options;
+	public LayoutManager(ExecutionOptions options) {
+		this.options = options;
 
 		LayoutType layoutType = options.getLayoutType();
 		switch(layoutType) {
@@ -61,7 +61,7 @@ public class LayoutManager {
 		}
 		
 		// reset-the layout type option
-		options.setLayoutType(layoutType);
+		this.options.setLayoutType(layoutType);
 	}
 	
 	/**
@@ -79,7 +79,7 @@ public class LayoutManager {
 	 * and figure out the layout type if not specified.
 	 * 
 	 */
-	public static void readLayoutsAndIncludes() {
+	public void readLayoutsAndIncludes() {
 		final File layouts = ShireUtils.getFolder(options, options.getLayoutsFolderName());
 		final File includes = ShireUtils.getFolder(options, options.getIncludesFolderName());
 		
@@ -89,7 +89,16 @@ public class LayoutManager {
 		layout.initialize( new File[] { layouts, includes }, Makeup.getKnownCustomTags());
 	}
 	
-	public static String layoutContent(String layoutName, final String content, final TemplateData templateData) {
+	/**
+	 * Render the given content with the given layout and model data. The content is added under the
+	 * field name of <code>content</code>. 
+	 * 
+	 * @param layoutName
+	 * @param content
+	 * @param templateData
+	 * @return
+	 */
+	public String layoutContent(String layoutName, final String content, final TemplateData templateData) {
 		if(StringUtils.isEmpty(layoutName)) {
 			return content;
 		}
@@ -109,6 +118,7 @@ public class LayoutManager {
 		// only if they are null
 		// content would be null for post pages - where multiple posts are laid out
 		String modifiedContent;
+
 		if(content != null) {
 			modifiedContent = layout.layoutWithTemplateCode(content, dataModel);
 		} else {
@@ -133,7 +143,7 @@ public class LayoutManager {
 	 *         {@link TemplateData} object is null
 	 * 
 	 */
-	private static Map<String, Object> getDataModel(final TemplateData data) {
+	private Map<String, Object> getDataModel(final TemplateData data) {
 		final Map<String, Object> model = new HashMap<String, Object>();
 		
 		model.put("site", data.getSite());

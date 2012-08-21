@@ -23,7 +23,14 @@ package com.sangupta.shire;
 
 import java.io.File;
 
+import com.sangupta.jerry.http.WebInvoker;
+import com.sangupta.shire.layouts.LayoutManager;
+import com.sangupta.shire.model.TemplateData;
+import com.sangupta.shire.site.SiteBackup;
 import com.sangupta.shire.site.SiteBuilder;
+import com.sangupta.shire.site.SiteDirectory;
+import com.sangupta.shire.site.SiteWriter;
+import com.sangupta.shire.util.WebResponseCacheInterceptor;
 
 /**
  * Command line application porting the awesome Jekyll framework
@@ -35,9 +42,54 @@ import com.sangupta.shire.site.SiteBuilder;
 public class Shire {
 	
 	/**
-	 * Singleton instance of the execution options
+	 * Execution options per site
 	 */
-	private static ExecutionOptions options = null;
+	private ExecutionOptions options = null;
+	
+	/**
+	 * Site directory for this site
+	 */
+	private SiteDirectory siteDirectory = null;
+	
+	/**
+	 * Holds the site backup for one site
+	 */
+	private SiteBackup siteBackup = null;
+	
+	/**
+	 * Site writer for this site
+	 */
+	private SiteWriter siteWriter = null;
+	
+	/**
+	 * Layout manager for this site
+	 */
+	private LayoutManager layoutManager = null;
+	
+	/**
+	 * Template data associated with this site
+	 */
+	private TemplateData templateData = null;
+	
+	public Shire(File configFile) {
+		this.options = new ExecutionOptions(configFile);
+
+		// initialize all sub-systems
+		this.siteBackup = new SiteBackup(options);
+		
+		this.layoutManager = new LayoutManager(options);
+		
+		this.siteDirectory = new SiteDirectory(options);
+
+		this.siteWriter = new SiteWriter(options);
+		
+		this.templateData = new TemplateData(this.options.getConfiguration());
+		
+		// add web interceptor if needed
+		if(this.options.isUseCache()) {
+			WebInvoker.interceptor = new WebResponseCacheInterceptor(this);
+		}
+	}
 	
 	/**
 	 * Main entry point to the application. This method analyzes the command line parameters
@@ -74,12 +126,13 @@ public class Shire {
 			return;
 		}
 		
-		// start jekyll
-		options = new ExecutionOptions(config);
+		// start shire/jekyll
+		Shire shire = new Shire(config);
 		
 		// read the config file
 		// build the site
-		new SiteBuilder(options).buildSite();
+		SiteBuilder builder = new SiteBuilder(shire);
+		builder.buildSite();
 		
 		System.out.println("\n\nDone building the site!");
 	}
@@ -92,14 +145,49 @@ public class Shire {
 		System.out.println("      <config_file>   the YAML configuration file that needs to be processed.");
 		System.exit(0);
 	}
+	
+	// Usual accessors follow
 
 	/**
-	 * Retrieve the options object globally.
-	 * 
-	 * @return
+	 * @return the options
 	 */
-	public static ExecutionOptions getExecutionOptions() {
+	public ExecutionOptions getOptions() {
 		return options;
 	}
-	
+
+	/**
+	 * @return the siteDirectory
+	 */
+	public SiteDirectory getSiteDirectory() {
+		return siteDirectory;
+	}
+
+	/**
+	 * @return the siteWriter
+	 */
+	public SiteWriter getSiteWriter() {
+		return siteWriter;
+	}
+
+	/**
+	 * @return the layoutManager
+	 */
+	public LayoutManager getLayoutManager() {
+		return layoutManager;
+	}
+
+	/**
+	 * @return the templateData
+	 */
+	public TemplateData getTemplateData() {
+		return templateData;
+	}
+
+	/**
+	 * @return the siteBackup
+	 */
+	public SiteBackup getSiteBackup() {
+		return siteBackup;
+	}
+
 }

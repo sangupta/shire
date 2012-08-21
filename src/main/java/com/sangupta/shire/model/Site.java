@@ -52,19 +52,21 @@ public class Site {
 	
 	/**
 	 * a reverse chronological list of all posts in the same
-	 * blog domain and its child 
+	 * blog domain and its child. This is particularly useful
+	 * when creating the blog archives
 	 */
-	private final List<Post> posts = new ArrayList<Post>();
+	private final List<Page> posts = new ArrayList<Page>();
 	
 	/**
-	 * A complete list of all pages in the site
+	 * A complete list of all pages in the site. This is useful
+	 * for generating the entire sitemaps.
 	 */
-	private final List<Post> pages = new ArrayList<Post>();
+	private final List<Page> pages = new ArrayList<Page>();
 	
 	/**
 	 * If the page being processed is a Post, this contains a list of up to ten related Posts
 	 */
-	private final List<Post> relatedPosts = new ArrayList<Post>();
+	private final List<Page> relatedPosts = new ArrayList<Page>();
 
 	/**
 	 * The list of all Posts in category
@@ -94,8 +96,18 @@ public class Site {
 	 * 
 	 * @param page
 	 */
-	public void addPage(Post page) {
+	public void addPage(Page page) {
 		this.pages.add(page);
+	}
+	
+	/**
+	 * Add all resources as a page to the list of all pages
+	 * in the site.
+	 * 
+	 * @param pages
+	 */
+	public void addAllPages(List<Page> pages) {
+		this.pages.addAll(pages);
 	}
 	
 	/**
@@ -111,8 +123,17 @@ public class Site {
 	 * 
 	 * @param post
 	 */
-	public void addPost(Post post) {
+	public void addPost(Page post) {
 		this.posts.add(post);
+	}
+	
+	/**
+	 * Add all posts to the list of available posts in this domain
+	 * 
+	 * @param posts
+	 */
+	public void addAllPosts(List<Page> posts) {
+		this.posts.addAll(posts);
 	}
 	
 	/**
@@ -135,14 +156,14 @@ public class Site {
 	/**
 	 * @return the posts
 	 */
-	public List<Post> getPosts() {
+	public List<Page> getPosts() {
 		return posts;
 	}
 
 	/**
 	 * @return the relatedPosts
 	 */
-	public List<Post> getRelatedPosts() {
+	public List<Page> getRelatedPosts() {
 		return relatedPosts;
 	}
 
@@ -198,7 +219,7 @@ public class Site {
 	/**
 	 * @return the pages
 	 */
-	public List<Post> getPages() {
+	public List<Page> getPages() {
 		return pages;
 	}
 

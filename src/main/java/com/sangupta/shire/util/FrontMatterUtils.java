@@ -45,42 +45,55 @@ public class FrontMatterUtils {
 	 * @throws IOException 
 	 */
 	public static int checkFileHasFrontMatter(File file, Properties properties) throws IOException {
-		FileReader fileReader = new FileReader(file);
-		BufferedReader reader = new BufferedReader(fileReader);
-
-		String line;
-		boolean found = false;
+		FileReader fileReader = null;
+		BufferedReader reader = null;
 		int linesRead = 0;
-		while((line = reader.readLine()) != null) {
-			linesRead++;
 
-			// start reading the file from top
-			if(!found) {
-				if("".equals(line.trim())) {
+		try {
+			fileReader = new FileReader(file);
+			reader = new BufferedReader(fileReader);
+	
+			String line;
+			boolean found = false;
+			while((line = reader.readLine()) != null) {
+				linesRead++;
+	
+				// start reading the file from top
+				if(!found) {
+					if("".equals(line.trim())) {
+						continue;
+					}
+					
+					// check the first non-empty line
+					if(!line.startsWith("---")) {
+						return -1;
+					}
+					
+					// we had the front matter
+					found = true;
 					continue;
 				}
 				
-				// check the first non-empty line
-				if(!line.startsWith("---")) {
-					return -1;
+				// front matter has been found and this is the line
+				// that may have the property
+				if(line.startsWith("---")) {
+					// this is the end of new params
+					break;
 				}
 				
-				// we had the front matter
-				found = true;
-				continue;
+				// extract the param
+				String[] tokens = YmlConfigReader.readLine(line);
+				if(tokens != null) {
+					properties.put(tokens[0], tokens[1]);
+				}
+			}
+		} finally {
+			if(fileReader != null) {
+				fileReader.close();
 			}
 			
-			// front matter has been found and this is the line
-			// that may have the property
-			if(line.startsWith("---")) {
-				// this is the end of new params
-				break;
-			}
-			
-			// extract the param
-			String[] tokens = YmlConfigReader.readLine(line);
-			if(tokens != null) {
-				properties.put(tokens[0], tokens[1]);
+			if(reader != null) {
+				reader.close();
 			}
 		}
 		

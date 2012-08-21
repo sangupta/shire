@@ -27,13 +27,13 @@ import java.util.Comparator;
  * @author sangupta
  *
  */
-public class PostComparatorOnNames implements Comparator<Post> {
+public class PostComparatorOnNames implements Comparator<Page> {
 
 	/**
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public int compare(Post p1, Post p2) {
+	public int compare(Page p1, Page p2) {
 		if(p1.getTitle() == null && p2.getTitle() == null) {
 			return p1.getUrl().compareTo(p2.getUrl());
 		}

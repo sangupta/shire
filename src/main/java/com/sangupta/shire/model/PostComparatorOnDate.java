@@ -27,13 +27,13 @@ import java.util.Comparator;
  * @author sangupta
  *
  */
-public class PostComparatorOnDate implements Comparator<Post> {
+public class PostComparatorOnDate implements Comparator<Page> {
 
 	/**
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public int compare(Post p1, Post p2) {
+	public int compare(Page p1, Page p2) {
 		return 0 - (p1.getDate().compareTo(p2.getDate()));
 	}
 

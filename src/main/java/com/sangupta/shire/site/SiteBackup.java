@@ -37,17 +37,34 @@ import com.sangupta.shire.ExecutionOptions;
  */
 public class SiteBackup {
 
+	/**
+	 * The default extension for the site backup
+	 */
 	private static final String BACKUP_FOLDER_EXTENSION = ".backup";
+	
+	/**
+	 * Currently running site options
+	 */
+	private ExecutionOptions options;
 	
 	/**
 	 * Holds the file handle to the site backup 
 	 */
-	private static File backupFolder = null;
+	private File backupFolder = null;
+	
+	/**
+	 * Construct a site backup object for this shire.
+	 * 
+	 * @param options
+	 */
+	public SiteBackup(ExecutionOptions options) {
+		this.options = options;
+	}
 	
 	/**
 	 * Method to restore the _site.backup folder that we took in this very session.
 	 */
-	private static void restoreSiteBackup() {
+	private void restoreSiteBackup() {
 		if(backupFolder != null) {
 			// build up the name of the original folder
 			String path = backupFolder.getAbsolutePath();
@@ -73,7 +90,7 @@ public class SiteBackup {
 	 * Method to delete the _site.backup folder that we took a while back.
 	 * 
 	 */
-	private static void deleteSiteBackup() {
+	private void deleteSiteBackup() {
 		if(backupFolder != null) {
 			try {
 				FileUtils.deleteDirectory(backupFolder);
@@ -89,7 +106,7 @@ public class SiteBackup {
 	 * Method that creates the backup of the _site folder, if present.
 	 * 
 	 */
-	public static void backupOlderSite(ExecutionOptions options) {
+	public void backupOlderSite() {
 		File siteFolder = new File(options.getParentFolder(), options.getSiteFolderName());
 		if(!siteFolder.exists()) {
 			return;
@@ -114,14 +131,14 @@ public class SiteBackup {
 	 * 
 	 * @param success
 	 */
-	public static void performHouseKeeping(boolean success) {
+	public void performHouseKeeping(boolean success) {
 		// if we have been successful in creating the site
 		// delete the backup
 		// else, restore the backup
 		if(success) {
-			SiteBackup.deleteSiteBackup();
+			this.deleteSiteBackup();
 		} else {
-			SiteBackup.restoreSiteBackup();
+			this.restoreSiteBackup();
 		}
 	}
 }

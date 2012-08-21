@@ -26,75 +26,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.sangupta.jerry.http.WebInvoker;
-import com.sangupta.shire.ExecutionOptions;
+import com.sangupta.shire.Shire;
 import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.generators.BlogPagesGenerator;
 import com.sangupta.shire.generators.SiteMapGenerator;
-import com.sangupta.shire.layouts.LayoutManager;
 import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.TemplateData;
-import com.sangupta.shire.util.WebResponseCacheInterceptor;
 
 public class SiteBuilder {
 
 	/**
-	 * Options to be used for site building
-	 */
-	private ExecutionOptions options;
-	
-	/**
 	 * List of registered generators
 	 */
-	private List<Generator> generators = null;
+	private static final List<Generator> generators = new ArrayList<Generator>();
+	
+	static {
+		// add all default generators
+		generators.add(new SiteMapGenerator());
+		generators.add(new BlogPagesGenerator());
+	}
 	
 	/**
-	 * Directory scanner for the input site
+	 * The shire instance over which this site builder is running
 	 */
-	private SiteDirectory siteDirectory;
-	
-	/**
-	 * Holds the template data for the site, and the page
-	 */
-	private TemplateData templateData = null;
+	private Shire shire = null;
 	
 	/**
 	 * Constructor
 	 * 
-	 * @param options
+	 * @param shire
 	 */
-	public SiteBuilder(ExecutionOptions options) {
-		if(options == null) {
-			throw new IllegalArgumentException("Execution options cannot be null.");
-		}
-		
-		this.options = options;
-		
-		initialize();
-	}
-	
-	/**
-	 * Initialize all the sub-systems of this application
-	 * 
-	 * @param options
-	 */
-	private void initialize() {
-		// initialize all sub-systems
-		LayoutManager.initialize(options);
-		SiteWriter.initialize(options);
-		this.siteDirectory = new SiteDirectory(options);
-
-		// add all default generators
-		this.generators = new ArrayList<Generator>();
-		this.generators.add(new SiteMapGenerator());
-		this.generators.add(new BlogPagesGenerator());
-		
-		// add web interceptor if needed
-		if(options.isUseCache()) {
-			WebInvoker.interceptor = new WebResponseCacheInterceptor();
-		}
+	public SiteBuilder(Shire shire) {
+		this.shire = shire;
 	}
 
 	/**
@@ -105,12 +70,12 @@ public class SiteBuilder {
 		// read all available layouts
 		// as given in _layouts folder
 		// and in _includes folder
-		LayoutManager.readLayoutsAndIncludes();
+		this.shire.getLayoutManager().readLayoutsAndIncludes();
 		
 		// rename the older _site folder
 		// to create a backup
 		// we will delete it, if all goes all well
-		SiteBackup.backupOlderSite(options);
+		this.shire.getSiteBackup().backupOlderSite();
 		
 		boolean success = false;
 		try {
@@ -120,23 +85,20 @@ public class SiteBuilder {
 			e.printStackTrace();
 		}
 
-		SiteBackup.performHouseKeeping(success);
+		this.shire.getSiteBackup().performHouseKeeping(success);
 	}
 	
 	private void processSite() {
-		// build the template data
-		this.templateData = new TemplateData(this.options.getConfiguration());
-		
 		// build a list of all tags and categories
 		// that will be used site-wide
-		this.templateData.extractFromResources(this.siteDirectory.getRenderableResources());
+		this.shire.getTemplateData().extractFromResources();
 		
 		// export all non-renderable resources
-		exportNonRenderableResources(this.siteDirectory.getNonRenderableResources());
+		exportNonRenderableResources();
 
 		// build a list of all folders
 		// exclude the _includes, _layouts, _plugins and _site folders
-		processResources(this.siteDirectory.getRenderableResources());
+		processResources();
 		
 		// call all generators
 		// and pass these the needed values
@@ -147,9 +109,10 @@ public class SiteBuilder {
 	/**
 	 * @param nonRenderableResources
 	 */
-	private void exportNonRenderableResources(List<NonRenderableResource> nonRenderableResources) {
+	private void exportNonRenderableResources() {
+		List<NonRenderableResource> nonRenderableResources = this.shire.getSiteDirectory().getNonRenderableResources();
 		for(NonRenderableResource nr : nonRenderableResources) {
-			SiteWriter.export(nr);
+			this.shire.getSiteWriter().export(nr);
 		}
 	}
 
@@ -158,14 +121,15 @@ public class SiteBuilder {
 	 * 
 	 * @param resources
 	 */
-	private void processResources(List<RenderableResource> resources) {
+	private void processResources() {
+		List<RenderableResource> resources = this.shire.getSiteDirectory().getRenderableResources();
 		System.out.println("Found " + resources.size() + " files to process.");
 		
 		// start processing each file
 		for(RenderableResource resource : resources) {
 			// process the resource as needed
 			try {
-				renderPage(resource, templateData);
+				renderPage(resource);
 			} catch (IOException e) {
 				System.out.println("Unable to process site resource: " + resource.getExportPath());
 				e.printStackTrace();
@@ -180,8 +144,10 @@ public class SiteBuilder {
 	 * @param file
 	 * @throws IOException 
 	 */
-	private void renderPage(RenderableResource resource, TemplateData templateData) throws IOException {
+	private void renderPage(RenderableResource resource) throws IOException {
 		System.out.println("Processing " + resource.getExportPath() + "...");
+		
+		TemplateData templateData = this.shire.getTemplateData();
 		
 		String layoutName = null;
 		Properties frontMatter = null;
@@ -224,11 +190,16 @@ public class SiteBuilder {
 			content = resource.getConvertedContent();
 			
 			// work out this HTML content with the current model data
-			content = LayoutManager.layoutContent(layoutName, content, templateData);
+			try {
+				content = this.shire.getLayoutManager().layoutContent(layoutName, content, templateData);
+			} catch(Exception e) {
+				// eat up
+				System.out.println("Unable to layout file in template: " + resource.getFileHandle().getAbsolutePath());
+			}
 			
 			// now that we are done
 			// we need to write the file back to the destination
-			SiteWriter.export(resource, content);
+			this.shire.getSiteWriter().export(resource, content);
 			
 			return;
 		}
@@ -241,14 +212,15 @@ public class SiteBuilder {
 	 * 
 	 */
 	private void invokeGenerators() {
-		if(this.generators == null || this.generators.size() == 0) {
+		if(SiteBuilder.generators == null || SiteBuilder.generators.size() == 0) {
 			// nothing to do
 			return;
 		}
 		
-		for(Generator generator : generators) {
+		for(Generator generator : SiteBuilder.generators) {
 			System.out.println("Invoking generator: " + generator.getName());
-			generator.execute(templateData, this.siteDirectory.getRenderableResources(), this.siteDirectory.getDotFiles());
+			
+			generator.execute(this.shire);
 		}
 	}
 

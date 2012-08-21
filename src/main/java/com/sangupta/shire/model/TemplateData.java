@@ -21,12 +21,9 @@
 
 package com.sangupta.shire.model;
 
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
-
-import com.sangupta.shire.domain.RenderableResource;
 
 /**
  * Stores the template data that is passed on to the page
@@ -84,7 +81,8 @@ public class TemplateData {
 	 * 
 	 * @param resources
 	 */
-	public void extractFromResources(List<RenderableResource> resources) {
+	public void extractFromResources() {
+		// TODO: fix this
 	}
 
 	// Usual accessors follow

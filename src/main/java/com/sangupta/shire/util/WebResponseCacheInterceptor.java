@@ -45,7 +45,7 @@ public class WebResponseCacheInterceptor implements WebInvocationInterceptor {
 	/**
 	 * Holds the reference to the cache folder
 	 */
-	private static File cacheDir = null;
+	private File cacheDir = null;
 
 	/**
 	 * Holds the thread local value whether we need to continue invocation or not
@@ -56,6 +56,18 @@ public class WebResponseCacheInterceptor implements WebInvocationInterceptor {
 	 * Holds the URL that is supplied to this instance in before invocation method
 	 */
 	private ThreadLocal<String> url = new ThreadLocal<String>();
+	
+	/**
+	 * Create an instance of this object
+	 * 
+	 * @param shire
+	 */
+	public WebResponseCacheInterceptor(Shire shire) {
+		this.cacheDir = new File(shire.getOptions().getParentFolder(), shire.getOptions().getCacheFolderName());
+		if(!this.cacheDir.exists()) {
+			this.cacheDir.mkdirs();
+		}
+	}
 	
 	/**
 	 * @see com.sangupta.jerry.http.WebInvocationInterceptor#beforeInvocation(java.lang.String, com.sangupta.jerry.http.WebRequestMethod)
@@ -119,7 +131,7 @@ public class WebResponseCacheInterceptor implements WebInvocationInterceptor {
 	 * 
 	 * @return the response as available
 	 */
-	private static WebResponse getFromCache(String url) {
+	private WebResponse getFromCache(String url) {
 		File cache = getCacheFile(url);
 		if(cache == null || !cache.exists()) {
 			return null;
@@ -142,13 +154,9 @@ public class WebResponseCacheInterceptor implements WebInvocationInterceptor {
 	 * @param url
 	 * @return
 	 */
-	private static File getCacheFile(String url) {
+	private File getCacheFile(String url) {
 		if(url == null) {
 			return null;
-		}
-		
-		if(cacheDir == null) {
-			buildCacheDir();
 		}
 		
 		String md5 = CryptoUtil.getMD5Hex(url);
@@ -157,18 +165,4 @@ public class WebResponseCacheInterceptor implements WebInvocationInterceptor {
 		return cache;
 	}
 
-	/**
-	 * Create the cache dir, if not present
-	 * 
-	 */
-	private synchronized static void buildCacheDir() {
-		if(cacheDir != null) {
-			return;
-		}
-		
-		cacheDir = new File(Shire.getExecutionOptions().getParentFolder(), Shire.getExecutionOptions().getCacheFolderName());
-		if(!cacheDir.exists()) {
-			cacheDir.mkdirs();
-		}
-	}
 }

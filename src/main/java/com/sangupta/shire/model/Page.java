@@ -31,13 +31,13 @@ import org.apache.commons.lang3.StringUtils;
 import com.sangupta.shire.util.ShireUtils;
 
 /**
- * Holds data model for a given page - the page which is under
+ * Holds data model for a given page/blog post - the page which is under
  * processing by the layout.
  * 
  * @author sangupta
  *
  */
-public class Page {
+public class Page implements Comparable<Page> {
 	
 	/**
 	 * The unrendered content of the page
@@ -172,6 +172,18 @@ public class Page {
 	private void updateCategoriesFromUrl() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(Page other) {
+		if(other == null) {
+			return -1;
+		}
+		
+		return this.id.compareToIgnoreCase(other.id);
 	}
 
 	// Usual accessors follow
