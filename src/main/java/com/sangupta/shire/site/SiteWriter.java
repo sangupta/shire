@@ -69,8 +69,6 @@ public class SiteWriter {
 		this.options = options;
 		this.sourceFolder = options.getParentFolder().getAbsoluteFile();
 		this.sourceBase = sourceFolder.getAbsolutePath();
-		
-		createSiteExportFolder();
 	}
 
 	/**

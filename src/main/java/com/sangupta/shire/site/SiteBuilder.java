@@ -77,6 +77,10 @@ public class SiteBuilder {
 		// we will delete it, if all goes all well
 		this.shire.getSiteBackup().backupOlderSite();
 		
+		
+		// create the export folder
+		this.shire.getSiteWriter().createSiteExportFolder();
+		
 		boolean success = false;
 		try {
 			processSite();

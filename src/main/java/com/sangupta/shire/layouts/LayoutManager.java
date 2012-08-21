@@ -154,18 +154,19 @@ public class LayoutManager {
 			// e.printStackTrace();
 		}
 		
-		String layoutCode = layoutContent(parentLayoutName, childTemplateCode, templateData);
-		
+		// parse the content for velocity tags
 		String modifiedContent;
 		if(content != null) {
-			modifiedContent = this.layout.layoutWithTemplateCode(layoutCode, dataModel);
+			modifiedContent = this.layout.layoutWithTemplateCode(content, dataModel);
 		} else {
 			modifiedContent = content;
 		}
 		
-		// layout the contents
 		dataModel.put("content", modifiedContent);
-		return this.layout.layoutWithTemplateCode(layoutCode, dataModel);
+		childTemplateCode = this.layout.layoutWithTemplateCode(childTemplateCode, dataModel);
+		
+		dataModel.put("content", childTemplateCode);
+		return this.layout.layout(parentLayoutName, dataModel);
 	}
 	
 	/**
@@ -204,7 +205,7 @@ public class LayoutManager {
 		
 		// layout the contents
 		dataModel.put("content", modifiedContent);
-		return layout.layout(layoutName, dataModel);
+		return this.layout.layout(layoutName, dataModel);
 	}
 
 	/**
