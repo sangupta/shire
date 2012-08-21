@@ -191,7 +191,7 @@ public class BlogPagesGenerator implements Generator {
 		}
 		
 		// generate the single archive page
-		createBlogArchive(blogName, model, blogPath + "/archive.html");
+		createBlogArchive(blogName, model, allPages, blogPath + "/archive.html");
 	}
 
 	/**
@@ -200,7 +200,11 @@ public class BlogPagesGenerator implements Generator {
 	 * 
 	 * @param model
 	 */
-	private void createBlogArchive(final String blogName, final TemplateData model, final String filePath) {
+	private void createBlogArchive(final String blogName, final TemplateData model, final List<Page> allPosts, final String filePath) {
+		model.getSite().getPosts().clear();
+		model.getSite().addAllPosts(allPosts);
+		model.getSite().sortPosts();
+		
 		// clear up the page data
 		Page page = new Page();
 		page.setTitle(blogName);
@@ -209,7 +213,7 @@ public class BlogPagesGenerator implements Generator {
 		model.setPaginator(null);
 		
 		// put the model into the actual template
-		String content = this.shire.getLayoutManager().layoutContent(BLOG_ARCHIVE_LAYOUT, "", model); 
+		String content = this.shire.getLayoutManager().layoutContent(BLOG_ARCHIVE_LAYOUT, null, model); 
 		
 		// create the resource to export
 		GeneratedResource resource = new GeneratedResource(this.shire.getSiteWriter().createBasePath(filePath), content);
@@ -310,6 +314,9 @@ public class BlogPagesGenerator implements Generator {
 				e.printStackTrace();
 			}
 		}
+		
+		// generate the single archive page for this particular tag
+		createBlogArchive(blogName, model, list, basePath + "/archive.html");
 	}
 
 	/**
@@ -352,7 +359,7 @@ public class BlogPagesGenerator implements Generator {
 		}
 		
 		// put the model into the actual template
-		content = this.shire.getLayoutManager().layoutContent(PAGINATION_LAYOUT_FOR_POSTS, "", model); 
+		content = this.shire.getLayoutManager().layoutContent(PAGINATION_LAYOUT_FOR_POSTS, null, model); 
 		
 		// create the resource to export
 		GeneratedResource resource = new GeneratedResource(this.shire.getSiteWriter().createBasePath(name), content);

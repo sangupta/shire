@@ -181,6 +181,7 @@ public class SiteBuilder {
 			Page page = templateData.getPage();
 			page.setContent(content);
 			page.setUrl(resource.getUrl());
+			page.setDate(resource.getPublishDate());
 			
 			page.postProcessProperties();
 			

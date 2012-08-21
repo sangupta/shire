@@ -142,15 +142,13 @@ public class RenderableResource extends AbstractResource {
 	
 			post.setDate(this.getPublishDate());
 			post.setTitle(this.getFrontMatterProperty("title"));
+			post.setUrl(this.getUrl());
 			
 			try {
 				post.setContent(this.getConvertedContent());
 			} catch (IOException e) {
 				throw new RuntimeException("Unable to build post out of this resource", e);
 			}
-			
-			post.setUrl(this.getUrl());
-			post.setDate(this.getPublishDate());
 		}
 		
 		return post;
