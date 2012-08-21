@@ -29,6 +29,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.sangupta.jerry.util.AssertUtils;
 import com.sangupta.makeup.Makeup;
 import com.sangupta.makeup.layouts.Layout;
 import com.sangupta.makeup.layouts.LayoutType;
@@ -154,19 +155,18 @@ public class LayoutManager {
 			// e.printStackTrace();
 		}
 		
-		// parse the content for velocity tags
-		String modifiedContent;
-		if(content != null) {
-			modifiedContent = this.layout.layoutWithTemplateCode(content, dataModel);
-		} else {
-			modifiedContent = content;
+		// dataModel.put("content", childTemplateCode);
+		String resolved = this.layoutContent(parentLayoutName, childTemplateCode, templateData);
+		
+		if(AssertUtils.isNotEmpty(content)) {
+			Map<String, Object> model = new HashMap<String, Object>();
+			
+			// parse the content for velocity tags
+			model.put("content", this.layout.layoutWithTemplateCode(content, dataModel));
+			resolved = this.layout.layoutWithTemplateCode(resolved, model);
 		}
 		
-		dataModel.put("content", modifiedContent);
-		childTemplateCode = this.layout.layoutWithTemplateCode(childTemplateCode, dataModel);
-		
-		dataModel.put("content", childTemplateCode);
-		return this.layout.layout(parentLayoutName, dataModel);
+		return resolved;
 	}
 	
 	/**

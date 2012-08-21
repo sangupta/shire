@@ -209,7 +209,7 @@ public class BlogPagesGenerator implements Generator {
 		model.setPaginator(null);
 		
 		// put the model into the actual template
-		String content = this.shire.getLayoutManager().layoutContent(BLOG_ARCHIVE_LAYOUT, null, model); 
+		String content = this.shire.getLayoutManager().layoutContent(BLOG_ARCHIVE_LAYOUT, "", model); 
 		
 		// create the resource to export
 		GeneratedResource resource = new GeneratedResource(this.shire.getSiteWriter().createBasePath(filePath), content);
@@ -352,7 +352,7 @@ public class BlogPagesGenerator implements Generator {
 		}
 		
 		// put the model into the actual template
-		content = this.shire.getLayoutManager().layoutContent(PAGINATION_LAYOUT_FOR_POSTS, null, model); 
+		content = this.shire.getLayoutManager().layoutContent(PAGINATION_LAYOUT_FOR_POSTS, "", model); 
 		
 		// create the resource to export
 		GeneratedResource resource = new GeneratedResource(this.shire.getSiteWriter().createBasePath(name), content);
