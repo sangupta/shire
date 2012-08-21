@@ -22,10 +22,10 @@
 package com.sangupta.shire.util;
 
 import java.io.File;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.commons.lang3.time.DateUtils;
 
 import com.sangupta.shire.ExecutionOptions;
 
@@ -48,13 +48,12 @@ public class ShireUtils {
 	}
 	
 	public static Date parsePostDate(String date) {
-		DateFormat format = new SimpleDateFormat("yyyyy-MM-dd hh:mm:ss");
+		// try parsing in the format
+		// dow mon dd hh:mm:ss zzz yyyy
 		try {
-			return format.parse(date.trim());
+			return DateUtils.parseDate(date.trim(), "EEE MMM dd hh:mm:dd zzz yyyy", "yyyyy-MM-dd hh:mm:ss", "yyyy-MM-dd", "dd-MM-yyyy");
 		} catch (ParseException e) {
-			// unable to parse date on post
 			// eat up
-			// e.printStackTrace();
 		}
 		
 		return null;

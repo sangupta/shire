@@ -149,6 +149,9 @@ public class RenderableResource extends AbstractResource {
 			} catch (IOException e) {
 				throw new RuntimeException("Unable to build post out of this resource", e);
 			}
+
+			post.mergeFrontMatter(this.frontMatter);
+			post.postProcessProperties();
 		}
 		
 		return post;

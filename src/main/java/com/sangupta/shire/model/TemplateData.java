@@ -61,20 +61,20 @@ public class TemplateData {
 		this.site.setUrl(configuration.getProperty("url"));
 	}
 
-	/**
-	 * Merge the front-matter of the page with this template data.
-	 * 
-	 * @param pageFrontMatter
-	 */
-	public void mergePageFrontMatter(Properties pageFrontMatter) {
-		this.page = new Page(); 
-		
-		if(pageFrontMatter == null) {
-			return;
-		}
-		
-		page.mergeFrontMatter(pageFrontMatter);
-	}
+//	/**
+//	 * Merge the front-matter of the page with this template data.
+//	 * 
+//	 * @param pageFrontMatter
+//	 */
+//	public void mergePageFrontMatter(Properties pageFrontMatter) {
+//		this.page = new Page(); 
+//		
+//		if(pageFrontMatter == null) {
+//			return;
+//		}
+//		
+//		page.mergeFrontMatter(pageFrontMatter);
+//	}
 	
 	/**
 	 * Extract all tags and categories from this list of resources.

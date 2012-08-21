@@ -40,6 +40,7 @@ import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.model.FrontMatterConstants;
 import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.Paginator;
+import com.sangupta.shire.model.PostComparatorOnDate;
 import com.sangupta.shire.model.ResourceComparatorOnDate;
 import com.sangupta.shire.model.TagOrCategory;
 import com.sangupta.shire.model.TemplateData;
@@ -278,6 +279,9 @@ public class BlogPagesGenerator implements Generator {
 	 * @param model
 	 */
 	private void doPaginationPages(final String blogName, final String basePath, List<Page> list, TemplateData model) {
+		// sort this list based on chronologically descending order
+		Collections.sort(list, new PostComparatorOnDate());
+		
 		// create the home page with the top 5 entries
 		int batches = (list.size() / BATCH_SIZE);
 		if(list.size() % BATCH_SIZE > 0) {

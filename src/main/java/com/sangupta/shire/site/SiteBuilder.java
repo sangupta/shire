@@ -170,20 +170,12 @@ public class SiteBuilder {
 			}
 		}
 		
-		// this also makes sure that the page
-		// attribute has been created
-		templateData.mergePageFrontMatter(frontMatter);
-		
 		if(layoutName != null) {
 			String content = resource.getOriginalContent();
 			
 			// add the unrendered content
-			Page page = templateData.getPage();
-			page.setContent(content);
-			page.setUrl(resource.getUrl());
-			page.setDate(resource.getPublishDate());
-			
-			page.postProcessProperties();
+			Page page = resource.getResourcePost();
+			templateData.setPage(page);
 			
 			// now see if the page actually needs to be published
 			if(!page.isPublished()) {
