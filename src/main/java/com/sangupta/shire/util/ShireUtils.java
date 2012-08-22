@@ -51,7 +51,7 @@ public class ShireUtils {
 		// try parsing in the format
 		// dow mon dd hh:mm:ss zzz yyyy
 		try {
-			return DateUtils.parseDate(date.trim(), "EEE MMM dd hh:mm:dd zzz yyyy", "yyyyy-MM-dd hh:mm:ss", "yyyy-MM-dd", "dd-MM-yyyy");
+			return DateUtils.parseDateStrictly(date.trim(), "EEE MMM dd HH:mm:ss zzz yyyy", "yyyyy-MM-dd HH:mm:ss", "yyyy-MM-dd", "dd-MM-yyyy");
 		} catch (ParseException e) {
 			// eat up
 		}
