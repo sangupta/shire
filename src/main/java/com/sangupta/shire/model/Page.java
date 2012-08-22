@@ -72,12 +72,12 @@ public class Page implements Comparable<Page> {
 	/**
 	 * The categories the page in
 	 */
-	private final List<String> categories = new ArrayList<String>();
+	private final List<TagOrCategory> categories = new ArrayList<TagOrCategory>();
 	
 	/**
 	 * The tags this page belongs to
 	 */
-	private final List<String> tags = new ArrayList<String>();
+	private final List<TagOrCategory> tags = new ArrayList<TagOrCategory>();
 	
 	/**
 	 * Reference to the page's front matter
@@ -134,7 +134,7 @@ public class Page implements Comparable<Page> {
 			String[] tokens = StringUtils.split(tags, FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
 			for(String tag : tokens) {
 				if(!("".equals(tag.trim()))) {
-					this.tags.add(tag);
+					this.tags.add(new TagOrCategory(tag, ""));
 				}
 			}
 		}
@@ -145,7 +145,7 @@ public class Page implements Comparable<Page> {
 			String[] tokens = StringUtils.split(categories, " ;,");
 			for(String category : tokens) {
 				if(!("".equals(category.trim()))) {
-					this.categories.add(category);
+					this.categories.add(new TagOrCategory(category, ""));
 				}
 			}
 		}
@@ -261,7 +261,7 @@ public class Page implements Comparable<Page> {
 	/**
 	 * @return the categories
 	 */
-	public List<String> getCategories() {
+	public List<TagOrCategory> getCategories() {
 		if(this.categories.isEmpty()) {
 			return null;
 		}
@@ -272,7 +272,7 @@ public class Page implements Comparable<Page> {
 	/**
 	 * @return the tags
 	 */
-	public List<String> getTags() {
+	public List<TagOrCategory> getTags() {
 		if(this.tags.isEmpty()) {
 			return null;
 		}
