@@ -30,8 +30,8 @@ import java.util.Properties;
  */
 public class NonRenderableResource extends AbstractResource {
 	
-	public NonRenderableResource(File fileHandle, String rootPath) {
-		super(fileHandle, rootPath);
+	public NonRenderableResource(File fileHandle) {
+		super(fileHandle);
 	}
 
 	/**

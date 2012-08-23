@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.sangupta.makeup.Makeup;
 import com.sangupta.makeup.converters.Converter;
+import com.sangupta.shire.Shire;
 import com.sangupta.shire.model.Page;
 
 /**
@@ -67,6 +68,18 @@ public class RenderableResource extends AbstractResource {
 	 * Internal handle to the post
 	 */
 	private Page post = null;
+	
+	/**
+	 * Signifies whether this renderable resource is a blog post. This is indicated
+	 * by the presence of a .blog file in one of the parent folders of this file.
+	 */
+	private boolean blogPost = false;
+	
+	/**
+	 * Holds the path to the .blog file that may be present making this resource a
+	 * blog resource.
+	 */
+	private String blogPath = null;
 
 	/**
 	 * Constructor
@@ -76,10 +89,20 @@ public class RenderableResource extends AbstractResource {
 	 * @param frontMatter
 	 * @param matterEndingLine
 	 */
-	public RenderableResource(File fileHandle, String path, Properties frontMatter, int matterEndingLine) {
-		super(fileHandle, path);
+	public RenderableResource(File fileHandle, Properties frontMatter, int matterEndingLine) {
+		super(fileHandle);
 		this.frontMatter = frontMatter;
 		this.matterEndingLine = matterEndingLine;
+	}
+	
+	/**
+	 * Mark this resource as being part of a blog
+	 * 
+	 * @param blog
+	 */
+	public void markAsBlog(BlogResource blog) {
+		this.blogPost = true;
+		this.blogPath = blog.getBasePath();
 	}
 	
 	/**
@@ -136,13 +159,15 @@ public class RenderableResource extends AbstractResource {
 		return convertedContent;
 	}
 	
-	public Page getResourcePost() {
+	public Page getResourcePost(Shire shire) {
 		if(this.post == null) {
 			this.post = new Page();
 	
 			post.setDate(this.getPublishDate());
 			post.setTitle(this.getFrontMatterProperty("title"));
-			post.setUrl(this.getUrl());
+			
+			String pageURL = shire.getSiteWriter().getURL(this);
+			post.setUrl(pageURL);
 			
 			try {
 				post.setContent(this.getConvertedContent());
@@ -150,7 +175,7 @@ public class RenderableResource extends AbstractResource {
 				throw new RuntimeException("Unable to build post out of this resource", e);
 			}
 
-			post.mergeFrontMatter(this.frontMatter);
+			post.mergeFrontMatter(this.frontMatter, this.blogPath, shire);
 			post.postProcessProperties();
 		}
 		
@@ -204,6 +229,20 @@ public class RenderableResource extends AbstractResource {
 	 */
 	public int getMatterEndingLine() {
 		return matterEndingLine;
+	}
+
+	/**
+	 * @return the blogPost
+	 */
+	public boolean isBlogPost() {
+		return blogPost;
+	}
+
+	/**
+	 * @return the blogPath
+	 */
+	public String getBlogPath() {
+		return blogPath;
 	}
 
 }

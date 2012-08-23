@@ -72,10 +72,12 @@ public class SiteMapGenerator implements Generator {
 				
 				builder.append("    <loc>");
 				builder.append(url);
-				if(!resource.getUrl().startsWith("/")) {
+				
+				String resourceURL = shire.getSiteWriter().getURL(resource);
+				if(!resourceURL.startsWith("/")) {
 					builder.append("/");
 				}
-				builder.append(resource.getUrl());
+				builder.append(resourceURL);
 				builder.append("</loc>\n");
 				
 				builder.append("    <lastmod>");

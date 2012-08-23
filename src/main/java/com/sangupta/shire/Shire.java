@@ -23,6 +23,9 @@ package com.sangupta.shire;
 
 import java.io.File;
 
+import net.htmlparser.jericho.Config;
+import net.htmlparser.jericho.LoggerProvider;
+
 import com.sangupta.jerry.http.WebInvoker;
 import com.sangupta.shire.layouts.LayoutManager;
 import com.sangupta.shire.model.TemplateData;
@@ -40,6 +43,13 @@ import com.sangupta.shire.util.WebResponseCacheInterceptor;
  *
  */
 public class Shire {
+	
+	/**
+	 * Turn off the Jericho HTML parser logging.
+	 */
+	static {
+		Config.LoggerProvider = LoggerProvider.DISABLED;
+	}
 	
 	/**
 	 * Execution options per site
@@ -102,7 +112,7 @@ public class Shire {
 //			usage();
 //		}
 		
-		String configFile = "c:/projects/git/sangupta-static/_config.yml"; // args[0];
+		String configFile = "e:/git/sangupta-static/_config.yml"; // args[0];
 
 		// check if the config file is present or not
 		File config = new File(configFile);

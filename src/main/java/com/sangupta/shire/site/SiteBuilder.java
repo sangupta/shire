@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.sangupta.jerry.util.AssertUtils;
 import com.sangupta.shire.Shire;
 import com.sangupta.shire.core.Generator;
 import com.sangupta.shire.domain.NonRenderableResource;
@@ -35,6 +36,13 @@ import com.sangupta.shire.generators.SiteMapGenerator;
 import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.TemplateData;
 
+/**
+ * Builder that actually works on a {@link Shire} object and builds
+ * all the needed resources.
+ * 
+ * @author sangupta
+ *
+ */
 public class SiteBuilder {
 
 	/**
@@ -129,13 +137,18 @@ public class SiteBuilder {
 		List<RenderableResource> resources = this.shire.getSiteDirectory().getRenderableResources();
 		System.out.println("Found " + resources.size() + " files to process.");
 		
+		if(AssertUtils.isEmpty(resources)) {
+			System.out.println("Nothing to process... exiting.");
+			System.exit(0);
+		}
+		
 		// start processing each file
 		for(RenderableResource resource : resources) {
 			// process the resource as needed
 			try {
 				renderPage(resource);
 			} catch (IOException e) {
-				System.out.println("Unable to process site resource: " + resource.getExportPath());
+				System.out.println("Unable to process site resource: " + this.shire.getSiteWriter().createBasePath(resource));
 				e.printStackTrace();
 			}
 		}
@@ -149,7 +162,7 @@ public class SiteBuilder {
 	 * @throws IOException 
 	 */
 	private void renderPage(RenderableResource resource) throws IOException {
-		System.out.println("Processing " + resource.getExportPath() + "...");
+		System.out.println("Processing " + this.shire.getSiteWriter().createBasePath(resource) + "...");
 		
 		TemplateData templateData = this.shire.getTemplateData();
 		
@@ -174,7 +187,7 @@ public class SiteBuilder {
 			String content = resource.getOriginalContent();
 			
 			// add the unrendered content
-			Page page = resource.getResourcePost();
+			Page page = resource.getResourcePost(this.shire);
 			templateData.setPage(page);
 			
 			// now see if the page actually needs to be published

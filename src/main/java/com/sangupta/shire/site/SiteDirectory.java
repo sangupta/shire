@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.sangupta.shire.ExecutionOptions;
+import com.sangupta.shire.domain.BlogResource;
 import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.model.FrontMatterConstants;
@@ -46,19 +47,14 @@ public class SiteDirectory {
 	private final static String[] probableBinaryExtensions = new String[] { "png", "jpg", "css", "js", "otf", "zip" };
 	
 	/**
-	 * Handle to the root folder of input site
+	 * List of folders that need to be ignored when scanning
 	 */
-	private final File folder;
+	private final List<String> ignorableFolders = new ArrayList<String>();
 	
 	/**
-	 * The absolute base path of the root folder
+	 * Files in the root folder of the site that need to be ignored
 	 */
-	private final String basePath;
-	
-	/**
-	 * Currently set execution options
-	 */
-	private final ExecutionOptions options;
+	private final List<File> ignorableFiles = new ArrayList<File>();
 	
 	/**
 	 * Holds the list of all renderable resources that are available in the site
@@ -69,6 +65,11 @@ public class SiteDirectory {
 	 * Holds the list of all non-renderable resources that are available in the site
 	 */
 	private final List<NonRenderableResource> nonRenderableResources = new ArrayList<NonRenderableResource>();
+	
+	/**
+	 * Holds a list of all blogs that have been found in this site
+	 */
+	private final List<BlogResource> blogs = new ArrayList<BlogResource>();
 	
 	/**
 	 * Holds the list of all directories that have been marked to be considered
@@ -82,20 +83,51 @@ public class SiteDirectory {
 	 * @param options
 	 */
 	public SiteDirectory(ExecutionOptions options) {
-		this.options = options;
-		this.folder = options.getParentFolder();
-		this.basePath = this.folder.getAbsolutePath();
+		ignorableFolders.add(options.getIncludesFolderName());
+		ignorableFolders.add(options.getLayoutsFolderName());
+		ignorableFolders.add(options.getSiteFolderName());
+		
+		ignorableFiles.add(options.getConfigFile());
 		
 		// go ahead and scan the folder
-		scanRootFolder();
+		scanRootFolder(options.getParentFolder());
 	}
 	
 	/**
 	 * Method to scan the input directory and find files that need
 	 * to be exported either by processing or without.
 	 */
-	private void scanRootFolder() {
-		crawlDirectory(this.folder, 0);
+	private void scanRootFolder(File folder) {
+		crawlDirectory(folder, 0);
+		
+		// now we have a list of all renderable resources with us
+		// find out all resources, that are part of a blog
+		// and assign them accordingly
+		for(RenderableResource resource : this.renderableResources) {
+			for(BlogResource blog : this.blogs) {
+				if(resourceIsInBlog(resource, blog)) {
+					resource.markAsBlog(blog);
+					blog.addResource(resource);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Finds whether the resource is part of this blog or not.
+	 * 
+	 * @param resource
+	 * @param blog
+	 * @return
+	 */
+	private boolean resourceIsInBlog(RenderableResource resource, BlogResource blog) {
+		String basePath = blog.getBasePath() + File.separatorChar;
+		String filePath = resource.getFileHandle().getAbsoluteFile().getAbsolutePath();
+		if(filePath.startsWith(basePath)) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	/**
@@ -108,37 +140,25 @@ public class SiteDirectory {
 		
 		final boolean rootFolder = (level <= 1);
 		
-		if(rootFolder) {
-			if(name.equals(this.options.getIncludesFolderName())) {
-				return;
-			}
-			
-			if(name.equals(this.options.getLayoutsFolderName())) {
-				return;
-			}
-			
-			if(name.equals(this.options.getSiteFolderName())) {
-				return;
-			}
-		}
-		
-		if(name.equals("CVS")) {
+		if(rootFolder && this.ignorableFolders.contains(name)) {
 			return;
 		}
 		
-		if(name.equals(".svn")) {
+		if(name.equals("CVS") || name.equals(".svn") || name.equals(".git")) {
 			return;
 		}
 		
-		if(name.equals(".git")) {
-			return;
-		}
-		
+		// read all files
 		File[] filesInFolder = folderToCrawl.listFiles();
+		
+		// start building
 		for(File file : filesInFolder) {
 			if(file.isDirectory()) {
 				crawlDirectory(file, level + 1);
-			} else if(file.isFile()) {
+				continue;
+			}
+			
+			if(file.isFile()) {
 				// check if we are in root folder
 				// if yes, skip the files that do not make any sense
 				// like _config.yml
@@ -153,6 +173,11 @@ public class SiteDirectory {
 					this.dotFiles.add(file.getAbsoluteFile());
 				}
 				
+				// check for blog file
+				if(file.getName().equals(".blog")) {
+					this.blogs.add(new BlogResource(file));
+				}
+				
 				// see where the file falls in
 				if(fileAllowed(file)) {
 					// check if the file has front-matter or not
@@ -163,16 +188,16 @@ public class SiteDirectory {
 							// check if the resource has been published or not
 							String published = properties.getProperty(FrontMatterConstants.PUBLISHED);
 							if(published == null || !("false".equalsIgnoreCase(published))) {
-								this.renderableResources.add(new RenderableResource(file, this.basePath, properties, frontMatter));
+								this.renderableResources.add(new RenderableResource(file, properties, frontMatter));
 							}
 						}
 					} catch(Exception e) {
 						// as we are unable to process this resource
 						// move it to non-processable one
-						this.nonRenderableResources.add(new NonRenderableResource(file, this.basePath));
+						this.nonRenderableResources.add(new NonRenderableResource(file));
 					}
 				} else {
-					this.nonRenderableResources.add(new NonRenderableResource(file, this.basePath));
+					this.nonRenderableResources.add(new NonRenderableResource(file));
 				}
 			}
 		}
@@ -185,7 +210,7 @@ public class SiteDirectory {
 	 * @return
 	 */
 	private boolean rootFileAllowed(File file) {
-		if(this.options.getConfigFile().equals(file)) {
+		if(this.ignorableFiles.contains(file)) {
 			return false;
 		}
 		
@@ -243,6 +268,13 @@ public class SiteDirectory {
 	 */
 	public List<NonRenderableResource> getNonRenderableResources() {
 		return nonRenderableResources;
+	}
+
+	/**
+	 * @return the blogs
+	 */
+	public List<BlogResource> getBlogs() {
+		return blogs;
 	}
 
 }

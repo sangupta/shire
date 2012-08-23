@@ -28,6 +28,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.sangupta.shire.Shire;
 import com.sangupta.shire.util.ShireUtils;
 
 /**
@@ -114,8 +115,9 @@ public class Page implements Comparable<Page> {
 	
 	/**
 	 * @param pageFrontMatter
+	 * @param blogPath
 	 */
-	public void mergeFrontMatter(Properties pageFrontMatter) {
+	public void mergeFrontMatter(Properties pageFrontMatter, String blogPath, Shire shire) {
 		// hold a reference for this page
 		this.frontMatter = pageFrontMatter;
 		
@@ -134,7 +136,8 @@ public class Page implements Comparable<Page> {
 			String[] tokens = StringUtils.split(tags, FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
 			for(String tag : tokens) {
 				if(!("".equals(tag.trim()))) {
-					this.tags.add(new TagOrCategory(tag, ""));
+					String tagPath = shire.getSiteWriter().createBasePath(blogPath + "/" + FrontMatterConstants.TAGS + "/" + tag);
+					this.tags.add(new TagOrCategory(tag, tagPath));
 				}
 			}
 		}
@@ -145,7 +148,8 @@ public class Page implements Comparable<Page> {
 			String[] tokens = StringUtils.split(categories, " ;,");
 			for(String category : tokens) {
 				if(!("".equals(category.trim()))) {
-					this.categories.add(new TagOrCategory(category, ""));
+					String catPath = shire.getSiteWriter().createBasePath(blogPath + "/" + FrontMatterConstants.CATEGORIES + "/" + category);
+					this.categories.add(new TagOrCategory(category, catPath));
 				}
 			}
 		}

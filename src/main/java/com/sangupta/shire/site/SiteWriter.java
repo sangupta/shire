@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.sangupta.jerry.util.HtmlUtils;
 import com.sangupta.shire.ExecutionOptions;
@@ -97,7 +98,7 @@ public class SiteWriter {
 	 */
 	public void export(RenderableResource resource, String pageContents) {
 		// start the export process
-		String path = resource.getExportPath();
+		String path = createBasePath(resource);
 		path = siteFolder.getAbsolutePath() + File.separator + path;
 		
 		File exportFile = new File(path);
@@ -113,7 +114,7 @@ public class SiteWriter {
 	
 	public void export(Resource resource) {
 		// start the export process
-		String path = resource.getExportPath();
+		String path = createBasePath(resource);
 		path = siteFolder.getAbsolutePath() + File.separator + path;
 		
 		File exportFile = new File(path);
@@ -137,6 +138,14 @@ public class SiteWriter {
 			}
 		}
 	}
+	
+	public String createBasePath(Resource resource) {
+		if(resource instanceof GeneratedResource) {
+			return ((GeneratedResource) resource).getPath();
+		}
+		
+		return createBasePath(resource.getFileHandle().getAbsoluteFile().getAbsolutePath());
+	}
 
 	/**
 	 * Extracts the base relative path of the file with respect to the
@@ -150,6 +159,18 @@ public class SiteWriter {
 			path = path.substring(sourceBase.length());
 		}
 		
+		return path;
+	}
+
+	/**
+	 * Generate the URL for this resource.
+	 * 
+	 * @param resource
+	 * @return
+	 */
+	public String getURL(RenderableResource resource) {
+		String path = createBasePath(resource);
+		path = StringUtils.replaceChars(path, '\\', '/');
 		return path;
 	}
 

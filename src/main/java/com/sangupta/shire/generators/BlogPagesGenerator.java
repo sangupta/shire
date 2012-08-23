@@ -169,7 +169,7 @@ public class BlogPagesGenerator implements Generator {
 		List<Page> allPages = new ArrayList<Page>();
 		
 		for(RenderableResource rr : list) {
-			allPages.add(rr.getResourcePost());
+			allPages.add(rr.getResourcePost(null));
 		}
 		
 		// set all posts in this model
@@ -256,7 +256,7 @@ public class BlogPagesGenerator implements Generator {
 						tagOrCategory = result.get(index);
 					}
 					
-					tagOrCategory.addPost(resource.getResourcePost());
+					tagOrCategory.addPost(resource.getResourcePost(null));
 				}
 			}
 		}

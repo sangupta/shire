@@ -35,7 +35,7 @@ public class GeneratedResource extends AbstractResource {
 	private String content;
 	
 	public GeneratedResource(String path, String content) {
-		super(null, null);
+		super(null);
 		this.path = path;
 		this.content = content;
 	}

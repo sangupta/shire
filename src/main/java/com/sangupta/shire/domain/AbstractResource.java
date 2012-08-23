@@ -24,8 +24,6 @@ package com.sangupta.shire.domain;
 import java.io.File;
 import java.util.Date;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * An abtsraction for common methods over a given site-resource.
  * 
@@ -53,30 +51,8 @@ public abstract class AbstractResource implements Resource {
 	 * @param fileHandle
 	 * @param rootPath
 	 */
-	public AbstractResource(File fileHandle, String rootPath) {
+	public AbstractResource(File fileHandle) {
 		this.fileHandle = fileHandle;
-		this.path = getBasePath(rootPath);
-	}
-
-	/**
-	 * Extract the base path of this resource.
-	 * 
-	 * @param basePath
-	 * @return
-	 */
-	private String getBasePath(String basePath) {
-		if(this.fileHandle == null) {
-			return null;
-		}
-		
-		// its not there, let's construct from base path
-		String path = this.fileHandle.getAbsolutePath();
-		
-		if(path.startsWith(basePath)) {
-			path = path.substring(basePath.length());
-		}
-		
-		return path;
 	}
 
 	/**
@@ -87,18 +63,6 @@ public abstract class AbstractResource implements Resource {
 		return getFileDate();
 	}
 	
-	/**
-	 * Construct a URL of the page's export path
-	 * 
-	 * @param siteFile
-	 * @return
-	 */
-	public String getUrl() {
-		String path = this.getExportPath();
-		path = StringUtils.replaceChars(path, '\\', '/');
-		return path;
-	}
-
 	/**
 	 * Return the date the file was last modified on disk.
 	 * 
@@ -126,12 +90,12 @@ public abstract class AbstractResource implements Resource {
 	public String getFileName() {
 		return this.fileHandle.getName();
 	}
-	
-	/**
-	 * @return
-	 */
-	public String getExportPath() {
-		return this.path;
-	}
 
+	/**
+	 * @return the path
+	 */
+	public String getPath() {
+		return path;
+	}
+	
 }

@@ -55,13 +55,6 @@ public interface Resource {
 	public File getFileHandle();
 	
 	/**
-	 * Return the base export path for this resource.
-	 * 
-	 * @return
-	 */
-	public String getExportPath();
-	
-	/**
 	 * Return the filename of the file referenced by this resource.
 	 * 
 	 * @return
@@ -74,13 +67,6 @@ public interface Resource {
 	 * @return
 	 */
 	public Date getFileDate();
-	
-	/**
-	 * Return the URL except the base path for this resource.
-	 * 
-	 * @return
-	 */
-	public String getUrl();
 	
 	/**
 	 * The publishing date for this resource, either the one specified
