@@ -202,9 +202,9 @@ public class BlogPagesGenerator implements Generator {
 	 * @param model
 	 */
 	private void createBlogArchive(final String blogName, final TemplateData model, final List<Page> allPosts, final String filePath) {
-		model.getSite().getPosts().clear();
-		model.getSite().addAllPosts(allPosts);
-		model.getSite().sortPosts();
+//		model.getSite().getPosts().clear();
+//		model.getSite().addAllPosts(allPosts);
+//		model.getSite().sortPosts();
 		
 		// clear up the page data
 		Page page = new Page(null, null);
