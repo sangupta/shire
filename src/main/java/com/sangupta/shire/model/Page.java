@@ -21,6 +21,7 @@
 
 package com.sangupta.shire.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 
 import com.sangupta.shire.Shire;
+import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.util.ShireUtils;
 
 /**
@@ -86,6 +88,45 @@ public class Page implements Comparable<Page> {
 	private Properties frontMatter;
 	
 	/**
+	 * Identifies whether the post is part of a blog or not
+	 */
+	private boolean blogPost;
+	
+	/**
+	 * Reference to next entry in this blog
+	 */
+	private Page nextEntry;
+	
+	/**
+	 * Reference to previous entry in this blog
+	 */
+	private Page previousEntry;
+	
+	public Page(RenderableResource resource, Shire shire) {
+		// no need to initialize properties, if the resource is null
+		// this is usually done for resources that are generated on the fly 
+		if(resource == null) {
+			return;
+		}
+		
+		this.frontMatter = resource.getFrontMatter();
+
+		this.setDate(resource.getPublishDate());
+		this.setTitle(resource.getFrontMatterProperty("title"));
+		
+		if(shire != null) {
+			String pageURL = shire.getSiteWriter().getURL(resource);
+			this.setUrl(pageURL);
+		}
+		
+		try {
+			this.setContent(resource.getConvertedContent());
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to build post out of this resource", e);
+		}
+	}
+	
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -117,21 +158,18 @@ public class Page implements Comparable<Page> {
 	 * @param pageFrontMatter
 	 * @param blogPath
 	 */
-	public void mergeFrontMatter(Properties pageFrontMatter, String blogPath, Shire shire) {
-		// hold a reference for this page
-		this.frontMatter = pageFrontMatter;
-		
+	public void mergeFrontMatter(String blogPath, Shire shire) {
 		// read the title from the front matter
-		this.setTitle(pageFrontMatter.getProperty(FrontMatterConstants.PAGE_TITLE));
+		this.setTitle(frontMatter.getProperty(FrontMatterConstants.PAGE_TITLE));
 
 		// read the date from the front matter
-		String date = pageFrontMatter.getProperty("date");
+		String date = frontMatter.getProperty("date");
 		if(date != null) {
 			this.setDate(ShireUtils.parsePostDate(date));
 		}
 		
 		// read the tags from the front matter
-		String tags = pageFrontMatter.getProperty("tags");
+		String tags = frontMatter.getProperty("tags");
 		if(tags != null && !tags.trim().isEmpty()) {
 			String[] tokens = StringUtils.split(tags, FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
 			for(String tag : tokens) {
@@ -143,7 +181,7 @@ public class Page implements Comparable<Page> {
 		}
 		
 		// read the categories from the fron matter
-		String categories = pageFrontMatter.getProperty("categories");
+		String categories = frontMatter.getProperty("categories");
 		if(categories != null && !categories.trim().isEmpty()) {
 			String[] tokens = StringUtils.split(categories, " ;,");
 			for(String category : tokens) {
@@ -155,7 +193,7 @@ public class Page implements Comparable<Page> {
 		}
 		
 		// check for published flags
-		String published = pageFrontMatter.getProperty("published");
+		String published = frontMatter.getProperty("published");
 		if("false".equalsIgnoreCase(published)) {
 			this.published = false;
 		}
@@ -296,6 +334,48 @@ public class Page implements Comparable<Page> {
 	 */
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+
+	/**
+	 * @return the blogPost
+	 */
+	public boolean isBlogPost() {
+		return blogPost;
+	}
+
+	/**
+	 * @param blogPost the blogPost to set
+	 */
+	public void setBlogPost(boolean blogPost) {
+		this.blogPost = blogPost;
+	}
+
+	/**
+	 * @return the nextEntry
+	 */
+	public Page getNextEntry() {
+		return nextEntry;
+	}
+
+	/**
+	 * @param nextEntry the nextEntry to set
+	 */
+	public void setNextEntry(Page nextEntry) {
+		this.nextEntry = nextEntry;
+	}
+
+	/**
+	 * @return the previousEntry
+	 */
+	public Page getPreviousEntry() {
+		return previousEntry;
+	}
+
+	/**
+	 * @param previousEntry the previousEntry to set
+	 */
+	public void setPreviousEntry(Page previousEntry) {
+		this.previousEntry = previousEntry;
 	}
 
 }

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.sangupta.shire.ExecutionOptions;
+import com.sangupta.shire.Shire;
 import com.sangupta.shire.domain.BlogResource;
 import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
@@ -78,19 +78,25 @@ public class SiteDirectory {
 	private final List<File> dotFiles = new ArrayList<File>();
 	
 	/**
+	 * The shire object representing this site
+	 */
+	private final Shire shire;
+	
+	/**
 	 * Constructor
 	 * 
 	 * @param options
 	 */
-	public SiteDirectory(ExecutionOptions options) {
-		ignorableFolders.add(options.getIncludesFolderName());
-		ignorableFolders.add(options.getLayoutsFolderName());
-		ignorableFolders.add(options.getSiteFolderName());
+	public SiteDirectory(Shire shire) {
+		this.shire = shire;
+		this.ignorableFolders.add(shire.getOptions().getIncludesFolderName());
+		this.ignorableFolders.add(shire.getOptions().getLayoutsFolderName());
+		this.ignorableFolders.add(shire.getOptions().getSiteFolderName());
 		
-		ignorableFiles.add(options.getConfigFile());
+		this.ignorableFiles.add(shire.getOptions().getConfigFile());
 		
 		// go ahead and scan the folder
-		scanRootFolder(options.getParentFolder());
+		scanRootFolder(shire.getOptions().getParentFolder());
 	}
 	
 	/**
@@ -99,35 +105,6 @@ public class SiteDirectory {
 	 */
 	private void scanRootFolder(File folder) {
 		crawlDirectory(folder, 0);
-		
-		// now we have a list of all renderable resources with us
-		// find out all resources, that are part of a blog
-		// and assign them accordingly
-		for(RenderableResource resource : this.renderableResources) {
-			for(BlogResource blog : this.blogs) {
-				if(resourceIsInBlog(resource, blog)) {
-					resource.markAsBlog(blog);
-					blog.addResource(resource);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Finds whether the resource is part of this blog or not.
-	 * 
-	 * @param resource
-	 * @param blog
-	 * @return
-	 */
-	private boolean resourceIsInBlog(RenderableResource resource, BlogResource blog) {
-		String basePath = blog.getBasePath() + File.separatorChar;
-		String filePath = resource.getFileHandle().getAbsoluteFile().getAbsolutePath();
-		if(filePath.startsWith(basePath)) {
-			return true;
-		}
-		
-		return false;
 	}
 
 	/**
@@ -188,10 +165,11 @@ public class SiteDirectory {
 							// check if the resource has been published or not
 							String published = properties.getProperty(FrontMatterConstants.PUBLISHED);
 							if(published == null || !("false".equalsIgnoreCase(published))) {
-								this.renderableResources.add(new RenderableResource(file, properties, frontMatter));
+								this.renderableResources.add(new RenderableResource(file, properties, frontMatter, this.shire));
 							}
 						}
 					} catch(Exception e) {
+						e.printStackTrace();
 						// as we are unable to process this resource
 						// move it to non-processable one
 						this.nonRenderableResources.add(new NonRenderableResource(file));

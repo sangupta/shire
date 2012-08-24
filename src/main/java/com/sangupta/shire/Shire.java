@@ -32,6 +32,7 @@ import com.sangupta.shire.model.TemplateData;
 import com.sangupta.shire.site.SiteBackup;
 import com.sangupta.shire.site.SiteBuilder;
 import com.sangupta.shire.site.SiteDirectory;
+import com.sangupta.shire.site.SitePreProcessor;
 import com.sangupta.shire.site.SiteWriter;
 import com.sangupta.shire.util.WebResponseCacheInterceptor;
 
@@ -72,6 +73,11 @@ public class Shire {
 	private SiteWriter siteWriter = null;
 	
 	/**
+	 * Pre-processor for this site
+	 */
+	private SitePreProcessor preProcessor = null;
+	
+	/**
 	 * Layout manager for this site
 	 */
 	private LayoutManager layoutManager = null;
@@ -89,10 +95,12 @@ public class Shire {
 		
 		this.layoutManager = new LayoutManager(options);
 		
-		this.siteDirectory = new SiteDirectory(options);
-
 		this.siteWriter = new SiteWriter(options);
 		
+		this.siteDirectory = new SiteDirectory(this);
+		
+		this.preProcessor = new SitePreProcessor(this);
+
 		this.templateData = new TemplateData(this.options.getConfiguration());
 		
 		// add web interceptor if needed
@@ -112,7 +120,7 @@ public class Shire {
 //			usage();
 //		}
 		
-		String configFile = "e:/git/sangupta-static/_config.yml"; // args[0];
+		String configFile = "c:/projects/git/sangupta-static/_config.yml"; // args[0];
 
 		// check if the config file is present or not
 		File config = new File(configFile);
@@ -198,6 +206,13 @@ public class Shire {
 	 */
 	public SiteBackup getSiteBackup() {
 		return siteBackup;
+	}
+
+	/**
+	 * @return the preProcessor
+	 */
+	public SitePreProcessor getPreProcessor() {
+		return preProcessor;
 	}
 
 }

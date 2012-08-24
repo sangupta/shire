@@ -43,7 +43,7 @@ public class TemplateData {
 	
 	public TemplateData(Properties configuration) {
 		this.site = new Site();
-		this.page = new Page();
+		this.page = new Page(null, null);
 		this.paginator = new Paginator();
 		
 		if(configuration != null) {

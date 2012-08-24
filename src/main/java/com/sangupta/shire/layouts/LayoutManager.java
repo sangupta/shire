@@ -241,7 +241,7 @@ public class LayoutManager {
 			int frontMatter = FrontMatterUtils.checkFileHasFrontMatter(layout, properties);
 			if(frontMatter > 0) {
 				this.extendedTemplates.put(layoutName, true);
-				RenderableResource renderableResource = new RenderableResource(layout, properties, frontMatter);
+				RenderableResource renderableResource = new RenderableResource(layout, properties, frontMatter, null);
 				this.renderableLayouts.put(layoutName, renderableResource);
 				return true;
 			}

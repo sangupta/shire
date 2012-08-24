@@ -39,7 +39,7 @@ import com.sangupta.shire.model.Page;
  * @author sangupta
  *
  */
-public class RenderableResource extends AbstractResource {
+public class RenderableResource extends AbstractResource implements Comparable<RenderableResource> {
 	
 	/**
 	 * Store the front matter as extracted from the file.
@@ -67,7 +67,7 @@ public class RenderableResource extends AbstractResource {
 	/**
 	 * Internal handle to the post
 	 */
-	private Page post = null;
+	private final Page post; // = new Page();
 	
 	/**
 	 * Signifies whether this renderable resource is a blog post. This is indicated
@@ -89,10 +89,21 @@ public class RenderableResource extends AbstractResource {
 	 * @param frontMatter
 	 * @param matterEndingLine
 	 */
-	public RenderableResource(File fileHandle, Properties frontMatter, int matterEndingLine) {
+	public RenderableResource(File fileHandle, Properties frontMatter, int matterEndingLine, Shire shire) {
 		super(fileHandle);
 		this.frontMatter = frontMatter;
 		this.matterEndingLine = matterEndingLine;
+		
+		this.post = new Page(this, shire);
+	}
+	
+	public int compareTo(RenderableResource other) {
+		if(other == null) {
+			return -1; // we are better
+		}
+		
+		int value = this.getPublishDate().compareTo(other.getPublishDate());
+		return (0 - value); // descending order
 	}
 	
 	/**
@@ -103,6 +114,8 @@ public class RenderableResource extends AbstractResource {
 	public void markAsBlog(BlogResource blog) {
 		this.blogPost = true;
 		this.blogPath = blog.getBasePath();
+		
+		this.post.setBlogPost(true);
 	}
 	
 	/**
@@ -159,27 +172,8 @@ public class RenderableResource extends AbstractResource {
 		return convertedContent;
 	}
 	
-	public Page getResourcePost(Shire shire) {
-		if(this.post == null) {
-			this.post = new Page();
-	
-			post.setDate(this.getPublishDate());
-			post.setTitle(this.getFrontMatterProperty("title"));
-			
-			String pageURL = shire.getSiteWriter().getURL(this);
-			post.setUrl(pageURL);
-			
-			try {
-				post.setContent(this.getConvertedContent());
-			} catch (IOException e) {
-				throw new RuntimeException("Unable to build post out of this resource", e);
-			}
-
-			post.mergeFrontMatter(this.frontMatter, this.blogPath, shire);
-			post.postProcessProperties();
-		}
-		
-		return post;
+	public Page getResourcePost() {
+		return this.post;
 	}
 
 	/**
@@ -202,7 +196,10 @@ public class RenderableResource extends AbstractResource {
 	 */
 	@Override
 	public Date getPublishDate() {
-		// TODO: also need to check for front matter
+		if(this.post != null && this.post.getDate() != null) {
+			return this.post.getDate();
+		}
+		
 		return super.getPublishDate();
 	}
 

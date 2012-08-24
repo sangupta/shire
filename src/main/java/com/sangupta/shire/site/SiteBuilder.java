@@ -80,6 +80,10 @@ public class SiteBuilder {
 		// and in _includes folder
 		this.shire.getLayoutManager().readLayoutsAndIncludes();
 		
+		// pre-process all resources of this site
+		// to fill in their URLs etc.
+		this.shire.getPreProcessor().preProcess();
+		
 		// rename the older _site folder
 		// to create a backup
 		// we will delete it, if all goes all well
@@ -187,7 +191,7 @@ public class SiteBuilder {
 			String content = resource.getOriginalContent();
 			
 			// add the unrendered content
-			Page page = resource.getResourcePost(this.shire);
+			Page page = resource.getResourcePost();
 			templateData.setPage(page);
 			
 			// now see if the page actually needs to be published

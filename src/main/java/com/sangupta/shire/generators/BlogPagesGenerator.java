@@ -166,10 +166,10 @@ public class BlogPagesGenerator implements Generator {
 		model.getSite().setCategories(categories);
 		
 		// build all the pagination pages
-		List<Page> allPages = new ArrayList<Page>();
+		final List<Page> allPages = new ArrayList<Page>();
 		
 		for(RenderableResource rr : list) {
-			allPages.add(rr.getResourcePost(null));
+			allPages.add(rr.getResourcePost());
 		}
 		
 		// set all posts in this model
@@ -207,7 +207,7 @@ public class BlogPagesGenerator implements Generator {
 		model.getSite().sortPosts();
 		
 		// clear up the page data
-		Page page = new Page();
+		Page page = new Page(null, null);
 		page.setTitle(blogName);
 		model.setPage(page);
 
@@ -256,7 +256,7 @@ public class BlogPagesGenerator implements Generator {
 						tagOrCategory = result.get(index);
 					}
 					
-					tagOrCategory.addPost(resource.getResourcePost(null));
+					tagOrCategory.addPost(resource.getResourcePost());
 				}
 			}
 		}
@@ -352,7 +352,7 @@ public class BlogPagesGenerator implements Generator {
 		paginator.setPreviousPage(currentPage - 1);
 		
 		// clear up the page data
-		Page page = new Page();
+		Page page = new Page(null, null);
 		page.setTitle(blogName);
 		model.setPage(page);
 		
