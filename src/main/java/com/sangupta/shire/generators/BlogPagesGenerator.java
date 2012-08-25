@@ -21,23 +21,17 @@
 
 package com.sangupta.shire.generators;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.sangupta.jerry.util.AssertUtils;
 import com.sangupta.shire.Shire;
 import com.sangupta.shire.core.Generator;
+import com.sangupta.shire.domain.BlogResource;
 import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.domain.RenderableResource;
-import com.sangupta.shire.model.FrontMatterConstants;
 import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.Paginator;
 import com.sangupta.shire.model.PostComparatorOnDate;
@@ -92,70 +86,41 @@ public class BlogPagesGenerator implements Generator {
 		// set the shire object so that we can execute all methods downstream
 		this.shire = shire;
 		
-		// check if we have some blog folders in there
-		List<String> blogFolders = new ArrayList<String>();
-		for(File dotFile : shire.getSiteDirectory().getDotFiles()) {
-			if(dotFile.getName().equals(".blog")) {
-				blogFolders.add(dotFile.getParentFile().getAbsolutePath());
-			}
-		}
-		
-		if(blogFolders.isEmpty()) {
-			// nothind to do
+		List<BlogResource> blogs = shire.getSiteDirectory().getBlogs();
+		if(AssertUtils.isEmpty(blogs)) {
 			return;
 		}
 		
 		// start building pages for each individual blog in there
-		try {
-			processBlogResources(blogFolders);
-		} catch (IOException e) {
-			System.out.println("Unable to generate blog pages for pagination, categorites, tags, and year-month archives.");
-			e.printStackTrace();
+		for(BlogResource blog : blogs) {
+			try {
+				processBlog(blog);
+			} catch (IOException e) {
+				System.out.println("Unable to generate blog pages for pagination, categorites, tags, and year-month archives.");
+				e.printStackTrace();
+			}
 		}
 	}
 
-	/**
-	 * Process all resources that are marked under the <code>.blog</code> folder
-	 * to generate additional pages.
-	 *  
-	 * @param blogFolders
-	 * @param resources
-	 * @param siteWriter 
-	 * @param model 
-	 * @throws IOException 
-	 */
-	private void processBlogResources(List<String> blogFolders) throws IOException {
-		List<RenderableResource> resources = this.shire.getSiteDirectory().getRenderableResources();
-		
-		Map<String, List<RenderableResource>> pages = getBlogPages(blogFolders, resources);
-		TemplateData model = this.shire.getTemplateData();
-		
-		// start processing each blog individually
-		for(String blog : blogFolders) {
-			List<RenderableResource> list = pages.get(blog);
-			processBlog(blog, list, model);
-		}
-	}
-	
 	/**
 	 * @param blogPath the absolute base path to the root of the blog folder
 	 * @param list the list of all posts in this blog
 	 * @throws IOException 
 	 */
-	private void processBlog(final String blogPath, List<RenderableResource> list, TemplateData model) throws IOException {
-		if(list == null || list.isEmpty()) {
-			return;
-		}
-		
+	private void processBlog(final BlogResource blog) throws IOException {
+		final TemplateData model = this.shire.getTemplateData();
+				
 		// fetch the blog name from the folder
-		final String blogName = FileUtils.readFileToString(new File(blogPath + "/.blog"));
+		final String blogName = blog.getBlogName();
+		
+		final List<RenderableResource> list = blog.getResources();
 		
 		// sort the list in reverse chronological order
 		Collections.sort(list, new ResourceComparatorOnDate()); 
 		
 		// extract all individual tag names, category names, and dates for archives
-		List<TagOrCategory> tags = extractAllTagsOrCategories(list, FrontMatterConstants.TAGS, blogPath);
-		List<TagOrCategory> categories = extractAllTagsOrCategories(list, FrontMatterConstants.CATEGORIES, blogPath);
+		final List<TagOrCategory> tags = blog.getTags();
+		final List<TagOrCategory> categories = blog.getCategories();
 		
 		// sort the collections on name
 		Collections.sort(tags);
@@ -178,21 +143,21 @@ public class BlogPagesGenerator implements Generator {
 		// and sort them for reverse chronological order
 		model.getSite().sortPosts();
 		
-		doPaginationPages(blogName, blogPath, allPages, model);
+		doPaginationPages(blog.getBlogName(), blog.getBasePath(), allPages, model);
 		
 		// build all the blog pages - archives
 		
 		// build all tag and categories pages
 		for(TagOrCategory tag : tags) {
-			doPaginationPages(blogName, tag.getBaseURL(), tag.getPosts(), model);
+			doPaginationPages(blogName, tag.getBasePath(), tag.getPosts(), model);
 		}
 		
 		for(TagOrCategory cat : categories) {
-			doPaginationPages(blogName, cat.getBaseURL(), cat.getPosts(), model);
+			doPaginationPages(blogName, cat.getBasePath(), cat.getPosts(), model);
 		}
 		
 		// generate the single archive page
-		createBlogArchive(blogName, model, allPages, blogPath + "/archive.html");
+		createBlogArchive(blog.getBlogName(), blog.getBasePath(), allPages, model);
 	}
 
 	/**
@@ -201,11 +166,7 @@ public class BlogPagesGenerator implements Generator {
 	 * 
 	 * @param model
 	 */
-	private void createBlogArchive(final String blogName, final TemplateData model, final List<Page> allPosts, final String filePath) {
-//		model.getSite().getPosts().clear();
-//		model.getSite().addAllPosts(allPosts);
-//		model.getSite().sortPosts();
-		
+	private void createBlogArchive(final String blogName, final String baseURL, final List<Page> posts, final TemplateData model) {
 		// clear up the page data
 		Page page = new Page(null, null);
 		page.setTitle(blogName);
@@ -217,59 +178,11 @@ public class BlogPagesGenerator implements Generator {
 		String content = this.shire.getLayoutManager().layoutContent(BLOG_ARCHIVE_LAYOUT, null, model); 
 		
 		// create the resource to export
+		String filePath = baseURL + "/archive.html";
 		GeneratedResource resource = new GeneratedResource(this.shire.getSiteWriter().createBasePath(filePath), content);
 		
 		// export the page
 		this.shire.getSiteWriter().export(resource);
-	}
-
-	/**
-	 * @param list
-	 * @return
-	 */
-	private List<TagOrCategory> extractAllTagsOrCategories(List<RenderableResource> list, final String propertyName, final String blogPath) {
-		List<TagOrCategory> result = new ArrayList<TagOrCategory>();
-		
-		// create a single re-usable object to prevent excessive
-		// garbage collection
-		TagOrCategory tagOrCategory; // = new TagOrCategory();
-		
-		// build up a list of all details
-		for(RenderableResource resource : list) {
-			String categoryLine = resource.getFrontMatterProperty(propertyName);
-			if(AssertUtils.isEmpty(categoryLine)) {
-				continue;
-			}
-			
-			String[] tokens = StringUtils.split(categoryLine, FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
-			for(String token : tokens) {
-				token = token.trim();
-				if(!token.isEmpty()) {
-					tagOrCategory = new TagOrCategory();
-					tagOrCategory.setName(token);
-					
-					int index = result.indexOf(tagOrCategory);
-					if(index == -1) {
-						tagOrCategory = new TagOrCategory(token, buildTagOrCategoryUrl(blogPath, propertyName, token));
-						result.add(tagOrCategory);
-					} else {
-						tagOrCategory = result.get(index);
-					}
-					
-					tagOrCategory.addPost(resource.getResourcePost());
-				}
-			}
-		}
-		
-		return result;
-	}
-
-	/**
-	 * @param category
-	 * @return
-	 */
-	private String buildTagOrCategoryUrl(final String blogPath, final String folder, final String name) {
-		return this.shire.getSiteWriter().createBasePath(blogPath + "/" + folder + "/" + name);
 	}
 
 	/**
@@ -320,7 +233,7 @@ public class BlogPagesGenerator implements Generator {
 		}
 		
 		// generate the single archive page for this particular tag
-		createBlogArchive(blogName, model, list, basePath + "/archive.html");
+		createBlogArchive(blogName, basePath, list, model);
 	}
 
 	/**
@@ -370,31 +283,6 @@ public class BlogPagesGenerator implements Generator {
 		
 		// export the page
 		this.shire.getSiteWriter().export(resource);
-	}
-
-	/**
-	 * Construct a list of all post pages per blog.
-	 * 
-	 * @param blogFolders
-	 * @param resources
-	 * @return
-	 */
-	private Map<String, List<RenderableResource>> getBlogPages(List<String> blogFolders, List<RenderableResource> resources) {
-		Map<String, List<RenderableResource>> blogPages = new HashMap<String, List<RenderableResource>>();
-		
-		for(String blogFolder : blogFolders) {
-			List<RenderableResource> list = new ArrayList<RenderableResource>();
-			blogPages.put(blogFolder, list);
-			
-			for(RenderableResource renderableResource : resources) {
-				String filePath = renderableResource.getFileHandle().getAbsolutePath();
-				if(filePath.startsWith(blogFolder)) {
-					list.add(renderableResource);
-				}
-			}
-		}
-		
-		return blogPages;
 	}
 
 }

@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.sangupta.jerry.util.HtmlUtils;
 import com.sangupta.shire.ExecutionOptions;
@@ -33,6 +32,7 @@ import com.sangupta.shire.domain.GeneratedResource;
 import com.sangupta.shire.domain.NonRenderableResource;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.domain.Resource;
+import com.sangupta.shire.util.ShireUtils;
 
 /**
  * Class that writes a given {@link ProcessableSiteFile} to the exported site.
@@ -141,7 +141,7 @@ public class SiteWriter {
 	
 	public String createBasePath(Resource resource) {
 		if(resource instanceof GeneratedResource) {
-			return ((GeneratedResource) resource).getPath();
+			return createBasePath(((GeneratedResource) resource).getPath());
 		}
 		
 		return createBasePath(resource.getFileHandle().getAbsoluteFile().getAbsolutePath());
@@ -159,7 +159,7 @@ public class SiteWriter {
 			path = path.substring(sourceBase.length());
 		}
 		
-		return path;
+		return ShireUtils.normalizePathOrUrl(path);
 	}
 
 	/**
@@ -170,7 +170,6 @@ public class SiteWriter {
 	 */
 	public String getURL(RenderableResource resource) {
 		String path = createBasePath(resource);
-		path = StringUtils.replaceChars(path, '\\', '/');
 		return path;
 	}
 

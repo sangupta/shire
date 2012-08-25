@@ -70,16 +70,9 @@ public class RenderableResource extends AbstractResource implements Comparable<R
 	private final Page post; // = new Page();
 	
 	/**
-	 * Signifies whether this renderable resource is a blog post. This is indicated
-	 * by the presence of a .blog file in one of the parent folders of this file.
+	 * Reference to the blog instance that this post may be a part of
 	 */
-	private boolean blogPost = false;
-	
-	/**
-	 * Holds the path to the .blog file that may be present making this resource a
-	 * blog resource.
-	 */
-	private String blogPath = null;
+	private BlogResource blog = null;
 
 	/**
 	 * Constructor
@@ -112,10 +105,7 @@ public class RenderableResource extends AbstractResource implements Comparable<R
 	 * @param blog
 	 */
 	public void markAsBlog(BlogResource blog) {
-		this.blogPost = true;
-		this.blogPath = blog.getBasePath();
-		
-		this.post.setBlogPost(true);
+		this.blog = blog;
 	}
 	
 	/**
@@ -229,17 +219,10 @@ public class RenderableResource extends AbstractResource implements Comparable<R
 	}
 
 	/**
-	 * @return the blogPost
+	 * @return the blog
 	 */
-	public boolean isBlogPost() {
-		return blogPost;
-	}
-
-	/**
-	 * @return the blogPath
-	 */
-	public String getBlogPath() {
-		return blogPath;
+	public BlogResource getBlog() {
+		return blog;
 	}
 
 }

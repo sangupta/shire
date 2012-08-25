@@ -24,9 +24,19 @@ package com.sangupta.shire.domain;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.sangupta.jerry.util.AssertUtils;
+import com.sangupta.shire.Shire;
+import com.sangupta.shire.model.FrontMatterConstants;
+import com.sangupta.shire.model.Page;
+import com.sangupta.shire.model.TagOrCategory;
 
 /**
  * Defines data for one blog as found in this site.
@@ -39,12 +49,17 @@ public class BlogResource {
 	/**
 	 * The absolute base path for this blog resource
 	 */
-	private String basePath;
+	private final String basePath;
 	
 	/**
 	 * The name for this blog
 	 */
-	private String blogName;
+	private final String blogName;
+	
+	/**
+	 * The baseURL for this blog
+	 */
+	private final String baseURL;
 	
 	/**
 	 * All renderable resources associated with this blog
@@ -52,11 +67,21 @@ public class BlogResource {
 	private final List<RenderableResource> resources = new ArrayList<RenderableResource>();
 	
 	/**
+	 * All tags that posts of this blog are tagged with
+	 */
+	private final List<TagOrCategory> tags = new ArrayList<TagOrCategory>();
+	
+	/**
+	 * All categories that posts of this blog are put in
+	 */
+	private final List<TagOrCategory> categories = new ArrayList<TagOrCategory>();
+	
+	/**
 	 * Constructor for a blog resource.
 	 * 
 	 * @param blogFile
 	 */
-	public BlogResource(File blogFile) {
+	public BlogResource(File blogFile, Shire shire) {
 		if(blogFile == null) {
 			throw new IllegalArgumentException("Cannot work on a null file.");
 		}
@@ -73,6 +98,7 @@ public class BlogResource {
 		}
 		
 		this.basePath = blogFile.getAbsoluteFile().getParentFile().getAbsolutePath();
+		this.baseURL = shire.getSiteWriter().createBasePath(this.basePath);
 	}
 	
 	/**
@@ -82,6 +108,64 @@ public class BlogResource {
 	 */
 	public void addResource(RenderableResource resource) {
 		this.resources.add(resource);
+	}
+	
+	public void buildBlog() {
+		// extract tags from this resource
+		Collection<TagOrCategory> tags = extractAllTagsOrCategories(FrontMatterConstants.TAGS);
+		if(tags != null) {
+			this.tags.addAll(tags);
+		}
+		
+		// extract categories from this resource
+		Collection<TagOrCategory> categories = extractAllTagsOrCategories(FrontMatterConstants.CATEGORIES);
+		if(categories != null) {
+			this.categories.addAll(categories);
+		}
+	}
+	
+	/**
+	 * @param list
+	 * @return
+	 */
+	private Collection<TagOrCategory> extractAllTagsOrCategories(final String propertyName) {
+		Map<String, TagOrCategory> result = new HashMap<String, TagOrCategory>();
+		
+		// create a single re-usable object to prevent excessive
+		// garbage collection
+		TagOrCategory tagOrCategory; // = new TagOrCategory();
+		
+		// build up a list of all details
+		for(RenderableResource resource : this.resources) {
+			String categoryLine = resource.getFrontMatterProperty(propertyName);
+			if(AssertUtils.isEmpty(categoryLine)) {
+				continue;
+			}
+			
+			String[] tokens = StringUtils.split(categoryLine, FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
+			for(String token : tokens) {
+				token = token.trim();
+				if(!token.isEmpty()) {
+					tagOrCategory = result.get(token);
+					if(tagOrCategory == null) {
+						tagOrCategory = new TagOrCategory(token, propertyName, this);
+						result.put(token, tagOrCategory);
+					}
+					
+					Page post = resource.getResourcePost();
+					
+					tagOrCategory.addPost(post);
+					
+					if(propertyName.equals(FrontMatterConstants.TAGS)) {
+						post.getTags().add(tagOrCategory);
+					} else {
+						post.getCategories().add(tagOrCategory);
+					}
+				}
+			}
+		}
+		
+		return result.values();
 	}
 	
 	/**
@@ -126,13 +210,6 @@ public class BlogResource {
 	}
 
 	/**
-	 * @param basePath the basePath to set
-	 */
-	public void setBasePath(String basePath) {
-		this.basePath = basePath;
-	}
-
-	/**
 	 * @return the blogName
 	 */
 	public String getBlogName() {
@@ -140,17 +217,31 @@ public class BlogResource {
 	}
 
 	/**
-	 * @param blogName the blogName to set
-	 */
-	public void setBlogName(String blogName) {
-		this.blogName = blogName;
-	}
-
-	/**
 	 * @return the resources
 	 */
 	public List<RenderableResource> getResources() {
 		return resources;
+	}
+
+	/**
+	 * @return the tags
+	 */
+	public List<TagOrCategory> getTags() {
+		return tags;
+	}
+
+	/**
+	 * @return the categories
+	 */
+	public List<TagOrCategory> getCategories() {
+		return categories;
+	}
+
+	/**
+	 * @return the baseURL
+	 */
+	public String getBaseURL() {
+		return baseURL;
 	}
 
 }

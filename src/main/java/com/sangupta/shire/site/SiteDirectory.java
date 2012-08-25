@@ -152,7 +152,7 @@ public class SiteDirectory {
 				
 				// check for blog file
 				if(file.getName().equals(".blog")) {
-					this.blogs.add(new BlogResource(file));
+					this.blogs.add(new BlogResource(file, this.shire));
 				}
 				
 				// see where the file falls in

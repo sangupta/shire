@@ -24,6 +24,9 @@ package com.sangupta.shire.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sangupta.shire.domain.BlogResource;
+import com.sangupta.shire.util.ShireUtils;
+
 /**
  * Holds data about one given tag or category. As there is no functional
  * difference between the two, the encapsulating model object is the same.
@@ -36,17 +39,7 @@ public class TagOrCategory implements Comparable<TagOrCategory> {
 	/**
 	 * The name of this tag/category
 	 */
-	private String name;
-	
-	/**
-	 * Base URL for this tag or category
-	 */
-	private String baseURL;
-	
-	/**
-	 * The URL of this tag/category
-	 */
-	private String url;
+	private final String name;
 	
 	/**
 	 * Holds all posts of this category
@@ -54,11 +47,14 @@ public class TagOrCategory implements Comparable<TagOrCategory> {
 	private List<Page> posts;
 	
 	/**
-	 * Default constructor
+	 * Reference to the parent of this tag
 	 */
-	public TagOrCategory() {
-		
-	}
+	private final BlogResource parent;
+	
+	/**
+	 * Return the type of this tag or category
+	 */
+	private final String type;
 	
 	/**
 	 * Convenience constructor
@@ -66,10 +62,10 @@ public class TagOrCategory implements Comparable<TagOrCategory> {
 	 * @param name
 	 * @param url
 	 */
-	public TagOrCategory(String name, String baseURL) {
+	public TagOrCategory(String name, String type, BlogResource parent) {
 		this.name = name;
-		this.baseURL = baseURL;
-		this.url = baseURL + "/index.html";
+		this.type = type;
+		this.parent = parent;
 	}
 
 	/**
@@ -85,12 +81,35 @@ public class TagOrCategory implements Comparable<TagOrCategory> {
 		this.posts.add(post);
 	}
 	
+	/**
+	 * Return the number of posts in the tag or category
+	 * 
+	 * @return
+	 */
 	public int getNumPosts() {
 		if(this.posts == null) {
 			return 0;
 		}
 		
 		return this.posts.size();
+	}
+	
+	/**
+	 * Return the base path for this tag or category.
+	 * 
+	 * @return
+	 */
+	public String getBasePath() {
+		return ShireUtils.normalizePathOrUrl(this.parent.getBaseURL() + "/" + this.type + "/" + this.name);
+	}
+	
+	/**
+	 * Return the URL to this tag or category.
+	 * 
+	 * @return
+	 */
+	public String getUrl() {
+		return getBasePath() + "/index.html";
 	}
 	
 	/**
@@ -148,27 +167,6 @@ public class TagOrCategory implements Comparable<TagOrCategory> {
 	}
 
 	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * @return the url
-	 */
-	public String getUrl() {
-		return url;
-	}
-
-	/**
-	 * @param url the url to set
-	 */
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	/**
 	 * @return the posts
 	 */
 	public List<Page> getPosts() {
@@ -176,10 +174,10 @@ public class TagOrCategory implements Comparable<TagOrCategory> {
 	}
 
 	/**
-	 * @return the baseURL
+	 * @return the parent
 	 */
-	public String getBaseURL() {
-		return baseURL;
+	public BlogResource getParent() {
+		return parent;
 	}
 
 }

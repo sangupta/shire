@@ -38,18 +38,37 @@ import com.sangupta.shire.domain.RenderableResource;
  */
 public class SitePreProcessor {
 	
+	/**
+	 * Reference to the site's paradise, the shire.
+	 */
 	private Shire shire = null;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param shire
+	 */
 	public SitePreProcessor(Shire shire) {
 		this.shire = shire;
 	}
 	
+	/**
+	 * Pre-process the site.
+	 * 
+	 */
 	public void preProcess() {
 		// add all resources to each blog, as applicable
 		collectAllBlogResources();
 		
+		// build the blogs
+		for(BlogResource blog : this.shire.getSiteDirectory().getBlogs()) {
+			blog.buildBlog();
+		}
 		// create all resource pages
-		mergeFrontMatterOfRenderableResources();
+		List<RenderableResource> renderableResources = this.shire.getSiteDirectory().getRenderableResources();
+		for(RenderableResource rr : renderableResources) {
+			rr.getResourcePost().mergeFrontMatter(this.shire);
+		}
 		
 		// sort and ...
 		sortAndSetNextPreviousLinks();
@@ -72,16 +91,6 @@ public class SitePreProcessor {
 					blog.addResource(resource);
 				}
 			}
-		}
-	}
-	
-	/**
-	 * Merge front-matter of all resources
-	 */
-	private void mergeFrontMatterOfRenderableResources() {
-		List<RenderableResource> renderableResources = this.shire.getSiteDirectory().getRenderableResources();
-		for(RenderableResource rr : renderableResources) {
-			rr.getResourcePost().mergeFrontMatter(rr.getBlogPath(), shire);
 		}
 	}
 	

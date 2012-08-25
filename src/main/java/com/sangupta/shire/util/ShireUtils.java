@@ -25,6 +25,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import com.sangupta.shire.ExecutionOptions;
@@ -70,6 +71,12 @@ public class ShireUtils {
 		}
 		
 		return url;
+	}
+	
+	private static final String NORMALIZATION_CHARS = " ";
+	
+	public static String normalizePathOrUrl(String path) {
+		return StringUtils.replaceChars(path, NORMALIZATION_CHARS, "_");
 	}
 
 }

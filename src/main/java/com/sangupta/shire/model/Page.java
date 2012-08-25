@@ -27,8 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.sangupta.shire.Shire;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.util.ShireUtils;
@@ -83,14 +81,14 @@ public class Page implements Comparable<Page> {
 	private final List<TagOrCategory> tags = new ArrayList<TagOrCategory>();
 	
 	/**
+	 * Reference to the parent resource
+	 */
+	private final RenderableResource parent;
+	
+	/**
 	 * Reference to the page's front matter
 	 */
 	private Properties frontMatter;
-	
-	/**
-	 * Identifies whether the post is part of a blog or not
-	 */
-	private boolean blogPost;
 	
 	/**
 	 * Reference to next entry in this blog
@@ -103,6 +101,9 @@ public class Page implements Comparable<Page> {
 	private Page previousEntry;
 	
 	public Page(RenderableResource resource, Shire shire) {
+		// set up the parent
+		this.parent = resource;
+		
 		// no need to initialize properties, if the resource is null
 		// this is usually done for resources that are generated on the fly 
 		if(resource == null) {
@@ -140,6 +141,17 @@ public class Page implements Comparable<Page> {
 	}
 	
 	/**
+	 * @return the blogPost
+	 */
+	public boolean isBlogPost() {
+		if(this.parent != null && this.parent.getBlog() != null) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	/**
 	 * Return the value of configuration property with the given name if
 	 * mentioned in the page's front matter data.
 	 *  
@@ -158,7 +170,7 @@ public class Page implements Comparable<Page> {
 	 * @param pageFrontMatter
 	 * @param blogPath
 	 */
-	public void mergeFrontMatter(String blogPath, Shire shire) {
+	public void mergeFrontMatter(Shire shire) {
 		// read the title from the front matter
 		this.setTitle(frontMatter.getProperty(FrontMatterConstants.PAGE_TITLE));
 
@@ -166,30 +178,6 @@ public class Page implements Comparable<Page> {
 		String date = frontMatter.getProperty("date");
 		if(date != null) {
 			this.setDate(ShireUtils.parsePostDate(date));
-		}
-		
-		// read the tags from the front matter
-		String tags = frontMatter.getProperty("tags");
-		if(tags != null && !tags.trim().isEmpty()) {
-			String[] tokens = StringUtils.split(tags, FrontMatterConstants.TAG_CATEGORY_SEPARATOR);
-			for(String tag : tokens) {
-				if(!("".equals(tag.trim()))) {
-					String tagPath = shire.getSiteWriter().createBasePath(blogPath + "/" + FrontMatterConstants.TAGS + "/" + tag);
-					this.tags.add(new TagOrCategory(tag, tagPath));
-				}
-			}
-		}
-		
-		// read the categories from the fron matter
-		String categories = frontMatter.getProperty("categories");
-		if(categories != null && !categories.trim().isEmpty()) {
-			String[] tokens = StringUtils.split(categories, " ;,");
-			for(String category : tokens) {
-				if(!("".equals(category.trim()))) {
-					String catPath = shire.getSiteWriter().createBasePath(blogPath + "/" + FrontMatterConstants.CATEGORIES + "/" + category);
-					this.categories.add(new TagOrCategory(category, catPath));
-				}
-			}
 		}
 		
 		// check for published flags
@@ -304,10 +292,6 @@ public class Page implements Comparable<Page> {
 	 * @return the categories
 	 */
 	public List<TagOrCategory> getCategories() {
-		if(this.categories.isEmpty()) {
-			return null;
-		}
-		
 		return this.categories;
 	}
 
@@ -315,10 +299,6 @@ public class Page implements Comparable<Page> {
 	 * @return the tags
 	 */
 	public List<TagOrCategory> getTags() {
-		if(this.tags.isEmpty()) {
-			return null;
-		}
-		
 		return this.tags;
 	}
 
@@ -334,20 +314,6 @@ public class Page implements Comparable<Page> {
 	 */
 	public void setPublished(boolean published) {
 		this.published = published;
-	}
-
-	/**
-	 * @return the blogPost
-	 */
-	public boolean isBlogPost() {
-		return blogPost;
-	}
-
-	/**
-	 * @param blogPost the blogPost to set
-	 */
-	public void setBlogPost(boolean blogPost) {
-		this.blogPost = blogPost;
 	}
 
 	/**
