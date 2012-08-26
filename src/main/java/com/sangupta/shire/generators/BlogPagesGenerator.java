@@ -109,6 +109,9 @@ public class BlogPagesGenerator implements Generator {
 	 */
 	private void processBlog(final BlogResource blog) throws IOException {
 		final TemplateData model = this.shire.getTemplateData();
+		
+		// set the base URL to be used for this blog
+		model.getSite().setBaseURL(blog.getBaseURL());
 				
 		// fetch the blog name from the folder
 		final String blogName = blog.getBlogName();
@@ -131,17 +134,10 @@ public class BlogPagesGenerator implements Generator {
 		model.getSite().setCategories(categories);
 		
 		// build all the pagination pages
-		final List<Page> allPages = new ArrayList<Page>();
-		
-		for(RenderableResource rr : list) {
-			allPages.add(rr.getResourcePost());
-		}
+		final List<Page> allPages = blog.getAllPosts();
 		
 		// set all posts in this model
 		model.getSite().addAllPosts(allPages);
-		
-		// and sort them for reverse chronological order
-		model.getSite().sortPosts();
 		
 		doPaginationPages(blog.getBlogName(), blog.getBasePath(), allPages, model);
 		
@@ -167,6 +163,8 @@ public class BlogPagesGenerator implements Generator {
 	 * @param model
 	 */
 	private void createBlogArchive(final String blogName, final String baseURL, final List<Page> posts, final TemplateData model) {
+		model.getSite().setBlogName(blogName);
+		
 		// clear up the page data
 		Page page = new Page(null, null);
 		page.setTitle(blogName);
@@ -231,9 +229,6 @@ public class BlogPagesGenerator implements Generator {
 				e.printStackTrace();
 			}
 		}
-		
-		// generate the single archive page for this particular tag
-		createBlogArchive(blogName, basePath, list, model);
 	}
 
 	/**

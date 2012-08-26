@@ -34,7 +34,9 @@ import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.generators.BlogPagesGenerator;
 import com.sangupta.shire.generators.SiteMapGenerator;
 import com.sangupta.shire.model.Page;
+import com.sangupta.shire.model.Site;
 import com.sangupta.shire.model.TemplateData;
+import com.sangupta.shire.util.ShireUtils;
 
 /**
  * Builder that actually works on a {@link Shire} object and builds
@@ -128,6 +130,7 @@ public class SiteBuilder {
 	private void exportNonRenderableResources() {
 		List<NonRenderableResource> nonRenderableResources = this.shire.getSiteDirectory().getNonRenderableResources();
 		for(NonRenderableResource nr : nonRenderableResources) {
+			System.out.println("Copying " + this.shire.getSiteWriter().createBasePath(nr) + "...");
 			this.shire.getSiteWriter().export(nr);
 		}
 	}
@@ -169,6 +172,22 @@ public class SiteBuilder {
 		System.out.println("Processing " + this.shire.getSiteWriter().createBasePath(resource) + "...");
 		
 		TemplateData templateData = this.shire.getTemplateData();
+		final Site site = templateData.getSite();
+
+		// clear the site model
+		site.setBlogName(null);
+		site.setTags(null);
+		site.setCategories(null);
+		site.getPosts().clear();
+		
+		// populate if needed
+		if(resource.getBlog() != null ){
+			site.setBlogName(resource.getBlog().getBlogName());
+			// add all tags
+			site.setTags(resource.getBlog().getTags());
+			site.setCategories(resource.getBlog().getCategories());
+			site.getPosts().addAll(resource.getBlog().getAllPosts());
+		}
 		
 		String layoutName = null;
 		Properties frontMatter = null;

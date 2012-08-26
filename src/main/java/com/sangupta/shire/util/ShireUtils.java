@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import com.sangupta.shire.ExecutionOptions;
+import com.sangupta.shire.Shire;
 
 /**
  * Collection of utility functions.
@@ -71,6 +72,22 @@ public class ShireUtils {
 		}
 		
 		return url;
+	}
+	
+	public static int getConfigPropertyAsInt(Shire shire, String property, final int defaultValue) {
+		String value = shire.getOptions().getConfigProperty(property);
+		if(value == null) {
+			return defaultValue;
+		}
+		
+		try {
+			int val = Integer.parseInt(value);
+			return val;
+		} catch(NumberFormatException e) {
+			
+		}
+		
+		return defaultValue;
 	}
 	
 	private static final String NORMALIZATION_CHARS = " ";

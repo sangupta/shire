@@ -129,6 +129,16 @@ public class ExecutionOptions {
 		return null;
 	}
 	
+	/**
+	 * Return the value of the property as defined in the _config.yml file.
+	 * 
+	 * @param propertyName
+	 * @return
+	 */
+	public String getConfigProperty(String propertyName) {
+		return this.configuration.getProperty(propertyName);
+	}
+	
 	private void initialize() {
 		configuration = readConfigFile();
 		

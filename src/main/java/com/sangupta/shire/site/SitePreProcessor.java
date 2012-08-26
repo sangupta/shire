@@ -22,12 +22,17 @@
 package com.sangupta.shire.site;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.sangupta.shire.Shire;
 import com.sangupta.shire.domain.BlogResource;
 import com.sangupta.shire.domain.RenderableResource;
+import com.sangupta.shire.model.ConfigurationConstants;
+import com.sangupta.shire.model.Page;
+import com.sangupta.shire.model.PostComparatorOnDate;
+import com.sangupta.shire.util.ShireUtils;
 
 /**
  * A pre-processor that runs on a site and fills in the missing fields
@@ -72,6 +77,16 @@ public class SitePreProcessor {
 		
 		// sort and ...
 		sortAndSetNextPreviousLinks();
+		
+		// select top N posts from all blogs
+		List<Page> topPosts = new ArrayList<Page>();
+		for(BlogResource blog : this.shire.getSiteDirectory().getBlogs()) {
+			topPosts.addAll(blog.getAllPosts());
+		}
+		Collections.sort(topPosts, new PostComparatorOnDate());
+		int top = ShireUtils.getConfigPropertyAsInt(shire, ConfigurationConstants.NUM_RECENT_POSTS, 10);
+		topPosts = topPosts.subList(0, top);
+		this.shire.getTemplateData().getSite().addRecentPosts(topPosts);
 	}
 	
 	/**

@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import com.sangupta.jerry.util.AssertUtils;
 import com.sangupta.shire.Shire;
 import com.sangupta.shire.model.FrontMatterConstants;
 import com.sangupta.shire.model.Page;
+import com.sangupta.shire.model.PostComparatorOnDate;
 import com.sangupta.shire.model.TagOrCategory;
 
 /**
@@ -75,6 +77,12 @@ public class BlogResource {
 	 * All categories that posts of this blog are put in
 	 */
 	private final List<TagOrCategory> categories = new ArrayList<TagOrCategory>();
+	
+	/**
+	 * All posts inside this blog - essentially all post elements
+	 * from all resources inside this
+	 */
+	private final List<Page> allPosts = new ArrayList<Page>();
 	
 	/**
 	 * Constructor for a blog resource.
@@ -124,6 +132,22 @@ public class BlogResource {
 		}
 	}
 	
+	/**
+	 * @return the allPosts
+	 */
+	public List<Page> getAllPosts() {
+		if(!this.allPosts.isEmpty()) {
+			return this.allPosts;
+		}
+		
+		for(RenderableResource rr : this.resources) {
+			this.allPosts.add(rr.getResourcePost());
+		}
+		Collections.sort(this.allPosts, new PostComparatorOnDate());
+		
+		return this.allPosts;
+	}
+
 	/**
 	 * @param list
 	 * @return

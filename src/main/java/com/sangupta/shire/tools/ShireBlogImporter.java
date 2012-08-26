@@ -216,6 +216,8 @@ public class ShireBlogImporter {
 		appendLine(writer, "title: " + page.getTitle());
 		appendLine(writer, "permalink: " + url);
 		appendLine(writer, "date: " + page.getPublishedOn());
+		appendLine(writer, "sharingURL: " + page.getUrl());
+		// appendLine(writer, "rssID: " + page.get)
 		appendLine(writer, "---");
 		
 		// write the page html
@@ -252,6 +254,7 @@ public class ShireBlogImporter {
 		appendLine(writer, "title: " + post.getTitle());
 		appendLine(writer, "permalink: " + url);
 		appendLine(writer, "date: " + post.getPublishedOn());
+		appendLine(writer, "sharingURL: " + post.getUrl());
 		
 		// check for tags
 		if(post.getTags() != null) {

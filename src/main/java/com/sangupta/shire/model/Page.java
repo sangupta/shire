@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.sangupta.shire.Shire;
+import com.sangupta.shire.domain.BlogResource;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.util.ShireUtils;
 
@@ -164,6 +165,14 @@ public class Page implements Comparable<Page> {
 		}
 		
 		return this.frontMatter.getProperty(key);
+	}
+	
+	public BlogResource getBlog() {
+		if(this.parent != null) {
+			return this.parent.getBlog();
+		}
+		
+		return null;
 	}
 	
 	/**

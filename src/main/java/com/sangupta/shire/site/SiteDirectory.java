@@ -92,6 +92,7 @@ public class SiteDirectory {
 		this.ignorableFolders.add(shire.getOptions().getIncludesFolderName());
 		this.ignorableFolders.add(shire.getOptions().getLayoutsFolderName());
 		this.ignorableFolders.add(shire.getOptions().getSiteFolderName());
+		this.ignorableFolders.add(shire.getOptions().getCacheFolderName());
 		
 		this.ignorableFiles.add(shire.getOptions().getConfigFile());
 		
@@ -167,6 +168,8 @@ public class SiteDirectory {
 							if(published == null || !("false".equalsIgnoreCase(published))) {
 								this.renderableResources.add(new RenderableResource(file, properties, frontMatter, this.shire));
 							}
+						} else {
+							this.nonRenderableResources.add(new NonRenderableResource(file));
 						}
 					} catch(Exception e) {
 						e.printStackTrace();

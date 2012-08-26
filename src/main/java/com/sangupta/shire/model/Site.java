@@ -67,6 +67,11 @@ public class Site {
 	 * If the page being processed is a Post, this contains a list of up to ten related Posts
 	 */
 	private final List<Page> relatedPosts = new ArrayList<Page>();
+	
+	/**
+	 * Holds the list of top N recent posts from all blogs in this site 
+	 */
+	private final List<Page> recentPosts = new ArrayList<Page>();
 
 	/**
 	 * The list of all Posts in category
@@ -82,6 +87,16 @@ public class Site {
 	 * Is the site in debug mode
 	 */
 	private boolean debug = true;
+	
+	/**
+	 * The baseURL of the current site or the blog that we are publishing.
+	 */
+	private String baseURL;
+	
+	/**
+	 * Name of the blog, if currently one is available
+	 */
+	private String blogName;
 	
 	/**
 	 * Default constructor
@@ -108,13 +123,15 @@ public class Site {
 	 */
 	public void addAllPages(List<Page> pages) {
 		this.pages.addAll(pages);
+		
+		this.sortPages();
 	}
 	
 	/**
 	 * Sort the entire list of pages based on their title, followed by path
 	 * and filename.
 	 */
-	public void sortPages() {
+	private void sortPages() {
 		Collections.sort(this.pages, new PostComparatorOnNames());
 	}
 	
@@ -134,13 +151,19 @@ public class Site {
 	 */
 	public void addAllPosts(List<Page> posts) {
 		this.posts.addAll(posts);
+		
+		this.sortPosts();
+	}
+	
+	public void addRecentPosts(List<Page> posts) {
+		this.recentPosts.addAll(posts);
 	}
 	
 	/**
 	 * Sort all the given posts in their natural order - the
 	 * reverse chronological order.
 	 */
-	public void sortPosts() {
+	private void sortPosts() {
 		Collections.sort(this.posts, new PostComparatorOnDate());
 	}
 	
@@ -241,6 +264,10 @@ public class Site {
 	 * @param categories the categories to set
 	 */
 	public void setCategories(List<TagOrCategory> categories) {
+		if(categories != null) {
+			Collections.sort(categories);
+		}
+		
 		this.categories = categories;
 	}
 
@@ -248,7 +275,46 @@ public class Site {
 	 * @param tags the tags to set
 	 */
 	public void setTags(List<TagOrCategory> tags) {
+		if(tags != null) {
+			Collections.sort(tags);
+		}
+		
 		this.tags = tags;
+	}
+
+	/**
+	 * @return the baseURL
+	 */
+	public String getBaseURL() {
+		return baseURL;
+	}
+
+	/**
+	 * @param baseURL the baseURL to set
+	 */
+	public void setBaseURL(String baseURL) {
+		this.baseURL = baseURL;
+	}
+
+	/**
+	 * @return the blogName
+	 */
+	public String getBlogName() {
+		return blogName;
+	}
+
+	/**
+	 * @param blogName the blogName to set
+	 */
+	public void setBlogName(String blogName) {
+		this.blogName = blogName;
+	}
+
+	/**
+	 * @return the recentPosts
+	 */
+	public List<Page> getRecentPosts() {
+		return recentPosts;
 	}
 
 }
