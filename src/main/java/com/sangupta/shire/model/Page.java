@@ -353,4 +353,11 @@ public class Page implements Comparable<Page> {
 		this.previousEntry = previousEntry;
 	}
 
+	/**
+	 * @return the frontMatter
+	 */
+	public Properties getFrontMatter() {
+		return frontMatter;
+	}
+
 }

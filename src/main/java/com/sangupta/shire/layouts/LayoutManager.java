@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,6 +36,7 @@ import com.sangupta.makeup.layouts.Layout;
 import com.sangupta.makeup.layouts.LayoutType;
 import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.domain.RenderableResource;
+import com.sangupta.shire.model.Page;
 import com.sangupta.shire.model.TemplateData;
 import com.sangupta.shire.util.FrontMatterUtils;
 import com.sangupta.shire.util.ShireUtils;
@@ -271,8 +273,36 @@ public class LayoutManager {
 		final Map<String, Object> model = new HashMap<String, Object>();
 		
 		model.put("site", data.getSite());
-		model.put("page", data.getPage());
 		model.put("paginator", data.getPaginator());
+
+		if(data.getPage() instanceof Map) {
+			model.put("page", data.getPage());
+		} else {
+			Map<String, Object> pageData = new HashMap<String, Object>();
+			model.put("page", pageData);
+			Page page = data.getPage();
+			
+			pageData.put("content", page.getContent());
+			pageData.put("title", page.getTitle());
+			pageData.put("url", page.getUrl());
+			pageData.put("date", page.getDate());
+			pageData.put("id", page.getId());
+			pageData.put("tags", page.getTags());
+			pageData.put("categories", page.getCategories());
+			pageData.put("previousEntry", page.getPreviousEntry());
+			pageData.put("nextEntry", page.getNextEntry());
+			
+			// merge all the properties of page front matter
+			Properties matter = page.getFrontMatter();
+			if(matter != null) {
+				Set<Object> keys = matter.keySet();
+				for(Object obj : keys) {
+					String key = (String) obj;
+					String value = matter.getProperty((String) key);
+					pageData.put(key, value);
+				}
+			}
+		}
 		
 		return model;
 	}
