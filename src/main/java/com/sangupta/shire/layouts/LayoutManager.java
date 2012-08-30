@@ -37,6 +37,7 @@ import com.sangupta.makeup.layouts.LayoutType;
 import com.sangupta.shire.ExecutionOptions;
 import com.sangupta.shire.domain.RenderableResource;
 import com.sangupta.shire.model.Page;
+import com.sangupta.shire.model.Site;
 import com.sangupta.shire.model.TemplateData;
 import com.sangupta.shire.util.FrontMatterUtils;
 import com.sangupta.shire.util.ShireUtils;
@@ -272,9 +273,39 @@ public class LayoutManager {
 	private Map<String, Object> getDataModel(final TemplateData data) {
 		final Map<String, Object> model = new HashMap<String, Object>();
 		
-		model.put("site", data.getSite());
-		model.put("paginator", data.getPaginator());
+		// site and front matter
+		if(data.getSite() instanceof Map) {
+			model.put("site", data.getSite());
+		} else {
+			Map<String, Object> siteData = new HashMap<String, Object>();
+			model.put("site", siteData);
+			Site site = data.getSite();
+			
+			siteData.put("url", site.getUrl());
+			siteData.put("time", site.getTime());
+			siteData.put("posts", site.getPosts());
+			siteData.put("pages", site.getPages());
+			siteData.put("relatedPosts", site.getRelatedPosts());
+			siteData.put("recentPosts", site.getRecentPosts());
+			siteData.put("tags", site.getTags());
+			siteData.put("categories", site.getCategories());
+			siteData.put("blogName", site.getBlogName());
+			siteData.put("baseURL", site.getBaseURL());
+			siteData.put("debug", site.isDebug());
+			
+			// merge all the properties of page front matter
+			Properties matter = this.options.getConfiguration();
+			if(matter != null) {
+				Set<Object> keys = matter.keySet();
+				for(Object obj : keys) {
+					String key = (String) obj;
+					String value = matter.getProperty((String) key);
+					siteData.put(key, value);
+				}
+			}
+		}
 
+		// page and front matter
 		if(data.getPage() instanceof Map) {
 			model.put("page", data.getPage());
 		} else {
@@ -303,7 +334,10 @@ public class LayoutManager {
 				}
 			}
 		}
-		
+
+		// paginator
+		model.put("paginator", data.getPaginator());
+
 		return model;
 	}
 
