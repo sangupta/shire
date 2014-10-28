@@ -85,6 +85,10 @@ public class SitePreProcessor {
 		}
 		Collections.sort(topPosts, new PostComparatorOnDate());
 		int top = ShireUtils.getConfigPropertyAsInt(shire, ConfigurationConstants.NUM_RECENT_POSTS, 10);
+		if(top > topPosts.size()) {
+			top = topPosts.size();
+		}
+		
 		topPosts = topPosts.subList(0, top);
 		this.shire.getTemplateData().getSite().addRecentPosts(topPosts);
 	}
