@@ -30,3 +30,5 @@ desktop.ini
 # Project specific
 target/*
 /target/
+test-site/
+go.sum
