@@ -12,6 +12,7 @@
 package site
 
 import (
+	"io/ioutil"
 	"path/filepath"
 	app "shire/app"
 	config "shire/config"
@@ -26,6 +27,7 @@ type SiteData struct {
 	TemplateFolders mapset.Set[string]   // Set of all folders that contain a template
 	PageFolders     []*utils.FileAsset   // all child folders that are scanned for pages/posts
 	AllPages        []*utils.FileAsset   // reference to all files that act as pages/posts
+	Pages           map[string]*Page     // map of each page
 }
 
 // start building the site
@@ -42,7 +44,7 @@ func BuildSite(appConfig *app.AppConfig, siteConfig *config.ShireConfig) {
 	scanPages(appConfig, siteConfig, &siteData)
 
 	// read front matter for each post/page in the site
-	populatePageMetadata(appConfig, siteConfig, &siteData)
+	scanPagesForMetadataAndContent(appConfig, siteConfig, &siteData)
 }
 
 // This function scans for all templates in the site
@@ -116,15 +118,30 @@ func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *config.ShireConfi
 	siteData.AllPages = files
 }
 
-// this function reads the front matter from each post/page
-func populatePageMetadata(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteData *SiteData) {
+// this function reads each content page
+// and extract its front-matter and content
+func scanPagesForMetadataAndContent(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteData *SiteData) {
+	// initialize page map
+	siteData.Pages = make(map[string]*Page, len(siteData.AllPages))
+
+	// for each content page
 	for _, file := range siteData.AllPages {
 		filePath := filepath.Join(file.Path, file.Name)
-		// metadata, err := ReadPageMetadata(filePath)
-		// if err != nil {
-		// 	panic(err)
-		// }
 
-		utils.Info("Reading front-matter from file: " + filePath)
+		// read file content
+		utils.Info("Reading file contents: " + filePath)
+		fileContent, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			panic(err)
+		}
+
+		// parse page contents and extract page object
+		page, err := parsePage(filePath, fileContent)
+		if err != nil {
+			panic(err)
+		}
+
+		// put in page map
+		siteData.Pages[filePath] = page
 	}
 }
