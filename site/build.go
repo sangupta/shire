@@ -32,7 +32,7 @@ func BuildSite(siteConfig *config.SiteConfig, siteData *SiteData) {
 		pageObject := siteData.Pages[pageFile.Id]
 
 		// find the template that this page uses
-		templateToUse := pageObject.Metadata.Template
+		templateToUse := pageObject.Metadata.TemplateId
 		template := siteData.Templates[templateToUse]
 
 		buildPage(siteConfig, pageFile, template, pageObject)
