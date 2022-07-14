@@ -31,7 +31,7 @@ type SiteData struct {
 }
 
 // start building the site
-func BuildSite(appConfig *app.AppConfig, siteConfig *config.ShireConfig) {
+func ReadAndBuildSiteData(appConfig *app.AppConfig, siteConfig *config.SiteConfig) (*SiteData, error) {
 	siteData := SiteData{
 		Templates:       make(map[string]*Template),
 		TemplateFolders: mapset.NewSet[string](),
@@ -45,10 +45,13 @@ func BuildSite(appConfig *app.AppConfig, siteConfig *config.ShireConfig) {
 
 	// read front matter for each post/page in the site
 	scanPagesForMetadataAndContent(appConfig, siteConfig, &siteData)
+
+	// we are all set
+	return &siteData, nil
 }
 
 // This function scans for all templates in the site
-func scanTemplates(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteData *SiteData) {
+func scanTemplates(appConfig *app.AppConfig, siteConfig *config.SiteConfig, siteData *SiteData) {
 	// scan for all individual templates
 	if siteConfig.Templates != nil {
 		for _, template := range siteConfig.Templates {
@@ -62,7 +65,7 @@ func scanTemplates(appConfig *app.AppConfig, siteConfig *config.ShireConfig, sit
 func addTemplateDataToSite(siteData *SiteData, templateId string, baseFolder string, templateFolder string) {
 	folder := filepath.Join(baseFolder, templateFolder)
 	utils.Info("Scanning for template in folder: " + folder)
-	template, err := readTemplateFromFolder(templateId, folder)
+	template, err := scanTemplateInFolder(templateId, folder)
 	if err != nil {
 		panic(err)
 	}
@@ -73,7 +76,7 @@ func addTemplateDataToSite(siteData *SiteData, templateId string, baseFolder str
 }
 
 // this function scans for all files that will act as pages/posts in our site
-func scanPages(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteData *SiteData) {
+func scanPages(appConfig *app.AppConfig, siteConfig *config.SiteConfig, siteData *SiteData) {
 	// first we read all folders that we need
 	// read all folders from the base folder
 	// and exclude all template folders from them
@@ -99,7 +102,7 @@ func scanPages(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteDat
 }
 
 // Function to read all pages from all folders that contain posts/pages
-func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteData *SiteData, folders []*utils.FileAsset) {
+func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *config.SiteConfig, siteData *SiteData, folders []*utils.FileAsset) {
 	// for each folder, get all files in the folder
 	files := make([]*utils.FileAsset, 0)
 	for _, folder := range folders {
@@ -120,7 +123,7 @@ func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *config.ShireConfi
 
 // this function reads each content page
 // and extract its front-matter and content
-func scanPagesForMetadataAndContent(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteData *SiteData) {
+func scanPagesForMetadataAndContent(appConfig *app.AppConfig, siteConfig *config.SiteConfig, siteData *SiteData) {
 	// initialize page map
 	siteData.Pages = make(map[string]*Page, len(siteData.AllPages))
 

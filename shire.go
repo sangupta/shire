@@ -46,7 +46,18 @@ func runShire() {
 	}
 	utils.LogObject(siteConfig)
 
+	// for any step of the following, the first is to read and build site data
+	// `build`: build the prod mode site
+	// `serve`: build and serve site
+	// `test`: build in non-prod mode
+	// `watch`: test and serve site
+	// `publish`: build and publish the site
+	siteData, err := site.ReadAndBuildSiteData(appConfig, siteConfig)
+	if err != nil {
+		panic(err)
+	}
+
 	// depending on what we need to do, we will branch out from here
 	// for now, we are only building the site
-	site.BuildSite(appConfig, siteConfig)
+	site.BuildSite(siteConfig, siteData)
 }

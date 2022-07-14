@@ -15,7 +15,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
-	app "shire/app"
+	"shire/app"
 	"shire/utils"
 )
 
@@ -26,10 +26,14 @@ type Author struct {
 	Url   string
 }
 
-// holds information about templates in the system
-type Template struct {
+//
+// Value object that holds information about templates as
+// configured for the site.
+//
+type TemplateConfig struct {
 	TemplateId string // unique id
 	Folder     string // folder with respect to base folder
+	IndexFile  string // (optional) index file to use. default is `index.html`
 }
 
 type OutputOptions struct {
@@ -51,23 +55,23 @@ type PublishOptions struct {
 }
 
 // defines shire configuration
-type ShireConfig struct {
-	BaseUrl         string         // the base url to the site
-	Title           string         // the site wide title to use, if present
-	ContentRoot     string         // the root folder under which all content is scanned from
-	Author          Author         // the author to the site
-	DefaultTemplate string         // the ID of the default template, if any
-	Templates       []Template     // array of templates that can be used
-	Output          OutputOptions  // options to cutomize site output
-	Build           BuildOptions   // options for building
-	Publish         PublishOptions // options for publishing
+type SiteConfig struct {
+	BaseUrl         string           // the base url to the site
+	Title           string           // the site wide title to use, if present
+	ContentRoot     string           // the root folder under which all content is scanned from
+	Author          Author           // the author to the site
+	DefaultTemplate string           // the ID of the default template, if any
+	Templates       []TemplateConfig // array of templates that can be used
+	Output          OutputOptions    // options to cutomize site output
+	Build           BuildOptions     // options for building
+	Publish         PublishOptions   // options for publishing
 }
 
 // read and return the config instance
-func ReadConfig(appConfig *app.AppConfig) (*ShireConfig, error) {
+func ReadConfig(appConfig *app.AppConfig) (*SiteConfig, error) {
 	// create the basic configuration for the site
 	// including sensible defaults
-	config := ShireConfig{
+	config := SiteConfig{
 		Output: OutputOptions{
 			Folder: "site",
 		},

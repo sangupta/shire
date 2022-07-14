@@ -16,6 +16,7 @@ import (
 	"shire/utils"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //
@@ -31,11 +32,16 @@ type Page struct {
 // Defines the front matter associated with a page
 //
 type PageFrontMatter struct {
-	Title string // the title to page
-	Date  string // the page date
+	Title        string // the title to page
+	Date         string // the page date
+	TemplateId   string // the template that this page uses
+	Draft        bool   // can this page be published?
+	PublishEpoch int64  // time when this page should publish
+	ExpiryEpoch  int64  // time when this page will expire
 }
 
 func parsePage(filePath string, fileContent []byte) (*Page, error) {
+	time.Now()
 	// convert to lines
 	lines := strings.Split(string(fileContent), "\n")
 
