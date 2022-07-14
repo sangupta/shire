@@ -16,3 +16,7 @@ import "fmt"
 func Log(message string) {
 	fmt.Println(message)
 }
+
+func LogObject(object interface{}) {
+	// do nothing
+}

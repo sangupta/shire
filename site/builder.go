@@ -16,6 +16,7 @@ import (
 	app "shire/app"
 	config "shire/config"
 	"shire/utils"
+	"strconv"
 
 	mapset "github.com/deckarep/golang-set/v2"
 )
@@ -58,6 +59,7 @@ func scanTemplates(appConfig *app.AppConfig, siteConfig *config.ShireConfig, sit
 // and then push it into `SiteData` templates map
 func addTemplateDataToSite(siteData *SiteData, templateId string, baseFolder string, templateFolder string) {
 	folder := filepath.Join(baseFolder, templateFolder)
+	utils.Log("Scanning for template in folder: " + folder)
 	template, err := readTemplateFromFolder(templateId, folder)
 	if err != nil {
 		panic(err)
@@ -73,7 +75,10 @@ func scanPages(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteDat
 	// first we read all folders that we need
 	// read all folders from the base folder
 	// and exclude all template folders from them
-	folders, err := utils.ListChildFolders(appConfig.BaseFolder)
+	contentFolder := filepath.Join(appConfig.BaseFolder, siteConfig.ContentRoot)
+	utils.Log("Scanning for folders in content root: " + contentFolder)
+
+	folders, err := utils.ListChildFolders(contentFolder)
 	if err != nil {
 		panic(err)
 	}
@@ -84,8 +89,8 @@ func scanPages(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteDat
 			utils.RemoveFromSliceAtIndex(folders, index)
 		}
 	}
-
 	siteData.PageFolders = folders
+	utils.Log("Total content folders found: " + strconv.Itoa(len(folders)))
 
 	// now we can go ahead and read all files from these folders
 	readAllPagesForSite(appConfig, siteConfig, siteData, folders)
@@ -93,16 +98,17 @@ func scanPages(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteDat
 
 // Function to read all pages from all folders that contain posts/pages
 func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteData *SiteData, folders []*utils.FileAsset) {
-	files := make([]*utils.FileAsset, 0)
-
 	// for each folder, get all files in the folder
+	files := make([]*utils.FileAsset, 0)
 	for _, folder := range folders {
-		path := filepath.Join(appConfig.BaseFolder, folder.Path, folder.Name)
+		path := filepath.Join(folder.Path, folder.Name)
+		utils.Log("Scanning for content in folder: " + path)
 		filesInFolder, err := utils.ListFilesExcludingFolders(path, false)
 		if err != nil {
 			panic(err)
 		}
 
+		utils.Log("  files found in folder: " + strconv.Itoa(len(filesInFolder)))
 		files = append(files, filesInFolder...)
 	}
 
