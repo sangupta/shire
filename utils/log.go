@@ -14,23 +14,23 @@ package utils
 import "fmt"
 
 func Debug(message string) {
-	fmt.Println(message)
+	fmt.Println("DEBUG: " + message)
 }
 
 func Info(message string) {
-	fmt.Println(message)
+	fmt.Println("INFO: " + message)
 }
 
 func Warn(message string) {
-	fmt.Println(message)
+	fmt.Println("WARN: " + message)
 }
 
 func Error(message string) {
-	fmt.Println(message)
+	fmt.Println("ERROR: " + message)
 }
 
 func Fatal(message string) {
-	fmt.Println(message)
+	fmt.Println("FATAL: " + message)
 }
 
 func LogObject(object interface{}) {
