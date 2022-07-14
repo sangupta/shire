@@ -13,7 +13,23 @@ package utils
 
 import "fmt"
 
-func Log(message string) {
+func Debug(message string) {
+	fmt.Println(message)
+}
+
+func Info(message string) {
+	fmt.Println(message)
+}
+
+func Warn(message string) {
+	fmt.Println(message)
+}
+
+func Error(message string) {
+	fmt.Println(message)
+}
+
+func Fatal(message string) {
 	fmt.Println(message)
 }
 
