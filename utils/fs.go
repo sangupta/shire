@@ -42,8 +42,8 @@ var fileFilter = func(asset FileAsset) bool {
 	return !asset.IsFolder
 }
 
-func ListChildFolders(path string) ([]*FileAsset, error) {
-	return listFilesInternal(path, false, folderFilter)
+func ListChildFolders(path string, recursive bool) ([]*FileAsset, error) {
+	return listFilesInternal(path, recursive, folderFilter)
 }
 
 func ListFiles(path string, recursive bool) ([]*FileAsset, error) {

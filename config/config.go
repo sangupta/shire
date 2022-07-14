@@ -76,7 +76,7 @@ func ReadConfig(appConfig *app.AppConfig) (*ShireConfig, error) {
 
 	// now read file from disk
 	configFile := filepath.Join(appConfig.BaseFolder, "shire.config.json")
-	utils.Log("Reading config file: " + configFile)
+	utils.Info("Reading config file: " + configFile)
 	jsonFile, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		panic(err)

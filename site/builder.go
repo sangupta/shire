@@ -59,7 +59,7 @@ func scanTemplates(appConfig *app.AppConfig, siteConfig *config.ShireConfig, sit
 // and then push it into `SiteData` templates map
 func addTemplateDataToSite(siteData *SiteData, templateId string, baseFolder string, templateFolder string) {
 	folder := filepath.Join(baseFolder, templateFolder)
-	utils.Log("Scanning for template in folder: " + folder)
+	utils.Info("Scanning for template in folder: " + folder)
 	template, err := readTemplateFromFolder(templateId, folder)
 	if err != nil {
 		panic(err)
@@ -76,9 +76,9 @@ func scanPages(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteDat
 	// read all folders from the base folder
 	// and exclude all template folders from them
 	contentFolder := filepath.Join(appConfig.BaseFolder, siteConfig.ContentRoot)
-	utils.Log("Scanning for folders in content root: " + contentFolder)
+	utils.Info("Scanning for folders in content root: " + contentFolder)
 
-	folders, err := utils.ListChildFolders(contentFolder)
+	folders, err := utils.ListChildFolders(contentFolder, true)
 	if err != nil {
 		panic(err)
 	}
@@ -90,7 +90,7 @@ func scanPages(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteDat
 		}
 	}
 	siteData.PageFolders = folders
-	utils.Log("Total content folders found: " + strconv.Itoa(len(folders)))
+	utils.Info("Total content folders found: " + strconv.Itoa(len(folders)))
 
 	// now we can go ahead and read all files from these folders
 	readAllPagesForSite(appConfig, siteConfig, siteData, folders)
@@ -102,13 +102,13 @@ func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *config.ShireConfi
 	files := make([]*utils.FileAsset, 0)
 	for _, folder := range folders {
 		path := filepath.Join(folder.Path, folder.Name)
-		utils.Log("Scanning for content in folder: " + path)
+		utils.Info("Scanning for content in folder: " + path)
 		filesInFolder, err := utils.ListFilesExcludingFolders(path, false)
 		if err != nil {
 			panic(err)
 		}
 
-		utils.Log("  files found in folder: " + strconv.Itoa(len(filesInFolder)))
+		utils.Info("  files found in folder: " + strconv.Itoa(len(filesInFolder)))
 		files = append(files, filesInFolder...)
 	}
 
@@ -118,12 +118,13 @@ func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *config.ShireConfi
 
 // this function reads the front matter from each post/page
 func populatePageMetadata(appConfig *app.AppConfig, siteConfig *config.ShireConfig, siteData *SiteData) {
-	// for _, file := range siteData.AllPages {
-	// 	filePath := filepath.Join(appConfig.BaseFolder, file.Path, file.Name)
-	// 	metadata, err := ReadPageMetadata(filePath)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
+	for _, file := range siteData.AllPages {
+		filePath := filepath.Join(file.Path, file.Name)
+		// metadata, err := ReadPageMetadata(filePath)
+		// if err != nil {
+		// 	panic(err)
+		// }
 
-	// }
+		utils.Info("Reading front-matter from file: " + filePath)
+	}
 }
