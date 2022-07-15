@@ -14,9 +14,10 @@ package site
 //
 // Holds the details for a given template
 type Template struct {
-	Id        string // the provided template id
-	AbsPath   string // absolute path to the string
-	IndexFile string // the index file in the template folder
+	Id        string         // the provided template id
+	AbsPath   string         // absolute path to the string
+	IndexFile string         // the index file in the template folder
+	Markup    TemplateMarkup // defines the kind of markup the template uses
 }
 
 //
