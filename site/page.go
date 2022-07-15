@@ -24,9 +24,21 @@ import (
 type Page struct {
 	AbsPath  string           // absolute path to this page
 	Metadata *PageFrontMatter // front matter data associated wih this page
-	Content  string           // actual page contents
+	content  string           // actual page contents
 }
 
+func (page *Page) GetContent() string {
+	return page.content
+}
+
+//
+// Parse the given file contents into a `Page` object. This
+// includes parsing the page front-matter, and optionally, storing
+// and/or parsing the page contents. At no point in the system
+// should we assume that page contents are available. Outside
+// methods should use `GetContent()` method to ensure that they
+// always get the content, either from cache, or from disk.
+//
 func parsePage(filePath string, fileContent []byte) (*Page, error) {
 	time.Now()
 	// convert to lines
@@ -63,12 +75,19 @@ func parsePage(filePath string, fileContent []byte) (*Page, error) {
 	// create page
 	page := Page{
 		AbsPath:  filePath,
-		Content:  pageContent,
+		content:  pageContent,
 		Metadata: metadata,
 	}
 	return &page, nil
 }
 
+//
+// Method returns the build types that the page specifies.
+// These can be configured at the site level, and can then
+// be overridden in the page itself. As both site and page
+// can change over time, this method exists to provide exact
+// values just before rendering.
+//
 func (page *Page) GetBuildTypes(siteConfig *SiteConfig) []BuildType {
 	return []BuildType{HtmlFile}
 }
