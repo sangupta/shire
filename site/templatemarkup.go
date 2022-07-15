@@ -21,3 +21,16 @@ const (
 	HtmlTemplate TemplateMarkup = iota
 	Velocity
 )
+
+func (tm TemplateMarkup) String() string {
+	switch tm {
+	case HtmlTemplate:
+		return "html"
+
+	case Velocity:
+		return "velocity"
+
+	default:
+		return "unknown"
+	}
+}

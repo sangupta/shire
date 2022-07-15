@@ -22,3 +22,19 @@ const (
 	MarkdownPage
 	ReStructuredPage
 )
+
+func (pm PageMarkup) String() string {
+	switch pm {
+	case HtmlPage:
+		return "html"
+
+	case MarkdownPage:
+		return "markdown"
+
+	case ReStructuredPage:
+		return "restructured"
+
+	default:
+		return "unknown"
+	}
+}
