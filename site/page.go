@@ -12,7 +12,6 @@
 package site
 
 import (
-	"path/filepath"
 	"shire/utils"
 	"strconv"
 	"strings"
@@ -26,18 +25,6 @@ type Page struct {
 	AbsPath  string           // absolute path to this page
 	Metadata *PageFrontMatter // front matter data associated wih this page
 	Content  string           // actual page contents
-}
-
-//
-// Defines the front matter associated with a page
-//
-type PageFrontMatter struct {
-	Title        string // the title to page
-	Date         string // the page date
-	TemplateId   string // the template that this page uses
-	Draft        bool   // can this page be published?
-	PublishEpoch int64  // time when this page should publish
-	ExpiryEpoch  int64  // time when this page will expire
 }
 
 func parsePage(filePath string, fileContent []byte) (*Page, error) {
@@ -82,14 +69,6 @@ func parsePage(filePath string, fileContent []byte) (*Page, error) {
 	return &page, nil
 }
 
-func parsePageFrontMatter(filePath string, lines []string, endIndex int) (*PageFrontMatter, error) {
-	metadata := PageFrontMatter{
-		Title: filepath.Base(filePath),
-	}
-
-	if endIndex <= 0 {
-		return &metadata, nil
-	}
-
-	return &metadata, nil
+func (page *Page) GetBuildTypes(siteConfig *SiteConfig) []BuildType {
+	return []BuildType{HtmlFile}
 }

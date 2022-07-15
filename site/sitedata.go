@@ -15,7 +15,6 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	app "shire/app"
-	config "shire/config"
 	"shire/utils"
 	"strconv"
 
@@ -31,7 +30,7 @@ type SiteData struct {
 }
 
 // start building the site
-func ReadAndBuildSiteData(appConfig *app.AppConfig, siteConfig *config.SiteConfig) (*SiteData, error) {
+func ReadAndBuildSiteData(appConfig *app.AppConfig, siteConfig *SiteConfig) (*SiteData, error) {
 	siteData := SiteData{
 		Templates:       make(map[string]*Template),
 		TemplateFolders: mapset.NewSet[string](),
@@ -51,7 +50,7 @@ func ReadAndBuildSiteData(appConfig *app.AppConfig, siteConfig *config.SiteConfi
 }
 
 // This function scans for all templates in the site
-func scanTemplates(appConfig *app.AppConfig, siteConfig *config.SiteConfig, siteData *SiteData) {
+func scanTemplates(appConfig *app.AppConfig, siteConfig *SiteConfig, siteData *SiteData) {
 	// scan for all individual templates
 	if siteConfig.Templates != nil {
 		for _, template := range siteConfig.Templates {
@@ -76,7 +75,7 @@ func addTemplateDataToSite(siteData *SiteData, templateId string, baseFolder str
 }
 
 // this function scans for all files that will act as pages/posts in our site
-func scanPages(appConfig *app.AppConfig, siteConfig *config.SiteConfig, siteData *SiteData) {
+func scanPages(appConfig *app.AppConfig, siteConfig *SiteConfig, siteData *SiteData) {
 	// first we read all folders that we need
 	// read all folders from the base folder
 	// and exclude all template folders from them
@@ -102,7 +101,7 @@ func scanPages(appConfig *app.AppConfig, siteConfig *config.SiteConfig, siteData
 }
 
 // Function to read all pages from all folders that contain posts/pages
-func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *config.SiteConfig, siteData *SiteData, folders []*utils.FileAsset) {
+func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *SiteConfig, siteData *SiteData, folders []*utils.FileAsset) {
 	// for each folder, get all files in the folder
 	files := make([]*utils.FileAsset, 0)
 	for _, folder := range folders {
@@ -123,7 +122,7 @@ func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *config.SiteConfig
 
 // this function reads each content page
 // and extract its front-matter and content
-func scanPagesForMetadataAndContent(appConfig *app.AppConfig, siteConfig *config.SiteConfig, siteData *SiteData) {
+func scanPagesForMetadataAndContent(appConfig *app.AppConfig, siteConfig *SiteConfig, siteData *SiteData) {
 	// initialize page map
 	siteData.Pages = make(map[string]*Page, len(siteData.AllPages))
 

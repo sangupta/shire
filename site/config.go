@@ -9,7 +9,7 @@
  * that can be found in LICENSE file in the code repository.
  */
 
-package shire
+package site
 
 import (
 	"encoding/json"
@@ -56,15 +56,16 @@ type PublishOptions struct {
 
 // defines shire configuration
 type SiteConfig struct {
-	BaseUrl         string           // the base url to the site
-	Title           string           // the site wide title to use, if present
-	ContentRoot     string           // the root folder under which all content is scanned from
-	Author          Author           // the author to the site
-	DefaultTemplate string           // the ID of the default template, if any
-	Templates       []TemplateConfig // array of templates that can be used
-	Output          OutputOptions    // options to cutomize site output
-	Build           BuildOptions     // options for building
-	Publish         PublishOptions   // options for publishing
+	BaseUrl         string            // the base url to the site
+	Title           string            // the site wide title to use, if present
+	ContentRoot     string            // the root folder under which all content is scanned from
+	Author          Author            // the author to the site
+	DefaultTemplate string            // the ID of the default template, if any
+	Templates       []TemplateConfig  // array of templates that can be used
+	Output          OutputOptions     // options to cutomize site output
+	Build           BuildOptions      // options for building
+	Publish         PublishOptions    // options for publishing
+	FrontMatter     FrontMatterSyntax // syntax to use to parse front-matter
 }
 
 // read and return the config instance

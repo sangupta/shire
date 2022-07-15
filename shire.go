@@ -14,7 +14,6 @@ package main
 import (
 	"fmt"
 	app "shire/app"
-	config "shire/config"
 	site "shire/site"
 	"shire/utils"
 	"time"
@@ -40,7 +39,7 @@ func runShire() {
 	utils.LogObject(appConfig)
 
 	// read shire.json config file
-	siteConfig, err := config.ReadConfig(appConfig)
+	siteConfig, err := site.ReadConfig(appConfig)
 	if err != nil {
 		panic(err)
 	}
