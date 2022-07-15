@@ -7,4 +7,5 @@ It is similar to [Hugo], [Zola], [Jekyll] and others.
 
 # License
 
-MIT license. Copyright (C) 2022, Sandeep Gupta.
+MIT License.
+Copyright (c) 2022 Sandeep Gupta.
