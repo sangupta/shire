@@ -11,14 +11,14 @@
 
 package site
 
-type Markup int64
+type PageMarkup int64
 
 //
 // Defines the enums to be used as Markup.
 // Strongly-type the content format the page uses.
 //
 const (
-	Html Markup = iota
-	Markdown
-	ReStructured
+	HtmlPage PageMarkup = iota
+	MarkdownPage
+	ReStructuredPage
 )

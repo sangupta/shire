@@ -32,3 +32,6 @@ target/*
 /target/
 test-site/
 go.sum
+
+# holds temp rough thoughts
+notes.md

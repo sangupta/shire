@@ -24,7 +24,7 @@ type PageFrontMatter struct {
 	Draft        bool              // can this page be published?
 	PublishEpoch int64             // time when this page should publish
 	ExpiryEpoch  int64             // time when this page will expire
-	PageFormat   Markup            // specifies if page uses markdown, html or some other format
+	PageFormat   PageMarkup        // specifies if page uses markdown, html or some other format
 	LinkTitle    string            // (optional) title to use when linking this page, instead of title
 	Series       string            // does this post belong to a series?
 	Summary      string            // summary for this page pre-defined by user
