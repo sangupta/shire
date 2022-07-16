@@ -14,7 +14,8 @@ package site
 import (
 	"io/ioutil"
 	"path/filepath"
-	app "shire/app"
+	"shire/app"
+	"shire/template"
 	"shire/utils"
 	"strconv"
 
@@ -22,17 +23,17 @@ import (
 )
 
 type SiteData struct {
-	Templates       map[string]*Template // map of templateID and template data
-	TemplateFolders mapset.Set[string]   // Set of all folders that contain a template
-	PageFolders     []*utils.FileAsset   // all child folders that are scanned for pages/posts
-	AllPages        []*utils.FileAsset   // reference to all files that act as pages/posts
-	Pages           map[string]*Page     // map of each page
+	Templates       map[string]*template.Template // map of templateID and template data
+	TemplateFolders mapset.Set[string]            // Set of all folders that contain a template
+	PageFolders     []*utils.FileAsset            // all child folders that are scanned for pages/posts
+	AllPages        []*utils.FileAsset            // reference to all files that act as pages/posts
+	Pages           map[string]*Page              // map of each page
 }
 
 // start building the site
 func ReadAndBuildSiteData(appConfig *app.AppConfig, siteConfig *SiteConfig) (*SiteData, error) {
 	siteData := SiteData{
-		Templates:       make(map[string]*Template),
+		Templates:       make(map[string]*template.Template),
 		TemplateFolders: mapset.NewSet[string](),
 	}
 
@@ -64,7 +65,7 @@ func scanTemplates(appConfig *app.AppConfig, siteConfig *SiteConfig, siteData *S
 func addTemplateDataToSite(siteData *SiteData, templateId string, baseFolder string, templateFolder string) {
 	folder := filepath.Join(baseFolder, templateFolder)
 	utils.Info("Scanning for template in folder: " + folder)
-	template, err := scanTemplateInFolder(templateId, folder)
+	template, err := template.ScanTemplateInFolder(templateId, folder)
 	if err != nil {
 		panic(err)
 	}

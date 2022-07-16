@@ -16,7 +16,11 @@ import (
 )
 
 //
-// This method builds the entire site.
+// This method builds the entire site. This assumes
+// that a valid `SiteConfig` is available. It also
+// requires that the scanning based on this `SiteConfig`
+// is complete, and that all data has been populated in
+// `SiteData` object.
 //
 func BuildSite(siteConfig *SiteConfig, siteData *SiteData) {
 	// read all templates that have been used
@@ -24,12 +28,17 @@ func BuildSite(siteConfig *SiteConfig, siteData *SiteData) {
 		template.ReadTemplate()
 	}
 
+	// build the siteModel object that will be used
+	// when merging
+	// siteModel := buildSiteModel(siteConfig, siteData)
+
 	// now for each page, build page
 	for _, pageFile := range siteData.AllPages {
 
 		// find page object
 		pageObject := siteData.Pages[pageFile.Id]
 
+		// now build this page
 		buildPage(siteConfig, siteData, pageFile, pageObject)
 	}
 }
@@ -70,6 +79,11 @@ func buildPage(siteConfig *SiteConfig, siteData *SiteData, pageFile *utils.FileA
 		utils.Info("Page did not return any build type: " + pageObject.AbsPath)
 		return
 	}
+
+	// find out what we need to invoke
+	templateFormat := template.Markup
+	pageFormat := pageObject.Metadata.PageFormat
+	utils.Debug("Page format: " + pageFormat.String() + " and template format: " + templateFormat.String() + " for page: " + pageObject.AbsPath + "")
 
 	// now for each build type, we execute the right renderer
 	for _, buildType := range buildTypes {
