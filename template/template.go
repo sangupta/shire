@@ -53,34 +53,11 @@ func (template *Template) ReadTemplate() {
 	// check markup type
 	switch template.Markup {
 	case HtmlTemplate:
-		template.Content = parseHtmlTemplate(template.AbsPath)
+		content := parseHtmlTemplate(template.AbsPath)
+		template.Content = &content
 		return
 
 	default:
 		panic(errors.New("Unknown markup in template"))
 	}
-}
-
-func parseHtmlTemplate(filePath string) *ParsedTemplate {
-	// fileBytes, err := ioutil.ReadFile(filePath)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// reader := bytes.NewReader(fileBytes)
-
-	// // create html doc
-	// doc, err := goquery.NewDocumentFromReader(reader)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// // find all imports and import them too
-	// parsed := &template.HtmlParsedTemplate{
-	// 	Document: doc,
-	// }
-
-	// return parsed
-
-	return nil
 }
