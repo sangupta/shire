@@ -41,7 +41,14 @@ type Template struct {
 // template contents and/or for data-merge to produce pages.
 //
 func ScanTemplateInFolder(id string, absFolder string) (*Template, error) {
-	return nil, nil
+	template := Template{
+		Id:        id,
+		AbsPath:   absFolder,
+		IndexFile: "index.html",
+		Markup:    UnknownTemplateMarkup,
+	}
+
+	return &template, nil
 }
 
 //
@@ -52,7 +59,7 @@ func ScanTemplateInFolder(id string, absFolder string) (*Template, error) {
 func (template *Template) ReadTemplate() {
 	// check markup type
 	switch template.Markup {
-	case HtmlTemplate:
+	case HtmlTemplateMarkup:
 		content := parseHtmlTemplate(template.AbsPath)
 		template.Content = &content
 		return

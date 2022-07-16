@@ -16,7 +16,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"shire/app"
-	"shire/utils"
+	"shire/logger"
 )
 
 // holds information about site author
@@ -81,7 +81,7 @@ func ReadConfig(appConfig *app.AppConfig) (*SiteConfig, error) {
 
 	// now read file from disk
 	configFile := filepath.Join(appConfig.BaseFolder, "shire.config.json")
-	utils.Info("Reading config file: " + configFile)
+	logger.Info("Reading config file: " + configFile)
 	jsonFile, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		panic(err)

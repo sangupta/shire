@@ -14,8 +14,8 @@ package main
 import (
 	"fmt"
 	app "shire/app"
+	"shire/logger"
 	site "shire/site"
-	"shire/utils"
 	"time"
 )
 
@@ -36,14 +36,14 @@ func runShire() {
 	if err != nil {
 		panic(err)
 	}
-	utils.LogObject(appConfig)
+	logger.LogObject(appConfig)
 
 	// read shire.json config file
 	siteConfig, err := site.ReadConfig(appConfig)
 	if err != nil {
 		panic(err)
 	}
-	utils.LogObject(siteConfig)
+	logger.LogObject(siteConfig)
 
 	// for any step of the following, the first is to read and build site data
 	// `build`: build the prod mode site

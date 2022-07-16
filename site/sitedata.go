@@ -15,6 +15,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"shire/app"
+	"shire/logger"
 	"shire/template"
 	"shire/utils"
 	"strconv"
@@ -64,7 +65,7 @@ func scanTemplates(appConfig *app.AppConfig, siteConfig *SiteConfig, siteData *S
 // and then push it into `SiteData` templates map
 func addTemplateDataToSite(siteData *SiteData, templateId string, baseFolder string, templateFolder string) {
 	folder := filepath.Join(baseFolder, templateFolder)
-	utils.Info("Scanning for template in folder: " + folder)
+	logger.Info("Scanning for template in folder: " + folder)
 	template, err := template.ScanTemplateInFolder(templateId, folder)
 	if err != nil {
 		panic(err)
@@ -81,7 +82,7 @@ func scanPages(appConfig *app.AppConfig, siteConfig *SiteConfig, siteData *SiteD
 	// read all folders from the base folder
 	// and exclude all template folders from them
 	contentFolder := filepath.Join(appConfig.BaseFolder, siteConfig.ContentRoot)
-	utils.Info("Scanning for folders in content root: " + contentFolder)
+	logger.Info("Scanning for folders in content root: " + contentFolder)
 
 	folders, err := utils.ListChildFolders(contentFolder, true)
 	if err != nil {
@@ -95,7 +96,7 @@ func scanPages(appConfig *app.AppConfig, siteConfig *SiteConfig, siteData *SiteD
 		}
 	}
 	siteData.PageFolders = folders
-	utils.Info("Total content folders found: " + strconv.Itoa(len(folders)))
+	logger.Info("Total content folders found: " + strconv.Itoa(len(folders)))
 
 	// now we can go ahead and read all files from these folders
 	readAllPagesForSite(appConfig, siteConfig, siteData, folders)
@@ -107,13 +108,13 @@ func readAllPagesForSite(appConfig *app.AppConfig, siteConfig *SiteConfig, siteD
 	files := make([]*utils.FileAsset, 0)
 	for _, folder := range folders {
 		path := filepath.Join(folder.Path, folder.Name)
-		utils.Info("Scanning for content in folder: " + path)
+		logger.Info("Scanning for content in folder: " + path)
 		filesInFolder, err := utils.ListFilesExcludingFolders(path, false)
 		if err != nil {
 			panic(err)
 		}
 
-		utils.Info("  files found in folder: " + strconv.Itoa(len(filesInFolder)))
+		logger.Info("  files found in folder: " + strconv.Itoa(len(filesInFolder)))
 		files = append(files, filesInFolder...)
 	}
 
@@ -132,7 +133,7 @@ func scanPagesForMetadataAndContent(appConfig *app.AppConfig, siteConfig *SiteCo
 		filePath := filepath.Join(file.Path, file.Name)
 
 		// read file content
-		utils.Info("Reading file contents: " + filePath)
+		logger.Info("Reading file contents: " + filePath)
 		fileContent, err := ioutil.ReadFile(filePath)
 		if err != nil {
 			panic(err)

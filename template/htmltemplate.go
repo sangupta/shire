@@ -3,7 +3,7 @@ package template
 import (
 	"bytes"
 	"io/ioutil"
-	"shire/utils"
+	"shire/logger"
 
 	"github.com/PuerkitoBio/goquery"
 	"golang.org/x/net/html"
@@ -57,7 +57,7 @@ func includeImports(doc *goquery.Document, path string) {
 	for _, node := range selection.Nodes {
 		src := getAttribute(node, "src")
 		if src == "" {
-			utils.Warn("File specifies shire:import but does not have 'src' attribute: " + path)
+			logger.Warn("File specifies shire:import but does not have 'src' attribute: " + path)
 			continue
 		}
 	}

@@ -9,7 +9,7 @@
  * that can be found in LICENSE file in the code repository.
  */
 
-package utils
+package logger
 
 import "fmt"
 

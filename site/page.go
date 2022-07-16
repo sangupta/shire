@@ -12,7 +12,7 @@
 package site
 
 import (
-	"shire/utils"
+	"shire/logger"
 	"strconv"
 	"strings"
 	"time"
@@ -45,7 +45,7 @@ func parsePage(filePath string, fileContent []byte) (*Page, error) {
 	lines := strings.Split(string(fileContent), "\n")
 
 	// extract the front matter
-	utils.Debug("Reading front-matter from file: " + filePath)
+	logger.Debug("Reading front-matter from file: " + filePath)
 	frontMatterEndIndex := -1
 	for index, line := range lines {
 		if strings.HasPrefix(line, "---") {
@@ -60,7 +60,7 @@ func parsePage(filePath string, fileContent []byte) (*Page, error) {
 	}
 
 	// did we find front matter?
-	utils.Debug("Front-matter ends at line: " + strconv.Itoa(frontMatterEndIndex))
+	logger.Debug("Front-matter ends at line: " + strconv.Itoa(frontMatterEndIndex))
 
 	// now parse the front-matter
 	var metadata *PageFrontMatter

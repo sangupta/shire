@@ -12,6 +12,7 @@
 package site
 
 import (
+	"shire/logger"
 	"shire/utils"
 )
 
@@ -63,27 +64,27 @@ func buildPage(siteConfig *SiteConfig, siteData *SiteData, pageFile *utils.FileA
 	// find the template that this page uses
 	templateToUse := pageObject.Metadata.TemplateId
 	if templateToUse == "" && siteConfig.DefaultTemplate == "" {
-		utils.Warn("Page has no template and no default template specified: " + pageObject.AbsPath)
+		logger.Warn("Page has no template and no default template specified: " + pageObject.AbsPath)
 		return
 	}
 
 	template := siteData.Templates[templateToUse]
 	if template == nil {
-		utils.Error("No template found as specified in page: " + pageObject.AbsPath)
+		logger.Error("No template found as specified in page: " + pageObject.AbsPath)
 		return
 	}
 
 	// get valid build types for this page
 	buildTypes := pageObject.GetBuildTypes(siteConfig)
 	if len(buildTypes) == 0 {
-		utils.Info("Page did not return any build type: " + pageObject.AbsPath)
+		logger.Info("Page did not return any build type: " + pageObject.AbsPath)
 		return
 	}
 
 	// find out what we need to invoke
 	templateFormat := template.Markup
 	pageFormat := pageObject.Metadata.PageFormat
-	utils.Debug("Page format: " + pageFormat.String() + " and template format: " + templateFormat.String() + " for page: " + pageObject.AbsPath + "")
+	logger.Debug("Page format: " + pageFormat.String() + " and template format: " + templateFormat.String() + " for page: " + pageObject.AbsPath + "")
 
 	// now for each build type, we execute the right renderer
 	for _, buildType := range buildTypes {

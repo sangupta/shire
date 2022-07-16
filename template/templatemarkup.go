@@ -18,16 +18,17 @@ type TemplateMarkup int64
 // Strongly-type the template format the page uses.
 //
 const (
-	HtmlTemplate TemplateMarkup = iota
-	Velocity
+	UnknownTemplateMarkup TemplateMarkup = iota
+	HtmlTemplateMarkup
+	VelocityTemplateMarkup
 )
 
 func (tm TemplateMarkup) String() string {
 	switch tm {
-	case HtmlTemplate:
+	case HtmlTemplateMarkup:
 		return "html"
 
-	case Velocity:
+	case VelocityTemplateMarkup:
 		return "velocity"
 
 	default:
