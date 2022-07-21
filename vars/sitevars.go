@@ -1,6 +1,6 @@
 package vars
 
-import "shire/site"
+import "github.com/sangupta/shire/site"
 
 //
 // the variables model that is populated

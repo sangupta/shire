@@ -13,6 +13,7 @@ package template
 
 import (
 	"errors"
+	"path/filepath"
 )
 
 //
@@ -45,7 +46,7 @@ func ScanTemplateInFolder(id string, absFolder string) (*Template, error) {
 		Id:        id,
 		AbsPath:   absFolder,
 		IndexFile: "index.html",
-		Markup:    UnknownTemplateMarkup,
+		Markup:    HtmlTemplateMarkup,
 	}
 
 	return &template, nil
@@ -60,7 +61,8 @@ func (template *Template) ReadTemplate() {
 	// check markup type
 	switch template.Markup {
 	case HtmlTemplateMarkup:
-		content := parseHtmlTemplate(template.AbsPath)
+		htmlFile := filepath.Join(template.AbsPath, template.IndexFile)
+		content := parseHtmlTemplate(htmlFile)
 		template.Content = &content
 		return
 

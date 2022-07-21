@@ -15,8 +15,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
-	"shire/app"
-	"shire/logger"
+
+	"github.com/sangupta/shire/app"
+	"github.com/sangupta/shire/logger"
 )
 
 // holds information about site author

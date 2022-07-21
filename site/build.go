@@ -12,8 +12,8 @@
 package site
 
 import (
-	"shire/logger"
-	"shire/utils"
+	"github.com/sangupta/shire/logger"
+	"github.com/sangupta/shire/utils"
 )
 
 //

@@ -12,10 +12,11 @@
 package site
 
 import (
-	"shire/logger"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/sangupta/shire/logger"
 )
 
 //

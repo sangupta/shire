@@ -14,11 +14,12 @@ package site
 import (
 	"io/ioutil"
 	"path/filepath"
-	"shire/app"
-	"shire/logger"
-	"shire/template"
-	"shire/utils"
 	"strconv"
+
+	"github.com/sangupta/shire/app"
+	"github.com/sangupta/shire/logger"
+	"github.com/sangupta/shire/template"
+	"github.com/sangupta/shire/utils"
 
 	mapset "github.com/deckarep/golang-set/v2"
 )
