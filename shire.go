@@ -12,68 +12,22 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/sangupta/shire/app"
-	"github.com/sangupta/shire/lhtml"
 	"github.com/sangupta/shire/logger"
 	"github.com/sangupta/shire/site"
-
-	"golang.org/x/net/html"
 )
 
-func main() {
-	htmlString := "<html><head><pageTitle></pageTitle><shire:page /></head><body>hello world<div>world</div><div>may be</div></body></html>"
-	htmlString = "<html class='test'><head /><title id='title'>Hello World</title>Hello, World!</html>"
-	htmlString = "<html class='test' class='test1' expr:m='hello'>Hello World <shire:pageTitle /></html>"
-	// htmlString = "Hello world <div>sangupta</div>"
-
-	doc, err := lhtml.ParseHtmlString(htmlString)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	if doc == nil {
-		fmt.Println("document is nil")
-		return
-	}
-
-	j, _ := json.MarshalIndent(doc, "", "  ")
-	fmt.Print("Size of json bytes: ")
-	fmt.Println(len(j))
-	fmt.Println(string(j))
-
-	// visitor := func(node *html.Node) {
-	// 	if node.Parent != nil {
-	// 		fmt.Println(node.Data + " with parent " + node.Parent.Data)
-	// 	} else {
-	// 		fmt.Println(node.Data)
-	// 	}
-	// }
-
-	// doc.Traverse(visitor)
-}
-
-func run(n *html.Node) {
-	if n == nil {
-		return
-	}
-
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.ElementNode {
-			fmt.Println(c.Data)
-		}
-
-		run(c)
-	}
-}
-
 //
-// the main entry point to Shire.
-func main1() {
+// The main entry point to Shire application.
+// Shire - a simple static site generator.
+//
+// This method starts the execution of the shire app
+// while measuring the time it takes from start to end.
+//
+func main() {
 	start := time.Now()
 	runShire()
 	duration := time.Since(start)
